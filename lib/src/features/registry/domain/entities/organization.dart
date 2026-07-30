@@ -1,5 +1,6 @@
 import 'registry_enums.dart';
 
+/// Central governing organization that owns the Pathshala ecosystem.
 abstract class Organization {
   const Organization();
 

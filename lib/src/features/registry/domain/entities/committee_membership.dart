@@ -1,5 +1,6 @@
 import 'registry_enums.dart';
 
+/// Person's historical participation in a governance committee.
 abstract class CommitteeMembership {
   const CommitteeMembership();
 
@@ -11,6 +12,7 @@ abstract class CommitteeMembership {
   DateTime? get effectiveTo;
   CommitteeMembershipStatus get status;
 
+  /// Checks whether this membership is active on a specific business date.
   bool isActiveOn(DateTime date) {
     final startsOnOrBeforeDate = !effectiveFrom.isAfter(date);
     final hasNotEnded = effectiveTo == null || !effectiveTo!.isBefore(date);

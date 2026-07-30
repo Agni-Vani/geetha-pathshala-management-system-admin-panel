@@ -1,5 +1,6 @@
 import 'registry_enums.dart';
 
+/// Root human identity for every student, teacher, admin, or committee member.
 abstract class Person {
   const Person();
 
@@ -16,6 +17,7 @@ abstract class Person {
   DateTime get createdAt;
   DateTime get updatedAt;
 
+  /// Preferred display label while preserving legal name as registry truth.
   String get displayName {
     final normalizedPreferredName = preferredName?.trim();
     if (normalizedPreferredName != null && normalizedPreferredName.isNotEmpty) {

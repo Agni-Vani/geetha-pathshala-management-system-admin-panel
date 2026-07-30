@@ -1,5 +1,6 @@
 import 'registry_enums.dart';
 
+/// Contact method or emergency contact detail attached to a registered person.
 abstract class PersonContact {
   const PersonContact();
 
@@ -11,5 +12,6 @@ abstract class PersonContact {
   bool get isPrimary;
   DateTime? get verifiedAt;
 
+  /// Whether the contact channel has completed verification.
   bool get isVerified => verifiedAt != null;
 }
