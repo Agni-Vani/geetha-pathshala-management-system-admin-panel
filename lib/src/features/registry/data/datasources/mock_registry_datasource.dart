@@ -36,7 +36,7 @@ final class MockRegistryDatasource implements RegistryDatasource {
   @override
   Future<List<PersonModel>> searchPeople(SearchPeopleParams params) async {
     await _simulateProcessing();
-    final query = params.query.trim().toLowerCase();
+    final query = params.query?.trim().toLowerCase();
     final phone = params.phone?.trim().toLowerCase();
     final email = params.email?.trim().toLowerCase();
 
@@ -44,6 +44,7 @@ final class MockRegistryDatasource implements RegistryDatasource {
       if (person.organizationId != params.organizationId) return false;
 
       final nameMatches =
+          query == null ||
           query.isEmpty ||
           person.legalName.toLowerCase().contains(query) ||
           (person.preferredName?.toLowerCase().contains(query) ?? false);
@@ -63,7 +64,7 @@ final class MockRegistryDatasource implements RegistryDatasource {
     }).toList();
 
     results.sort((a, b) => a.legalName.compareTo(b.legalName));
-    return results.take(params.limit).toList(growable: false);
+    return results.take(params.pageSize).toList(growable: false);
   }
 
   @override

@@ -11,38 +11,51 @@ final class SupabaseCommunicationDatasource
   SupabaseCommunicationDatasource({SupabaseClient? client})
       : client = client ?? Supabase.instance.client;
 
+  Future<dynamic> _invoke(String action, Map<String, dynamic> body) async {
+    final response = await client.functions.invoke(
+      'communication-api',
+      body: {'action': action, ...body},
+    );
+    if (response.status != 200) {
+      throw StateError('Edge Function error: ${response.data}');
+    }
+    return response.data;
+  }
+
   @override
   Future<NoticeModel> publishNotice(PublishNoticeParams params) async {
-    final response = await client
-        .schema('communication')
-        .from('notices')
-        .insert({
-          'organization_id': params.organizationId,
-          'pathshala_id': params.pathshalaId,
-          'title': params.title,
-          'content': params.content,
-          'status': 'published',
-          'published_at': DateTime.now().toIso8601String(),
-          'created_by_user_id': params.createdByUserId,
-        })
-        .select()
-        .single();
-    return NoticeModel.fromJson(response);
+    final data = await _invoke('publishNotice', {
+      'organizationId': params.organizationId,
+      'pathshalaId': params.pathshalaId,
+      'title': params.title,
+      'content': params.content,
+      'createdByUserId': params.createdByUserId,
+      'targets':
+          params.targets
+              .map(
+                (t) => {
+                  'targetType': t.targetType.name,
+                  'targetId': t.targetId,
+                },
+              )
+              .toList(),
+    });
+    return NoticeModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<NoticeModel>> getNotices(GetNoticesParams params) async {
-    var query = client
-        .schema('communication')
-        .from('notices')
-        .select()
-        .eq('organization_id', params.organizationId);
-
-    if (params.pathshalaId != null) {
-      query = query.eq('pathshala_id', params.pathshalaId!);
-    }
-    final response = await query;
-    return (response as List)
+    final data = await _invoke('getNotices', {
+      'organizationId': params.organizationId,
+      'pathshalaId': params.pathshalaId,
+      'page': params.page,
+      'pageSize': params.pageSize,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map((json) => NoticeModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
@@ -51,28 +64,22 @@ final class SupabaseCommunicationDatasource
   Future<NoticeReadReceiptModel> recordReadReceipt(
     RecordReadReceiptParams params,
   ) async {
-    final response = await client
-        .schema('communication')
-        .from('notice_read_receipts')
-        .insert({
-          'notice_id': params.noticeId,
-          'person_id': params.personId,
-          'user_account_id': params.userAccountId,
-          'read_at': DateTime.now().toIso8601String(),
-        })
-        .select()
-        .single();
-    return NoticeReadReceiptModel.fromJson(response);
+    final data = await _invoke('recordReadReceipt', {
+      'noticeId': params.noticeId,
+      'personId': params.personId,
+      'userAccountId': params.userAccountId,
+    });
+    return NoticeReadReceiptModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<NoticeTargetModel>> getNoticeTargets(String noticeId) async {
-    final response = await client
-        .schema('communication')
-        .from('notice_targets')
-        .select()
-        .eq('notice_id', noticeId);
-    return (response as List)
+    final data = await _invoke('getNoticeTargets', {'noticeId': noticeId});
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map((json) => NoticeTargetModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
