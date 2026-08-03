@@ -57,6 +57,11 @@ final class RegistryRepositoryImpl
   }
 
   @override
+  AsyncRequest<Pathshala> createPathshala(CreatePathshalaParams params) {
+    return _request(() => datasource.createPathshala(params));
+  }
+
+  @override
   AsyncRequest<List<Committee>> listCommittees(ListCommitteesParams params) {
     return _request(() => datasource.listCommittees(params));
   }

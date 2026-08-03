@@ -13,4 +13,8 @@ abstract interface class EducationRepository {
   );
   AsyncRequest<List<AttendanceRecord>> getSessionAttendance(String sessionId);
   AsyncRequest<List<AcademicYear>> listAcademicYears(String organizationId);
+  AsyncRequest<TeacherProfile> createTeacherProfile(
+    CreateTeacherProfileParams params,
+  );
+  AsyncRequest<TeacherAssignment> assignTeacher(AssignTeacherParams params);
 }

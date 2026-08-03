@@ -1,3 +1,4 @@
+export 'create_pathshala.dart';
 export 'create_person.dart';
 export 'get_committee_by_id.dart';
 export 'get_organization.dart';

@@ -27,6 +27,9 @@ abstract interface class RegistryDatasource {
   /// Returns a Pathshala model by ID.
   Future<PathshalaModel> getPathshalaById(String pathshalaId);
 
+  /// Creates a new Pathshala model in backing source.
+  Future<PathshalaModel> createPathshala(CreatePathshalaParams params);
+
   /// Lists governance committees using optional filters.
   Future<List<CommitteeModel>> listCommittees(ListCommitteesParams params);
 
