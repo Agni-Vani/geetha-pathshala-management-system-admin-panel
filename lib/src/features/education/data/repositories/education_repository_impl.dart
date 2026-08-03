@@ -47,6 +47,18 @@ final class EducationRepositoryImpl
     return _request(() => datasource.listAcademicYears(organizationId));
   }
 
+  @override
+  AsyncRequest<TeacherProfile> createTeacherProfile(
+    CreateTeacherProfileParams params,
+  ) {
+    return _request(() => datasource.createTeacherProfile(params));
+  }
+
+  @override
+  AsyncRequest<TeacherAssignment> assignTeacher(AssignTeacherParams params) {
+    return _request(() => datasource.assignTeacher(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {

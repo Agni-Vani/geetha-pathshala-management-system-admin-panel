@@ -11,6 +11,8 @@ final class MockEducationDatasource implements EducationDatasource {
   final List<EducationalGroupModel> _groups;
   final List<AttendanceSessionModel> _sessions;
   final List<AttendanceRecordModel> _records;
+  final List<TeacherProfileModel> _teacherProfiles;
+  final List<TeacherAssignmentModel> _teacherAssignments;
 
   MockEducationDatasource({
     this.processingDelay = const Duration(milliseconds: 300),
@@ -19,7 +21,9 @@ final class MockEducationDatasource implements EducationDatasource {
        _transfers = [],
        _groups = _seedGroups(),
        _sessions = [],
-       _records = [];
+       _records = [],
+       _teacherProfiles = [],
+       _teacherAssignments = [];
 
   @override
   Future<StudentAdmissionModel> admitStudent(AdmitStudentParams params) async {
@@ -118,6 +122,40 @@ final class MockEducationDatasource implements EducationDatasource {
     return _academicYears
         .where((ay) => ay.organizationId == organizationId)
         .toList();
+  }
+
+  @override
+  Future<TeacherProfileModel> createTeacherProfile(
+    CreateTeacherProfileParams params,
+  ) async {
+    await _simulateProcessing();
+    final profile = TeacherProfileModel(
+      id: 'teacher-${DateTime.now().millisecondsSinceEpoch}',
+      personId: params.personId,
+      organizationId: params.organizationId,
+      status: TeacherStatus.active,
+      joinedDate: DateTime.now(),
+    );
+    _teacherProfiles.add(profile);
+    return profile;
+  }
+
+  @override
+  Future<TeacherAssignmentModel> assignTeacher(
+    AssignTeacherParams params,
+  ) async {
+    await _simulateProcessing();
+    final assignment = TeacherAssignmentModel(
+      id: 'assign-${DateTime.now().millisecondsSinceEpoch}',
+      teacherProfileId: params.teacherProfileId,
+      pathshalaId: params.pathshalaId,
+      groupId: params.groupId,
+      role: params.role,
+      effectiveFrom: params.effectiveFrom,
+      effectiveTo: params.effectiveTo,
+    );
+    _teacherAssignments.add(assignment);
+    return assignment;
   }
 
   Future<void> _simulateProcessing() async {

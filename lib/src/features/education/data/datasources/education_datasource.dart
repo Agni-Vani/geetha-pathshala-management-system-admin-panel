@@ -12,4 +12,8 @@ abstract class EducationDatasource {
   );
   Future<List<AttendanceRecordModel>> getSessionAttendance(String sessionId);
   Future<List<AcademicYearModel>> listAcademicYears(String organizationId);
+  Future<TeacherProfileModel> createTeacherProfile(
+    CreateTeacherProfileParams params,
+  );
+  Future<TeacherAssignmentModel> assignTeacher(AssignTeacherParams params);
 }

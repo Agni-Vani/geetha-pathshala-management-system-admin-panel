@@ -29,6 +29,33 @@ void main() {
       expect(success.data.rollNumber, equals('DH-2026-002'));
     });
 
+    test('createTeacherProfile creates a teacher profile', () async {
+      final response = await repository.createTeacherProfile(
+        const CreateTeacherProfileParams(
+          personId: 'person-anirban-sen',
+          organizationId: 'org-gp-central',
+        ),
+      );
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.personId, equals('person-anirban-sen'));
+    });
+
+    test('assignTeacher creates a teacher assignment', () async {
+      final response = await repository.assignTeacher(
+        AssignTeacherParams(
+          teacherProfileId: 'teacher-001',
+          pathshalaId: 'pathshala-dhaka-central',
+          groupId: 'group-gita-basic-01',
+          role: 'Lead Teacher',
+          effectiveFrom: DateTime.now(),
+        ),
+      );
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.role, equals('Lead Teacher'));
+    });
+
     test('listEducationalGroups returns matching groups', () async {
       final response = await repository.listEducationalGroups(
         const ListGroupsParams(pathshalaId: 'pathshala-dhaka-central'),

@@ -178,6 +178,42 @@ final class MockRegistryDatasource implements RegistryDatasource {
   }
 
   @override
+  Future<PathshalaModel> createPathshala(CreatePathshalaParams params) async {
+    await _simulateProcessing();
+    final now = DateTime.now();
+    final addressModel = PathshalaAddressModel(
+      addressLine1: params.address.addressLine1,
+      addressLine2: params.address.addressLine2,
+      city: params.address.city,
+      region: params.address.region,
+      country: params.address.country,
+      postalCode: params.address.postalCode,
+    );
+    final coordModel = params.coordinate != null
+        ? GeoCoordinateModel(
+            latitude: params.coordinate!.latitude,
+            longitude: params.coordinate!.longitude,
+          )
+        : null;
+
+    final pathshala = PathshalaModel(
+      id: 'pathshala-${DateTime.now().millisecondsSinceEpoch}',
+      organizationId: params.organizationId,
+      code: params.code,
+      name: params.name,
+      status: PathshalaStatus.active,
+      address: addressModel,
+      coordinate: coordModel,
+      startedOn: params.startedOn ?? now,
+      closedOn: null,
+      createdAt: now,
+      updatedAt: now,
+    );
+    _pathshalas.add(pathshala);
+    return pathshala;
+  }
+
+  @override
   Future<List<CommitteeModel>> listCommittees(
     ListCommitteesParams params,
   ) async {
