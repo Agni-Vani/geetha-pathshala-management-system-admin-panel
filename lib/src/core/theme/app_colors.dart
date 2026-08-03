@@ -28,18 +28,18 @@ class AppColors {
     required this.enabledBorderColor,
   });
 
-  static const Color _primaryColor = Color(0xFF00696D);
-  static const Color _darkPrimaryColor = Color(0xFF4FD3D8);
-  static const Color _secondaryContainerColor = Color(0xFFD5ECEA);
-  static const Color _darkSecondaryContainerColor = Color(0xff324b4d);
+  static const Color _primaryColor = Color(0xFFff961c);
+  static const Color _darkPrimaryColor = Color(0xFFff961c);
+  static const Color _secondaryContainerColor = Color(0xfff4ede3);
+  static const Color _darkSecondaryContainerColor = Color(0xfff4ede3);
   static const Color _surfaceColor = Color(0xFFFAFCFB);
   static const Color _darkSurfaceColor = Color(0xFF071212);
   static const Color _backgroundColor = Color.fromARGB(255, 255, 255, 255);
   static const Color _errorColor = Color(0xFFBA1A1A);
   static const Color _splashColor = Color(0x2939AEB2);
   static const Color _hintBaseColor = Color(0xFF6E7F80);
-  static const Color _iconBaseColor = Color(0xFF00696D);
-  static const Color _darkIconBaseColor = Color(0xFF4FD3D8);
+  static const Color _iconBaseColor = Color(0xFFff961c);
+  static const Color _darkIconBaseColor = Color(0xFFff961c);
   static const Color _bottomNavColor = Color(0xFFFAFCFB);
   static const Color _darkBottomNavColor = Color(0xFF071212);
   static const Color _unselectedLabelColor = Color(0xFF657576);
