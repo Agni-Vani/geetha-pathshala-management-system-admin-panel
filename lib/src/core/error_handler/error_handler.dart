@@ -39,7 +39,7 @@ mixin class ErrorHandler {
     return error;
   }
 
-  String _friendlyStatusMessage(int? statusCode, String responseMessage) {
+  String getFriendlyStatusMessage(int? statusCode, String responseMessage) {
     switch (statusCode) {
       case 400:
         return 'The request could not be completed.';

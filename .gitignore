@@ -43,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Agentic guidelines (local only)
+agentic_development_guideline.md
+
