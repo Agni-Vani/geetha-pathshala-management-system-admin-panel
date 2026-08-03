@@ -10,6 +10,7 @@ final class MockIamDatasource implements IamDatasource {
   final List<PermissionModel> _permissions;
   final List<UserRoleModel> _userRoles;
   final List<PermissionOverrideModel> _overrides;
+  String? _currentAuthenticatedUserAccountId;
 
   MockIamDatasource({
     this.processingDelay = const Duration(milliseconds: 300),
@@ -120,6 +121,34 @@ final class MockIamDatasource implements IamDatasource {
   Future<List<PermissionModel>> listPermissions() async {
     await _simulateProcessing();
     return List.unmodifiable(_permissions);
+  }
+
+  @override
+  Future<UserAccountModel> loginWithEmail(LoginParams params) async {
+    await _simulateProcessing();
+    final account = _userAccounts.firstWhere(
+      (a) => a.email.toLowerCase() == params.email.trim().toLowerCase(),
+      orElse:
+          () => throw StateError('Invalid email or password credentials.'),
+    );
+    _currentAuthenticatedUserAccountId = account.id;
+    return account;
+  }
+
+  @override
+  Future<void> logout() async {
+    await _simulateProcessing();
+    _currentAuthenticatedUserAccountId = null;
+  }
+
+  @override
+  Future<UserAccountModel?> getCurrentUserAccount() async {
+    await _simulateProcessing();
+    if (_currentAuthenticatedUserAccountId == null) return null;
+    return _userAccounts.firstWhere(
+      (a) => a.id == _currentAuthenticatedUserAccountId,
+      orElse: () => throw StateError('Active user session account not found.'),
+    );
   }
 
   Future<void> _simulateProcessing() async {

@@ -24,4 +24,13 @@ abstract interface class IamRepository {
 
   /// Lists all permissions defined in the system.
   AsyncRequest<List<Permission>> listPermissions();
+
+  /// Authenticates a user by email and password.
+  AsyncRequest<UserAccount> loginWithEmail(LoginParams params);
+
+  /// Logs out the currently active in-memory session.
+  AsyncRequest<void> logout();
+
+  /// Returns the currently active in-memory authenticated user account.
+  AsyncRequest<UserAccount?> getCurrentUserAccount();
 }

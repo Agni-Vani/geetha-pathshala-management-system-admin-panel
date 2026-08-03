@@ -32,5 +32,29 @@ void main() {
       final success = response as SuccessRepoCall;
       expect(success.data, isTrue);
     });
+
+    test('loginWithEmail authenticates and tracks in-memory session', () async {
+      final loginResponse = await repository.loginWithEmail(
+        const LoginParams(
+          email: 'anirban@pathshala.org',
+          password: 'password123',
+        ),
+      );
+      expect(loginResponse, isA<SuccessRepoCall>());
+      final loginSuccess = loginResponse as SuccessRepoCall;
+      expect(loginSuccess.data.id, equals('usr-admin-anirban'));
+
+      final sessionResponse = await repository.getCurrentUserAccount();
+      expect(sessionResponse, isA<SuccessRepoCall>());
+      final sessionSuccess = sessionResponse as SuccessRepoCall;
+      expect(sessionSuccess.data?.id, equals('usr-admin-anirban'));
+
+      await repository.logout();
+
+      final loggedOutSession = await repository.getCurrentUserAccount();
+      expect(loggedOutSession, isA<SuccessRepoCall>());
+      final loggedOutSuccess = loggedOutSession as SuccessRepoCall;
+      expect(loggedOutSuccess.data, isNull);
+    });
   });
 }
