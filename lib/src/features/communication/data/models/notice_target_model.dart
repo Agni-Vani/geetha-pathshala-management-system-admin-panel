@@ -1,35 +1,22 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+
 import '../../domain/entities/entities.dart';
 
-final class NoticeTargetModel extends NoticeTarget {
-  @override
-  final String id;
-  @override
-  final String noticeId;
-  @override
-  final NoticeTargetType targetType;
-  @override
-  final String? targetId;
+part 'notice_target_model.freezed.dart';
+part 'notice_target_model.g.dart';
 
-  const NoticeTargetModel({
-    required this.id,
-    required this.noticeId,
-    required this.targetType,
-    required this.targetId,
-  });
+@freezed
+abstract class NoticeTargetModel extends NoticeTarget
+    with _$NoticeTargetModel {
+  const NoticeTargetModel._() : super();
 
-  factory NoticeTargetModel.fromJson(Map<String, dynamic> json) {
-    return NoticeTargetModel(
-      id: json['id'] as String,
-      noticeId: json['notice_id'] as String,
-      targetType: NoticeTargetType.values.byName(json['target_type'] as String),
-      targetId: json['target_id'] as String?,
-    );
-  }
+  const factory NoticeTargetModel({
+    required String id,
+    required String noticeId,
+    required NoticeTargetType targetType,
+    required String? targetId,
+  }) = _NoticeTargetModel;
 
-  Map<String, dynamic> toJson() => {
-    'id': id,
-    'notice_id': noticeId,
-    'target_type': targetType.name,
-    'target_id': targetId,
-  };
+  factory NoticeTargetModel.fromJson(Map<String, dynamic> json) =>
+      _$NoticeTargetModelFromJson(json);
 }
