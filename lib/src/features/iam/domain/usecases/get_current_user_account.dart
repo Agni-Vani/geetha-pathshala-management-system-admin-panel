@@ -7,7 +7,7 @@ final class GetCurrentUserAccount
     implements AsyncUsecase<UserAccount?, NoParams> {
   final IamRepository repository;
 
-  const GetCurrentUserAccount(this.repository);
+  const GetCurrentUserAccount({required this.repository});
 
   @override
   AsyncRequest<UserAccount?> call(NoParams params) {

@@ -7,7 +7,7 @@ import '../repositories/repositories.dart';
 final class LoginWithEmail implements AsyncUsecase<UserAccount, LoginParams> {
   final IamRepository repository;
 
-  const LoginWithEmail(this.repository);
+  const LoginWithEmail({required this.repository});
 
   @override
   AsyncRequest<UserAccount> call(LoginParams params) {
