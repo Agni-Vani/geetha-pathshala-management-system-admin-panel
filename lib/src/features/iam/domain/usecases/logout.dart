@@ -5,7 +5,7 @@ import '../repositories/repositories.dart';
 final class Logout implements AsyncUsecase<void, NoParams> {
   final IamRepository repository;
 
-  const Logout(this.repository);
+  const Logout({required this.repository});
 
   @override
   AsyncRequest<void> call(NoParams params) {
