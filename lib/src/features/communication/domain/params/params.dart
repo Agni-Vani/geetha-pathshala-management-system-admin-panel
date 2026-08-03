@@ -31,10 +31,14 @@ final class PublishNoticeParams {
 final class GetNoticesParams {
   final String organizationId;
   final String? pathshalaId;
+  final int page;
+  final int pageSize;
 
   const GetNoticesParams({
     required this.organizationId,
     this.pathshalaId,
+    this.page = 1,
+    this.pageSize = 20,
   });
 }
 

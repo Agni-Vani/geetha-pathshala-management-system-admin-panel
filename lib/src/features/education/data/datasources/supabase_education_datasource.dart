@@ -10,57 +10,54 @@ final class SupabaseEducationDatasource implements EducationDatasource {
   SupabaseEducationDatasource({SupabaseClient? client})
       : client = client ?? Supabase.instance.client;
 
+  Future<dynamic> _invoke(String action, Map<String, dynamic> body) async {
+    final response = await client.functions.invoke(
+      'education-api',
+      body: {'action': action, ...body},
+    );
+    if (response.status != 200) {
+      throw StateError('Edge Function error: ${response.data}');
+    }
+    return response.data;
+  }
+
   @override
   Future<StudentAdmissionModel> admitStudent(AdmitStudentParams params) async {
-    final response = await client
-        .schema('education')
-        .from('student_admissions')
-        .insert({
-          'organization_id': params.organizationId,
-          'pathshala_id': params.pathshalaId,
-          'person_id': params.personId,
-          'roll_number': params.rollNumber,
-          'status': 'admitted',
-        })
-        .select()
-        .single();
-    return StudentAdmissionModel.fromJson(response);
+    final data = await _invoke('admitStudent', {
+      'organizationId': params.organizationId,
+      'pathshalaId': params.pathshalaId,
+      'personId': params.personId,
+      'rollNumber': params.rollNumber,
+    });
+    return StudentAdmissionModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<StudentTransferModel> transferStudent(
     TransferStudentParams params,
   ) async {
-    final response = await client
-        .schema('education')
-        .from('student_transfers')
-        .insert({
-          'person_id': params.personId,
-          'from_pathshala_id': params.fromPathshalaId,
-          'to_pathshala_id': params.toPathshalaId,
-          'reason': params.reason,
-          'status': 'pending',
-        })
-        .select()
-        .single();
-    return StudentTransferModel.fromJson(response);
+    final data = await _invoke('transferStudent', {
+      'personId': params.personId,
+      'fromPathshalaId': params.fromPathshalaId,
+      'toPathshalaId': params.toPathshalaId,
+      'reason': params.reason,
+    });
+    return StudentTransferModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<EducationalGroupModel>> listEducationalGroups(
     ListGroupsParams params,
   ) async {
-    var query = client
-        .schema('education')
-        .from('educational_groups')
-        .select()
-        .eq('pathshala_id', params.pathshalaId);
-
-    if (params.academicYearId != null) {
-      query = query.eq('academic_year_id', params.academicYearId!);
-    }
-    final response = await query;
-    return (response as List)
+    final data = await _invoke('listEducationalGroups', {
+      'pathshalaId': params.pathshalaId,
+      'academicYearId': params.academicYearId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map(
           (json) =>
               EducationalGroupModel.fromJson(json as Map<String, dynamic>),
@@ -72,50 +69,36 @@ final class SupabaseEducationDatasource implements EducationDatasource {
   Future<AttendanceSessionModel> recordAttendance(
     RecordAttendanceParams params,
   ) async {
-    final sessionResponse = await client
-        .schema('education')
-        .from('attendance_sessions')
-        .insert({
-          'group_id': params.groupId,
-          'session_date': params.sessionDate.toIso8601String(),
-          'taken_by_user_id': params.takenByUserId,
-          'status': 'submitted',
-        })
-        .select()
-        .single();
-
-    final session = AttendanceSessionModel.fromJson(sessionResponse);
-
-    final recordsToInsert =
-        params.entries
-            .map(
-              (entry) => {
-                'session_id': session.id,
-                'person_id': entry.personId,
-                'status': entry.status.name,
-                'remarks': entry.remarks,
-              },
-            )
-            .toList();
-
-    await client
-        .schema('education')
-        .from('attendance_records')
-        .insert(recordsToInsert);
-
-    return session;
+    final data = await _invoke('recordAttendance', {
+      'groupId': params.groupId,
+      'sessionDate': params.sessionDate.toIso8601String(),
+      'takenByUserId': params.takenByUserId,
+      'entries':
+          params.entries
+              .map(
+                (e) => {
+                  'personId': e.personId,
+                  'status': e.status.name,
+                  'remarks': e.remarks,
+                },
+              )
+              .toList(),
+    });
+    return AttendanceSessionModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<AttendanceRecordModel>> getSessionAttendance(
     String sessionId,
   ) async {
-    final response = await client
-        .schema('education')
-        .from('attendance_records')
-        .select()
-        .eq('session_id', sessionId);
-    return (response as List)
+    final data = await _invoke('getSessionAttendance', {
+      'sessionId': sessionId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map(
           (json) =>
               AttendanceRecordModel.fromJson(json as Map<String, dynamic>),
@@ -127,12 +110,14 @@ final class SupabaseEducationDatasource implements EducationDatasource {
   Future<List<AcademicYearModel>> listAcademicYears(
     String organizationId,
   ) async {
-    final response = await client
-        .schema('education')
-        .from('academic_years')
-        .select()
-        .eq('organization_id', organizationId);
-    return (response as List)
+    final data = await _invoke('listAcademicYears', {
+      'organizationId': organizationId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map((json) => AcademicYearModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
@@ -141,36 +126,25 @@ final class SupabaseEducationDatasource implements EducationDatasource {
   Future<TeacherProfileModel> createTeacherProfile(
     CreateTeacherProfileParams params,
   ) async {
-    final response = await client
-        .schema('education')
-        .from('teacher_profiles')
-        .insert({
-          'person_id': params.personId,
-          'organization_id': params.organizationId,
-          'status': 'active',
-        })
-        .select()
-        .single();
-    return TeacherProfileModel.fromJson(response);
+    final data = await _invoke('createTeacherProfile', {
+      'personId': params.personId,
+      'organizationId': params.organizationId,
+    });
+    return TeacherProfileModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<TeacherAssignmentModel> assignTeacher(
     AssignTeacherParams params,
   ) async {
-    final response = await client
-        .schema('education')
-        .from('teacher_assignments')
-        .insert({
-          'teacher_profile_id': params.teacherProfileId,
-          'pathshala_id': params.pathshalaId,
-          'group_id': params.groupId,
-          'role': params.role,
-          'effective_from': params.effectiveFrom.toIso8601String(),
-          'effective_to': params.effectiveTo?.toIso8601String(),
-        })
-        .select()
-        .single();
-    return TeacherAssignmentModel.fromJson(response);
+    final data = await _invoke('assignTeacher', {
+      'teacherProfileId': params.teacherProfileId,
+      'pathshalaId': params.pathshalaId,
+      'groupId': params.groupId,
+      'role': params.role,
+      'effectiveFrom': params.effectiveFrom.toIso8601String(),
+      'effectiveTo': params.effectiveTo?.toIso8601String(),
+    });
+    return TeacherAssignmentModel.fromJson(data as Map<String, dynamic>);
   }
 }

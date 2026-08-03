@@ -1,14 +1,17 @@
 import '../entities/entities.dart';
 
-/// Filter criteria for Pathshala registry listing.
 final class ListPathshalasParams {
   final String organizationId;
   final PathshalaStatus? status;
   final String? searchQuery;
+  final int page;
+  final int pageSize;
 
   const ListPathshalasParams({
     required this.organizationId,
-    required this.status,
-    required this.searchQuery,
+    this.status,
+    this.searchQuery,
+    this.page = 1,
+    this.pageSize = 20,
   });
 }

@@ -10,76 +10,76 @@ final class SupabaseRegistryDatasource implements RegistryDatasource {
   SupabaseRegistryDatasource({SupabaseClient? client})
       : client = client ?? Supabase.instance.client;
 
+  Future<dynamic> _invoke(String action, Map<String, dynamic> body) async {
+    final response = await client.functions.invoke(
+      'registry-api',
+      body: {'action': action, ...body},
+    );
+    if (response.status != 200) {
+      throw StateError('Edge Function error: ${response.data}');
+    }
+    return response.data;
+  }
 
   @override
   Future<OrganizationModel> getOrganization(String organizationId) async {
-    final response = await client
-        .schema('registry')
-        .from('organizations')
-        .select()
-        .eq('id', organizationId)
-        .single();
-    return OrganizationModel.fromJson(response);
+    final data = await _invoke('getOrganization', {
+      'organizationId': organizationId,
+    });
+    return OrganizationModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<PersonModel>> searchPeople(SearchPeopleParams params) async {
-    var query = client
-        .schema('registry')
-        .from('people')
-        .select()
-        .eq('organization_id', params.organizationId);
-
-    if (params.query.isNotEmpty) {
-      query = query.or(
-        'legal_name.ilike.%${params.query}%,preferred_name.ilike.%${params.query}%',
-      );
-    }
-    final response = await query;
-    return (response as List)
+    final data = await _invoke('searchPeople', {
+      'organizationId': params.organizationId,
+      'query': params.query,
+      'dateOfBirth': params.dateOfBirth?.toIso8601String(),
+      'phone': params.phone,
+      'email': params.email,
+      'page': params.page,
+      'pageSize': params.pageSize,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map((json) => PersonModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
 
   @override
   Future<PersonModel> getPersonById(String personId) async {
-    final response = await client
-        .schema('registry')
-        .from('people')
-        .select()
-        .eq('id', personId)
-        .single();
-    return PersonModel.fromJson(response);
+    final data = await _invoke('getPersonById', {'personId': personId});
+    return PersonModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<PersonModel> createPerson(CreatePersonParams params) async {
-    final response = await client
-        .schema('registry')
-        .from('people')
-        .insert({
-          'organization_id': params.organizationId,
-          'legal_name': params.legalName,
-          'preferred_name': params.preferredName,
-          'date_of_birth': params.dateOfBirth?.toIso8601String(),
-          'gender': params.gender,
-          'primary_phone': params.primaryPhone,
-          'primary_email': params.primaryEmail,
-        })
-        .select()
-        .single();
-    return PersonModel.fromJson(response);
+    final data = await _invoke('createPerson', {
+      'organizationId': params.organizationId,
+      'legalName': params.legalName,
+      'preferredName': params.preferredName,
+      'dateOfBirth': params.dateOfBirth?.toIso8601String(),
+      'gender': params.gender,
+      'primaryPhone': params.primaryPhone,
+      'primaryEmail': params.primaryEmail,
+    });
+    return PersonModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<PersonContactModel>> getPersonContacts(String personId) async {
-    final response = await client
-        .schema('registry')
-        .from('person_contacts')
-        .select()
-        .eq('person_id', personId);
-    return (response as List)
-        .map((json) => PersonContactModel.fromJson(json as Map<String, dynamic>))
+    final data = await _invoke('getPersonContacts', {'personId': personId});
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
+        .map(
+          (json) => PersonContactModel.fromJson(json as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -87,12 +87,14 @@ final class SupabaseRegistryDatasource implements RegistryDatasource {
   Future<List<PersonRelationshipModel>> getPersonRelationships(
     String personId,
   ) async {
-    final response = await client
-        .schema('registry')
-        .from('person_relationships')
-        .select()
-        .eq('person_id', personId);
-    return (response as List)
+    final data = await _invoke('getPersonRelationships', {
+      'personId': personId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map(
           (json) =>
               PersonRelationshipModel.fromJson(json as Map<String, dynamic>),
@@ -104,101 +106,86 @@ final class SupabaseRegistryDatasource implements RegistryDatasource {
   Future<List<PathshalaModel>> listPathshalas(
     ListPathshalasParams params,
   ) async {
-    var query = client
-        .schema('registry')
-        .from('pathshalas')
-        .select()
-        .eq('organization_id', params.organizationId);
-
-    if (params.status != null) {
-      query = query.eq('status', params.status!.name);
-    }
-    if (params.searchQuery != null && params.searchQuery!.isNotEmpty) {
-      query = query.ilike('name', '%${params.searchQuery}%');
-    }
-    final response = await query;
-    return (response as List)
+    final data = await _invoke('listPathshalas', {
+      'organizationId': params.organizationId,
+      'status': params.status?.name,
+      'searchQuery': params.searchQuery,
+      'page': params.page,
+      'pageSize': params.pageSize,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map((json) => PathshalaModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
 
   @override
   Future<PathshalaModel> getPathshalaById(String pathshalaId) async {
-    final response = await client
-        .schema('registry')
-        .from('pathshalas')
-        .select()
-        .eq('id', pathshalaId)
-        .single();
-    return PathshalaModel.fromJson(response);
+    final data = await _invoke('getPathshalaById', {
+      'pathshalaId': pathshalaId,
+    });
+    return PathshalaModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<PathshalaModel> createPathshala(CreatePathshalaParams params) async {
-    final response = await client
-        .schema('registry')
-        .from('pathshalas')
-        .insert({
-          'organization_id': params.organizationId,
-          'code': params.code,
-          'name': params.name,
-          'status': 'active',
-          'address_line1': params.address.addressLine1,
-          'address_line2': params.address.addressLine2,
-          'city': params.address.city,
-          'region': params.address.region,
-          'country': params.address.country,
-          'postal_code': params.address.postalCode,
-          'latitude': params.coordinate?.latitude,
-          'longitude': params.coordinate?.longitude,
-          'started_on': params.startedOn?.toIso8601String() ??
-              DateTime.now().toIso8601String(),
-        })
-        .select()
-        .single();
-    return PathshalaModel.fromJson(response);
+    final data = await _invoke('createPathshala', {
+      'organizationId': params.organizationId,
+      'code': params.code,
+      'name': params.name,
+      'addressLine1': params.address.addressLine1,
+      'addressLine2': params.address.addressLine2,
+      'city': params.address.city,
+      'region': params.address.region,
+      'country': params.address.country,
+      'postalCode': params.address.postalCode,
+      'latitude': params.coordinate?.latitude,
+      'longitude': params.coordinate?.longitude,
+      'startedOn': params.startedOn?.toIso8601String(),
+    });
+    return PathshalaModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<CommitteeModel>> listCommittees(
     ListCommitteesParams params,
   ) async {
-    var query = client
-        .schema('registry')
-        .from('committees')
-        .select()
-        .eq('organization_id', params.organizationId);
-
-    if (params.pathshalaId != null) {
-      query = query.eq('pathshala_id', params.pathshalaId!);
-    }
-    final response = await query;
-    return (response as List)
+    final data = await _invoke('listCommittees', {
+      'organizationId': params.organizationId,
+      'pathshalaId': params.pathshalaId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map((json) => CommitteeModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
 
   @override
   Future<CommitteeModel> getCommitteeById(String committeeId) async {
-    final response = await client
-        .schema('registry')
-        .from('committees')
-        .select()
-        .eq('id', committeeId)
-        .single();
-    return CommitteeModel.fromJson(response);
+    final data = await _invoke('getCommitteeById', {
+      'committeeId': committeeId,
+    });
+    return CommitteeModel.fromJson(data as Map<String, dynamic>);
   }
 
   @override
   Future<List<CommitteeMembershipModel>> listCommitteeMemberships(
     ListCommitteeMembershipsParams params,
   ) async {
-    final response = await client
-        .schema('registry')
-        .from('committee_memberships')
-        .select()
-        .eq('committee_id', params.committeeId);
-    return (response as List)
+    final data = await _invoke('listCommitteeMemberships', {
+      'committeeId': params.committeeId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
         .map(
           (json) =>
               CommitteeMembershipModel.fromJson(json as Map<String, dynamic>),
