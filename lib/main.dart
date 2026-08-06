@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:geetha_pathshala_management_web/src/core/config/app_config.dart';
-import 'package:geetha_pathshala_management_web/src/core/theme/app_colors.dart';
 import 'package:geetha_pathshala_management_web/src/core/theme/app_theme.dart';
 import 'package:geetha_pathshala_management_web/src/di/service_locator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'src/features/registry/presentation/view/add_new_patshala_view.dart';
+import 'src/features/registry/presentation/view/splash_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,10 +33,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme().lightTheme,
       darkTheme: AppTheme().darkTheme,
       themeMode: ThemeMode.light,
-      home: const AddNewPatshalaView(),
-      /* home: Scaffold(
-        backgroundColor: AppColors.context(context).primaryColor,
-      ), */
+      home: const SplashView(),
     );
   }
 }

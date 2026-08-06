@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../widgets/custom_widgets/custom_button.dart';
 import '../widgets/custom_widgets/custom_sidebar.dart';
 import '../widgets/custom_widgets/custom_top_bar.dart';
+import 'all_patshala_view.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
   const AddNewPatshalaView({super.key});
@@ -110,21 +111,26 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                         ),
                       ),
                       const SizedBox(width: 15),
-                      Container(
-                        decoration: BoxDecoration(color: colors.primaryColor, borderRadius: BorderRadius.circular(8)),
-                        height: 35,
-                        child: Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                            child: Row(
-                              children: [
-                                Icon(Icons.save, size: 16, color: Colors.white),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Save Pathshala',
-                                  style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w400),
-                                ),
-                              ],
+                      InkWell(
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AllPatshalaView()));
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(color: colors.primaryColor, borderRadius: BorderRadius.circular(8)),
+                          height: 35,
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.save, size: 16, color: Colors.white),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Save Pathshala',
+                                    style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w400),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),

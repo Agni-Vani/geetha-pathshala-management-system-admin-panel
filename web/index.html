@@ -31,6 +31,15 @@
 
   <title>geetha_pathshala_management_web</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Flutter Web draws the browser's default focus ring around the
+       canvas/glass-pane on keyboard (Tab) focus. Suppress it since the
+       app renders its own focus/border styling for form fields. */
+    flt-glass-pane, flutter-view, canvas, *:focus {
+      outline: none !important;
+    }
+  </style>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
