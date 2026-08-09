@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import 'all_patshala_view.dart';
+import '../../../../../app/view/all_patshala_view.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});

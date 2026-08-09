@@ -4,7 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../widgets/custom_widgets/custom_button.dart';
 import '../widgets/custom_widgets/custom_sidebar.dart';
 import '../widgets/custom_widgets/custom_top_bar.dart';
-import 'all_patshala_view.dart';
+import '../../../../../app/view/all_patshala_view.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
   const AddNewPatshalaView({super.key});

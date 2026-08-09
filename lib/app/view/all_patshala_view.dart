@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../widgets/custom_widgets/custom_button.dart';
-import '../widgets/custom_widgets/custom_search_filter_bar.dart';
-import '../widgets/custom_widgets/custom_sidebar.dart';
-import '../widgets/custom_widgets/custom_top_bar.dart';
-import 'add_new_patshala_view.dart';
+import '../../src/core/theme/app_colors.dart';
+import '../../src/features/registry/presentation/widgets/custom_widgets/custom_button.dart';
+import '../../src/features/registry/presentation/widgets/custom_widgets/custom_search_filter_bar.dart';
+import '../../src/features/registry/presentation/widgets/custom_widgets/custom_sidebar.dart';
+import '../../src/features/registry/presentation/widgets/custom_widgets/custom_top_bar.dart';
+import '../../src/features/registry/presentation/view/add_new_patshala_view.dart';
 
 class AllPatshalaView extends StatefulWidget {
   const AllPatshalaView({super.key});
