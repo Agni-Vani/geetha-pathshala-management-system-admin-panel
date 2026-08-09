@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geetha_pathshala_management_web/src/core/async_handlers/response.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/data/datasources/mock_registry_datasource.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/data/models/models.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/data/repositories/registry_repository_impl.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/domain/params/params.dart';
 
@@ -41,19 +40,26 @@ void main() {
           organizationId: 'org-gp-central',
           code: 'PATH-SYL-001',
           name: 'Sylhet Central Gita Pathshala',
-          address: PathshalaAddressModel(
-            addressLine1: 'Zindabazar',
-            addressLine2: null,
-            city: 'Sylhet',
-            region: 'Sylhet',
-            country: 'Bangladesh',
-            postalCode: '3100',
-          ),
+          addressLine1: 'Zindabazar',
+          addressLine2: 'Temple Road',
+          city: 'Sylhet',
+          district: 'Sylhet',
+          postalCode: '3100',
+          latitude: 24.8949,
+          longitude: 91.8687,
         ),
       );
       expect(response, isA<SuccessRepoCall>());
       final success = response as SuccessRepoCall;
       expect(success.data.name, equals('Sylhet Central Gita Pathshala'));
+      expect(success.data.address.addressLine1, equals('Zindabazar'));
+      expect(success.data.address.addressLine2, equals('Temple Road'));
+      expect(success.data.address.city, equals('Sylhet'));
+      expect(success.data.address.region, equals('Sylhet'));
+      expect(success.data.address.country, equals('Bangladesh'));
+      expect(success.data.address.postalCode, equals('3100'));
+      expect(success.data.coordinate?.latitude, equals(24.8949));
+      expect(success.data.coordinate?.longitude, equals(91.8687));
     });
 
     test('searchPeople returns filtered people list', () async {

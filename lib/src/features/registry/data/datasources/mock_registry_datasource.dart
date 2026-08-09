@@ -183,17 +183,17 @@ final class MockRegistryDatasource implements RegistryDatasource {
     await _simulateProcessing();
     final now = DateTime.now();
     final addressModel = PathshalaAddressModel(
-      addressLine1: params.address.addressLine1,
-      addressLine2: params.address.addressLine2,
-      city: params.address.city,
-      region: params.address.region,
-      country: params.address.country,
-      postalCode: params.address.postalCode,
+      addressLine1: params.addressLine1,
+      addressLine2: params.addressLine2,
+      city: params.city,
+      region: params.district,
+      country: params.country,
+      postalCode: params.postalCode,
     );
-    final coordModel = params.coordinate != null
+    final coordModel = params.latitude != null && params.longitude != null
         ? GeoCoordinateModel(
-            latitude: params.coordinate!.latitude,
-            longitude: params.coordinate!.longitude,
+            latitude: params.latitude!,
+            longitude: params.longitude!,
           )
         : null;
 
