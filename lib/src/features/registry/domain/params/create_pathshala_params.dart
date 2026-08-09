@@ -1,19 +1,29 @@
-import '../entities/entities.dart';
-
 final class CreatePathshalaParams {
   final String organizationId;
   final String code;
   final String name;
-  final PathshalaAddress address;
-  final GeoCoordinate? coordinate;
+  final String addressLine1;
+  final String? addressLine2;
+  final String city;
+  final String district;
+  final String country;
+  final String? postalCode;
+  final double? latitude;
+  final double? longitude;
   final DateTime? startedOn;
 
   const CreatePathshalaParams({
     required this.organizationId,
     required this.code,
     required this.name,
-    required this.address,
-    this.coordinate,
+    required this.addressLine1,
+    this.addressLine2,
+    required this.city,
+    required this.district,
+    this.country = 'Bangladesh',
+    this.postalCode,
+    this.latitude,
+    this.longitude,
     this.startedOn,
   });
 }
