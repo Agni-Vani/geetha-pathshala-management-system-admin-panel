@@ -37,7 +37,7 @@ class RProcessNotifierButton extends StatefulWidget {
     required super.key,
     this.height,
     this.width,
-    this.borderRadius = AppSizes.textFieldBorderRadius,
+    this.borderRadius = AppSizes.rectangleButtonRadius,
     this.style,
     this.generalText = "Save",
     this.loadingText = "Saving",
@@ -95,8 +95,8 @@ class _RProcessNotifierButtonState extends State<RProcessNotifierButton> {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 350),
           constraints: BoxConstraints(
-            maxHeight: 52,
-            maxWidth: constraints.maxWidth,
+            maxHeight: widget.height ?? 52,
+            maxWidth: widget.width ?? constraints.maxWidth,
           ),
           decoration: BoxDecoration(
             color:
@@ -165,7 +165,7 @@ class _RProcessNotifierButtonState extends State<RProcessNotifierButton> {
                       TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.context(context).buttonContentColor,
+                        color: AppColors.context(context).inActiveButtonContentColor,
                       ),
                 ),
                 SizedBox(width: 10),
@@ -174,7 +174,7 @@ class _RProcessNotifierButtonState extends State<RProcessNotifierButton> {
                   width: 16,
                   child: CircularProgressIndicator(
                     strokeWidth: 4,
-                    color: widget.progressIndicatorColor ?? Colors.white,
+                    color: widget.progressIndicatorColor ?? AppColors.context(context).inActiveButtonContentColor,
                   ),
                 ),
               ],

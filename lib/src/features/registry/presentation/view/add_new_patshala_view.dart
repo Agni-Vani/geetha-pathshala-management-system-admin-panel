@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
+import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/widget/process_notifier_button.dart';
+import 'package:geetha_pathshala_management_web/src/di/di.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_pathshala_controller.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/custom_widgets/custom_button.dart';
 import '../widgets/custom_widgets/custom_sidebar.dart';
 import '../widgets/custom_widgets/custom_top_bar.dart';
-import '../../../../../app/view/all_patshala_view.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
+
   const AddNewPatshalaView({super.key});
 
   @override
@@ -15,6 +18,15 @@ class AddNewPatshalaView extends StatefulWidget {
 
 class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   int _selectedIndex = 1;
+  CreatePathshalaController createPathshalaController = sl.get<CreatePathshalaController>();
+  late final SnackbarNotifier snackbarNotifier;
+
+  @override
+  void initState() {
+    snackbarNotifier = SnackbarNotifier(context: context);
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,30 +123,24 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                         ),
                       ),
                       const SizedBox(width: 15),
-                      InkWell(
-                        onTap: () {
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context) => const AllPatshalaView()));
+
+                      RProcessNotifierButton(
+                        key: UniqueKey(),
+                        height: 50,
+                        width: 200,
+                        generalText: 'Save Pathshala',
+                        loadingText: "Saving Information",
+                        errorText: "Error Saving Information",
+                        processStatusNotifier: createPathshalaController.processStatusNotifier,
+                        onSave: (processNotifier) {
+                          debugPrint("Save Clicked");
+                          createPathshalaController.create(snackbarNotifier: snackbarNotifier);
                         },
-                        child: Container(
-                          decoration: BoxDecoration(color: colors.primaryColor, borderRadius: BorderRadius.circular(8)),
-                          height: 35,
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.save, size: 16, color: Colors.white),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'Save Pathshala',
-                                    style: TextStyle(fontSize: 14, color: Colors.white, fontWeight: FontWeight.w400),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        onDone: () {
+                          Navigator.pop(context);
+                        },
                       ),
+                      
                     ],
                   ),
                 ),
