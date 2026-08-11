@@ -8,6 +8,12 @@ class CustomFormField extends StatelessWidget {
   final IconData? prefixIcon;
   final int maxLines;
   final bool isDropdown;
+  final bool isRequired;
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final List<String> items;
+  final String? value;
+  final ValueChanged<String?>? onChanged;
 
   const CustomFormField({
     super.key,
@@ -15,15 +21,27 @@ class CustomFormField extends StatelessWidget {
     required this.hint,
     this.prefixIcon,
     this.maxLines = 1,
-  }) : isDropdown = false;
+    this.isRequired = false,
+    this.controller,
+    this.keyboardType,
+  })  : isDropdown = false,
+        items = const [],
+        value = null,
+        onChanged = null;
 
   const CustomFormField.dropdown({
     super.key,
     required this.label,
     required this.hint,
+    this.isRequired = false,
+    this.items = const [],
+    this.value,
+    this.onChanged,
   })  : prefixIcon = null,
         maxLines = 1,
-        isDropdown = true;
+        isDropdown = true,
+        controller = null,
+        keyboardType = null;
 
   @override
   Widget build(BuildContext context) {
@@ -55,26 +73,42 @@ class CustomFormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: colors.textColor,
+        RichText(
+          text: TextSpan(
+            text: label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: colors.textColor,
+            ),
+            children: [
+              if (isRequired)
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(color: colors.errorColor),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: 6),
         if (isDropdown)
           DropdownButtonFormField<String>(
-            items: const [],
-            onChanged: (_) {},
+            initialValue: value,
+            items: items
+                .map((item) =>
+                    DropdownMenuItem(value: item, child: Text(item)))
+                .toList(),
+            onChanged: onChanged,
             decoration: decoration,
             hint: Text(hint,
                 style: TextStyle(color: colors.hintColor, fontSize: 13)),
           )
         else
           TextFormField(
+            controller: controller,
             maxLines: maxLines,
+            keyboardType: keyboardType,
+            style: TextStyle(fontSize: 13, color: colors.textColor),
             decoration: decoration,
           ),
       ],

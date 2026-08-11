@@ -11,22 +11,15 @@ class CreatePathshalaController extends ChangeNotifier{
 
   CreatePathshalaController({required this.createPathshala});
 
-  Future<void> create({SnackbarNotifier? snackbarNotifier}) async{
-    processStatusNotifier.setLoading();
-    // await handleFutureRequest(request: ()=> createPathshala.call(
-    //   CreatePathshalaParams(
-    //     organizationId: '',
-    //     code: '',
-    //     name: '',
-    //     address: PathshalaAddress(
-          
-    //     ),
-    //     coordinate: null,
-    //     startedOn: null
-    //   ),
-    // ),
-    // errorSnackbarNotifier: snackbarNotifier,
-    // successSnackbarNotifier: snackbarNotifier
-    // );
+  Future<void> create({
+    required CreatePathshalaParams params,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    await handleFutureRequest(
+      request: () => createPathshala.call(params),
+      processStatusNotifier: processStatusNotifier,
+      errorSnackbarNotifier: snackbarNotifier,
+      successSnackbarNotifier: snackbarNotifier,
+    );
   }
 }
