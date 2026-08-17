@@ -44,6 +44,32 @@ class CustomSearchFilterBar extends StatelessWidget {
       );
     }
 
+    final searchField = TextField(
+      onChanged: onSearchChanged,
+      decoration: fieldDecoration(
+        searchHint,
+        prefixIcon: Icon(Icons.search, size: 18, color: colors.hintColor),
+      ),
+    );
+
+    final districtDropdown = DropdownButtonFormField<String>(
+      initialValue: null,
+      items: const [],
+      onChanged: (_) {},
+      hint: Text(districtHint,
+          style: TextStyle(color: colors.textColor, fontSize: 13)),
+      decoration: fieldDecoration(districtHint),
+    );
+
+    final branchDropdown = DropdownButtonFormField<String>(
+      initialValue: null,
+      items: const [],
+      onChanged: (_) {},
+      hint: Text(branchHint,
+          style: TextStyle(color: colors.textColor, fontSize: 13)),
+      decoration: fieldDecoration(branchHint),
+    );
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -58,42 +84,34 @@ class CustomSearchFilterBar extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: TextField(
-              onChanged: onSearchChanged,
-              decoration: fieldDecoration(
-                searchHint,
-                prefixIcon: Icon(Icons.search, size: 18, color: colors.hintColor),
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          SizedBox(
-            width: 180,
-            child: DropdownButtonFormField<String>(
-              initialValue: null,
-              items: const [],
-              onChanged: (_) {},
-              hint: Text(districtHint,
-                  style: TextStyle(color: colors.textColor, fontSize: 13)),
-              decoration: fieldDecoration(districtHint),
-            ),
-          ),
-          const SizedBox(width: 16),
-          SizedBox(
-            width: 180,
-            child: DropdownButtonFormField<String>(
-              initialValue: null,
-              items: const [],
-              onChanged: (_) {},
-              hint: Text(branchHint,
-                  style: TextStyle(color: colors.textColor, fontSize: 13)),
-              decoration: fieldDecoration(branchHint),
-            ),
-          ),
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (constraints.maxWidth < 640) {
+            return Column(
+              children: [
+                searchField,
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(child: districtDropdown),
+                    const SizedBox(width: 12),
+                    Expanded(child: branchDropdown),
+                  ],
+                ),
+              ],
+            );
+          }
+
+          return Row(
+            children: [
+              Expanded(child: searchField),
+              const SizedBox(width: 16),
+              SizedBox(width: 180, child: districtDropdown),
+              const SizedBox(width: 16),
+              SizedBox(width: 180, child: branchDropdown),
+            ],
+          );
+        },
       ),
     );
   }

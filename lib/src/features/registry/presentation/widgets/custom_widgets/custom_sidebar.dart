@@ -13,12 +13,14 @@ class CustomSidebar extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onItemSelected;
   final VoidCallback? onLogout;
+  final bool isCollapsed;
 
   const CustomSidebar({
     super.key,
     required this.selectedIndex,
     required this.onItemSelected,
     this.onLogout,
+    this.isCollapsed = false,
   });
 
   static const List<SidebarMenuItem> _menuItems = [
@@ -39,7 +41,7 @@ class CustomSidebar extends StatelessWidget {
     final colors = AppColors.context(context);
 
     return Container(
-      width: 260,
+      width: isCollapsed ? 76 : 260,
       decoration: BoxDecoration(
         color: colors.drawerColor,
       ),
@@ -58,21 +60,23 @@ class CustomSidebar extends StatelessWidget {
                     size: 28,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'গীতা পাঠশালা',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: colors.primaryColor,
+                if (!isCollapsed) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    'গীতা পাঠশালা',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: colors.primaryColor,
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           ),
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
+              padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 8 : 12),
               itemCount: _menuItems.length,
               itemBuilder: (context, index) {
                 final item = _menuItems[index];
@@ -80,6 +84,7 @@ class CustomSidebar extends StatelessWidget {
                   icon: item.icon,
                   label: item.label,
                   isSelected: selectedIndex == index,
+                  isCollapsed: isCollapsed,
                   onTap: () => onItemSelected(index),
                   colors: colors,
                 );
@@ -87,31 +92,37 @@ class CustomSidebar extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 12, 12, 28),
-            child: InkWell(
-              onTap: onLogout,
-              borderRadius: BorderRadius.circular(8),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.errorColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.logout, color: colors.errorColor),
-                    const SizedBox(width: 12),
-                    Text(
-                      'Logout',
-                      style: TextStyle(
-                        color: colors.errorColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
+            padding: EdgeInsets.fromLTRB(isCollapsed ? 8 : 12, 12, isCollapsed ? 8 : 12, 28),
+            child: Tooltip(
+              message: isCollapsed ? 'Logout' : '',
+              child: InkWell(
+                onTap: onLogout,
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 12,
+                    horizontal: isCollapsed ? 0 : 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.errorColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
+                    children: [
+                      Icon(Icons.logout, color: colors.errorColor),
+                      if (!isCollapsed) ...[
+                        const SizedBox(width: 12),
+                        Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: colors.errorColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -126,6 +137,7 @@ class _SidebarMenuTile extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool isSelected;
+  final bool isCollapsed;
   final VoidCallback onTap;
   final AppColors colors;
 
@@ -133,42 +145,49 @@ class _SidebarMenuTile extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.isSelected,
+    required this.isCollapsed,
     required this.onTap,
     required this.colors,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final tile = Padding(
       padding: const EdgeInsets.only(bottom: 4.0),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: isCollapsed ? 0 : 16),
           decoration: BoxDecoration(
             color: isSelected ? colors.primaryColor : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
+            mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
             children: [
               Icon(
                 icon,
                 color: isSelected ? colors.invertTextColor : colors.grey,
               ),
-              const SizedBox(width: 12),
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? colors.invertTextColor : colors.textColor,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 14,
+              if (!isCollapsed) ...[
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isSelected ? colors.invertTextColor : colors.textColor,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 14,
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
       ),
     );
+
+    if (!isCollapsed) return tile;
+    return Tooltip(message: label, child: tile);
   }
 }

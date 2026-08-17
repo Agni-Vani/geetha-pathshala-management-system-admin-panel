@@ -7,6 +7,7 @@ class CustomTopBar extends StatelessWidget {
   final VoidCallback? onBack;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onProfileTap;
+  final VoidCallback? onMenuTap;
 
   const CustomTopBar({
     super.key,
@@ -14,6 +15,7 @@ class CustomTopBar extends StatelessWidget {
     this.onBack,
     this.onNotificationTap,
     this.onProfileTap,
+    this.onMenuTap,
   });
 
   @override
@@ -29,6 +31,17 @@ class CustomTopBar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: Row(
               children: [
+                if (onMenuTap != null) ...[
+                  InkWell(
+                    onTap: onMenuTap,
+                    borderRadius: BorderRadius.circular(20),
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: Icon(Icons.menu, color: colors.textColor),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
                 InkWell(
                   onTap: onBack,
                   borderRadius: BorderRadius.circular(8),
