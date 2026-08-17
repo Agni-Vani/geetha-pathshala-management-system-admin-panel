@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../features/registry/presentation/widgets/custom_widgets/custom_button.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_search_filter_bar.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_sidebar.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_top_bar.dart';
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
+import '../../features/registry/presentation/view/add_person_view.dart';
 
 class AllPatshalaView extends StatefulWidget {
   const AllPatshalaView({super.key});
@@ -17,6 +17,19 @@ class AllPatshalaView extends StatefulWidget {
 class _AllPatshalaViewState extends State<AllPatshalaView> {
   int _selectedIndex = 1;
 
+  void _onSidebarItemSelected(int index) {
+    if (index == _selectedIndex) return;
+    switch (index) {
+      case 2:
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const AddPersonRegistryView()),
+        );
+        break;
+      default:
+        setState(() => _selectedIndex = index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
@@ -27,7 +40,7 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
         children: [
           CustomSidebar(
             selectedIndex: _selectedIndex,
-            onItemSelected: (index) => setState(() => _selectedIndex = index),
+            onItemSelected: _onSidebarItemSelected,
             onLogout: () => Navigator.of(context).maybePop(),
           ),
           Expanded(

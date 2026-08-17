@@ -29,6 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Pathshala Management',
       theme: AppTheme().lightTheme,
       darkTheme: AppTheme().darkTheme,

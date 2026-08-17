@@ -14,6 +14,7 @@ class CustomFormField extends StatelessWidget {
   final List<String> items;
   final String? value;
   final ValueChanged<String?>? onChanged;
+  final ValueChanged<String>? onTextChanged;
 
   const CustomFormField({
     super.key,
@@ -24,6 +25,7 @@ class CustomFormField extends StatelessWidget {
     this.isRequired = false,
     this.controller,
     this.keyboardType,
+    this.onTextChanged,
   })  : isDropdown = false,
         items = const [],
         value = null,
@@ -41,7 +43,8 @@ class CustomFormField extends StatelessWidget {
         maxLines = 1,
         isDropdown = true,
         controller = null,
-        keyboardType = null;
+        keyboardType = null,
+        onTextChanged = null;
 
   @override
   Widget build(BuildContext context) {
@@ -108,6 +111,7 @@ class CustomFormField extends StatelessWidget {
             controller: controller,
             maxLines: maxLines,
             keyboardType: keyboardType,
+            onChanged: onTextChanged,
             style: TextStyle(fontSize: 13, color: colors.textColor),
             decoration: decoration,
           ),

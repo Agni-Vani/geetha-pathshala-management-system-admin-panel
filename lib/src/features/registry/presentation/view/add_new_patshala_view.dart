@@ -16,6 +16,8 @@ import '../widgets/custom_widgets/custom_section_header.dart';
 import '../widgets/custom_widgets/custom_sidebar.dart';
 import '../widgets/custom_widgets/custom_toggle_field.dart';
 import '../widgets/custom_widgets/custom_top_bar.dart';
+import '../../../../app/view/all_patshala_view.dart';
+import 'add_person_view.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
   const AddNewPatshalaView({super.key});
@@ -41,6 +43,23 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   bool _isActive = true;
   String? _selectedDistrict;
   String? _selectedUpazila;
+
+  void _onSidebarItemSelected(int index) {
+    switch (index) {
+      case 1:
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const AllPatshalaView()),
+        );
+        break;
+      case 2:
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const AddPersonRegistryView()),
+        );
+        break;
+      default:
+        setState(() => _selectedIndex = index);
+    }
+  }
 
   @override
   void initState() {
@@ -98,7 +117,7 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
         children: [
           CustomSidebar(
             selectedIndex: _selectedIndex,
-            onItemSelected: (index) => setState(() => _selectedIndex = index),
+            onItemSelected: _onSidebarItemSelected,
             onLogout: () => Navigator.of(context).maybePop(),
           ),
           Expanded(
@@ -140,7 +159,7 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                             decoration: BoxDecoration(
                               color: colors.backgroundColor,
                               borderRadius: BorderRadius.circular(8),
-                              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
+                              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
                             ),
                             child: Scrollbar(
                               controller: _formScrollController,
