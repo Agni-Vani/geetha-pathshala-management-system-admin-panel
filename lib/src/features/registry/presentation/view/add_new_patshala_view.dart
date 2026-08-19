@@ -19,7 +19,9 @@ import '../../../../app/view/all_patshala_view.dart';
 import 'add_person_view.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
-  const AddNewPatshalaView({super.key});
+  final Pathshala? existingPathshala;
+
+  const AddNewPatshalaView({super.key, this.existingPathshala});
 
   @override
   State<AddNewPatshalaView> createState() => _AddNewPatshalaViewState();
@@ -42,6 +44,9 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   bool _isActive = true;
   String? _selectedDistrict;
   String? _selectedUpazila;
+  String? _existingAddressLine2;
+
+  bool get _isEditing => widget.existingPathshala != null;
 
   void _onSidebarItemSelected(int index) {
     switch (index) {
@@ -63,6 +68,16 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   @override
   void initState() {
     snackbarNotifier = SnackbarNotifier(context: context);
+    final existing = widget.existingPathshala;
+    if (existing != null) {
+      _nameController.text = existing.name;
+      _addressController.text = existing.address.addressLine1;
+      _existingAddressLine2 = existing.address.addressLine2;
+      _selectedDistrict = existing.address.region;
+      _selectedUpazila = existing.address.city;
+      _establishedOn = existing.startedOn;
+      _isActive = existing.isOperational;
+    }
     super.initState();
   }
 
@@ -78,12 +93,31 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   }
 
   void _handleSave() {
+    final missingMobile = !_isEditing && _mobileController.text.trim().isEmpty;
     if (_nameController.text.trim().isEmpty ||
         _selectedDistrict == null ||
         _selectedUpazila == null ||
-        _mobileController.text.trim().isEmpty) {
+        missingMobile) {
       snackbarNotifier.notifyError(
         message: 'Please fill in all required fields.',
+      );
+      return;
+    }
+
+    if (_isEditing) {
+      final params = UpdatePathshalaParams(
+        pathshalaId: widget.existingPathshala!.id,
+        name: _nameController.text.trim(),
+        addressLine1: _addressController.text.trim(),
+        addressLine2: _existingAddressLine2,
+        city: _selectedUpazila!,
+        district: _selectedDistrict!,
+        startedOn: _establishedOn,
+      );
+
+      createPathshalaController.update(
+        params: params,
+        snackbarNotifier: snackbarNotifier,
       );
       return;
     }
@@ -160,17 +194,19 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                         padding: const EdgeInsets.symmetric(horizontal: 4),
                         child: Icon(Icons.chevron_right, size: 14, color: colors.hintColor),
                       ),
-                      Text('Add New Pathshala', style: TextStyle(fontSize: 12, color: colors.hintColor)),
+                      Text(_isEditing ? 'Edit Pathshala' : 'Add New Pathshala', style: TextStyle(fontSize: 12, color: colors.hintColor)),
                     ],
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Add New Pathshala',
+                    _isEditing ? 'Edit Pathshala' : 'Add New Pathshala',
                     style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: colors.primaryColor),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "Register a new study center to expand the community's access to ancient wisdom.",
+                    _isEditing
+                        ? "Update this study center's registry details."
+                        : "Register a new study center to expand the community's access to ancient wisdom.",
                     style: TextStyle(color: colors.hintColor),
                   ),
                   Expanded(
@@ -273,7 +309,7 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                                 CustomFormField(
                                   label: 'Mobile Number',
                                   hint: '+880 1XXX-XXXXXX',
-                                  isRequired: true,
+                                  isRequired: !_isEditing,
                                   prefixIcon: Icons.call_outlined,
                                   keyboardType: TextInputType.phone,
                                   controller: _mobileController,
@@ -323,9 +359,9 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                   key: UniqueKey(),
                   height: 50,
                   width: 200,
-                  generalText: 'Save Pathshala',
-                  loadingText: "Saving Information",
-                  errorText: "Error Saving Information",
+                  generalText: _isEditing ? 'Update Pathshala' : 'Save Pathshala',
+                  loadingText: _isEditing ? 'Updating Information' : 'Saving Information',
+                  errorText: _isEditing ? 'Error Updating Information' : 'Error Saving Information',
                   processStatusNotifier: createPathshalaController.processStatusNotifier,
                   onSave: (processNotifier) => _handleSave(),
                   onDone: () {

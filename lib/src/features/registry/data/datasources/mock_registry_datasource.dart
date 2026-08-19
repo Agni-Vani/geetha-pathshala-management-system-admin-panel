@@ -215,6 +215,36 @@ final class MockRegistryDatasource implements RegistryDatasource {
   }
 
   @override
+  Future<PathshalaModel> updatePathshala(UpdatePathshalaParams params) async {
+    await _simulateProcessing();
+    final index = _pathshalas.indexWhere((pathshala) => pathshala.id == params.pathshalaId);
+    if (index == -1) throw StateError('Pathshala not found.');
+
+    final existing = _pathshalas[index];
+    final coordModel = params.latitude != null && params.longitude != null
+        ? GeoCoordinateModel(latitude: params.latitude!, longitude: params.longitude!)
+        : existing.coordinate;
+
+    final updated = existing.copyWith(
+      name: params.name,
+      address: existing.address.copyWith(
+        addressLine1: params.addressLine1,
+        addressLine2: params.addressLine2,
+        city: params.city,
+        region: params.district,
+        country: params.country,
+        postalCode: params.postalCode,
+      ),
+      coordinate: coordModel,
+      startedOn: params.startedOn ?? existing.startedOn,
+      updatedAt: DateTime.now(),
+    );
+
+    _pathshalas[index] = updated;
+    return updated;
+  }
+
+  @override
   Future<List<CommitteeModel>> listCommittees(
     ListCommitteesParams params,
   ) async {

@@ -81,6 +81,7 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(() => ListPathshalas(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => GetPathshalaById(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => CreatePathshala(sl<RegistryRepository>()));
+  sl.registerLazySingleton(() => UpdatePathshala(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => ListCommittees(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => GetCommitteeById(sl<RegistryRepository>()));
 
@@ -139,7 +140,10 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
 
   // Registry controllers
   sl.registerFactory(
-    ()=> CreatePathshalaController(createPathshala: sl<CreatePathshala>()),
+    ()=> CreatePathshalaController(
+      createPathshala: sl<CreatePathshala>(),
+      updatePathshala: sl<UpdatePathshala>(),
+    ),
   );
   sl.registerFactory(
     () => CreatePersonController(createPerson: sl<CreatePerson>()),

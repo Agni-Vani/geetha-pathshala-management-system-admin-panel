@@ -49,6 +49,10 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
     }
   }
 
+  void _refreshList() {
+    listPathshalasController.load(organizationId: _organizationId, snackbarNotifier: snackbarNotifier);
+  }
+
   String _locationOf(Pathshala pathshala) {
     final address = pathshala.address;
     final subLocality = address.addressLine2?.trim();
@@ -74,7 +78,9 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
 
     final addButton = InkWell(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddNewPatshalaView()));
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => AddNewPatshalaView()))
+            .then((_) => _refreshList());
       },
       borderRadius: BorderRadius.circular(8),
       child: Container(
@@ -151,7 +157,11 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
           location: _locationOf(pathshala),
           isActive: pathshala.isOperational,
           onView: () {},
-          onEdit: () {},
+          onEdit: () {
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView(existingPathshala: pathshala)))
+                .then((_) => _refreshList());
+          },
         );
       },
       itemCount: pathshalas.length,

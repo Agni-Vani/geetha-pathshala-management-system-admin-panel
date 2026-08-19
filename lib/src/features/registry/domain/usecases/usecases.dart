@@ -10,3 +10,4 @@ export 'list_committee_memberships.dart';
 export 'list_committees.dart';
 export 'list_pathshalas.dart';
 export 'search_people.dart';
+export 'update_pathshala.dart';
