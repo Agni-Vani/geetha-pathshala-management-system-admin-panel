@@ -1,5 +1,6 @@
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_pathshala_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_person_controller.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_pathshalas_controller.dart';
 import 'package:get_it/get_it.dart';
 
 import '../features/communication/data/communication_data.dart';
@@ -142,5 +143,8 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   );
   sl.registerFactory(
     () => CreatePersonController(createPerson: sl<CreatePerson>()),
+  );
+  sl.registerFactory(
+    () => ListPathshalasController(listPathshalas: sl<ListPathshalas>()),
   );
 }

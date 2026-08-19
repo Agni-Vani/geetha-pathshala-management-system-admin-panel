@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
+import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
+import 'package:geetha_pathshala_management_web/src/di/di.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/domain/registry_domain.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_pathshalas_controller.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_pathshala_card.dart';
@@ -7,23 +12,9 @@ import '../../features/registry/presentation/widgets/custom_widgets/responsive_a
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
 import '../../features/registry/presentation/view/add_person_view.dart';
 
-class _PathshalaCardData {
-  final String name;
-  final String code;
-  final String location;
-  final int studentsCount;
-  final int teachersCount;
-  final bool isActive;
-
-  const _PathshalaCardData({
-    required this.name,
-    required this.code,
-    required this.location,
-    required this.studentsCount,
-    required this.teachersCount,
-    required this.isActive,
-  });
-}
+// TODO: replace with the signed-in user's real organization id once
+// an auth/session concept exists in the app.
+const _organizationId = 'org-gp-central';
 
 class AllPatshalaView extends StatefulWidget {
   const AllPatshalaView({super.key});
@@ -33,60 +24,17 @@ class AllPatshalaView extends StatefulWidget {
 }
 
 class _AllPatshalaViewState extends State<AllPatshalaView> {
-  // TODO: replace with real data from ListPathshalas once the list screen
-  // is wired to the registry usecases.
-  static const _demoPathshalas = [
-    _PathshalaCardData(
-      name: 'Gita Sangha Pathshala',
-      code: 'PTH-001',
-      location: 'Dhaka, Main Branch',
-      studentsCount: 120,
-      teachersCount: 5,
-      isActive: true,
-    ),
-    _PathshalaCardData(
-      name: 'Radha Madhav Pathshala',
-      code: 'PTH-002',
-      location: 'Chattogram, North Branch',
-      studentsCount: 84,
-      teachersCount: 4,
-      isActive: true,
-    ),
-    _PathshalaCardData(
-      name: 'Nitai Gaur Pathshala',
-      code: 'PTH-003',
-      location: 'Sylhet, Central Branch',
-      studentsCount: 56,
-      teachersCount: 3,
-      isActive: false,
-    ),
-    _PathshalaCardData(
-      name: 'Gopal Sundar Pathshala',
-      code: 'PTH-004',
-      location: 'Khulna, South Branch',
-      studentsCount: 98,
-      teachersCount: 4,
-      isActive: true,
-    ),
-    _PathshalaCardData(
-      name: 'Shyam Sundar Pathshala',
-      code: 'PTH-005',
-      location: 'Rajshahi, East Branch',
-      studentsCount: 72,
-      teachersCount: 3,
-      isActive: true,
-    ),
-    _PathshalaCardData(
-      name: 'Vrindavan Dham Pathshala',
-      code: 'PTH-006',
-      location: 'Barishal, Main Branch',
-      studentsCount: 40,
-      teachersCount: 2,
-      isActive: false,
-    ),
-  ];
+  final ListPathshalasController listPathshalasController = sl.get<ListPathshalasController>();
+  late final SnackbarNotifier snackbarNotifier;
 
   int _selectedIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    snackbarNotifier = SnackbarNotifier(context: context);
+    listPathshalasController.load(organizationId: _organizationId, snackbarNotifier: snackbarNotifier);
+  }
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
@@ -99,6 +47,13 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
       default:
         setState(() => _selectedIndex = index);
     }
+  }
+
+  String _locationOf(Pathshala pathshala) {
+    final address = pathshala.address;
+    final subLocality = address.addressLine2?.trim();
+    final secondary = (subLocality != null && subLocality.isNotEmpty) ? subLocality : address.region;
+    return '${address.city}, $secondary';
   }
 
   Widget _buildHeader(BuildContext context, AppColors colors, bool isNarrow) {
@@ -159,6 +114,50 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
     );
   }
 
+  Widget _buildGrid(AppColors colors) {
+    final status = listPathshalasController.processStatusNotifier.status;
+    final pathshalas = listPathshalasController.pathshalas;
+
+    if (status is ProcessLoading && pathshalas.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: Center(child: CircularProgressIndicator(color: colors.primaryColor)),
+      );
+    }
+
+    if (pathshalas.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: Center(
+          child: Text('No Pathshalas found.', style: TextStyle(color: colors.hintColor)),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 360,
+        crossAxisSpacing: 24,
+        mainAxisSpacing: 24,
+        mainAxisExtent: 320,
+      ),
+      itemBuilder: (context, index) {
+        final pathshala = pathshalas[index];
+        return CustomPathshalaCard(
+          name: pathshala.name,
+          code: pathshala.code,
+          location: _locationOf(pathshala),
+          isActive: pathshala.isOperational,
+          onView: () {},
+          onEdit: () {},
+        );
+      },
+      itemCount: pathshalas.length,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
@@ -183,31 +182,19 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
                     children: [
                       _buildHeader(context, colors, isNarrow),
                       const SizedBox(height: 24),
-                      const CustomSearchFilterBar(),
-                      const SizedBox(height: 24),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 360,
-                          crossAxisSpacing: 24,
-                          mainAxisSpacing: 24,
-                          mainAxisExtent: 320,
+                      CustomSearchFilterBar(
+                        onSearchChanged: (query) => listPathshalasController.load(
+                          organizationId: _organizationId,
+                          searchQuery: query,
+                          snackbarNotifier: snackbarNotifier,
                         ),
-                        itemBuilder: (context, index) {
-                          final pathshala = _demoPathshalas[index];
-                          return CustomPathshalaCard(
-                            name: pathshala.name,
-                            code: pathshala.code,
-                            location: pathshala.location,
-                            studentsCount: pathshala.studentsCount,
-                            teachersCount: pathshala.teachersCount,
-                            isActive: pathshala.isActive,
-                            onView: () {},
-                            onEdit: () {},
-                          );
-                        },
-                        itemCount: _demoPathshalas.length,
+                      ),
+                      const SizedBox(height: 24),
+                      AnimatedBuilder(
+                        animation: Listenable.merge(
+                          [listPathshalasController, listPathshalasController.processStatusNotifier],
+                        ),
+                        builder: (context, _) => _buildGrid(colors),
                       ),
                     ],
                   );

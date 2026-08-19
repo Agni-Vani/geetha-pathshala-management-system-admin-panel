@@ -6,8 +6,8 @@ class CustomPathshalaCard extends StatelessWidget {
   final String name;
   final String code;
   final String location;
-  final int studentsCount;
-  final int teachersCount;
+  final int? studentsCount;
+  final int? teachersCount;
   final bool isActive;
   final VoidCallback? onView;
   final VoidCallback? onEdit;
@@ -17,8 +17,8 @@ class CustomPathshalaCard extends StatelessWidget {
     required this.name,
     required this.code,
     required this.location,
-    required this.studentsCount,
-    required this.teachersCount,
+    this.studentsCount,
+    this.teachersCount,
     this.isActive = true,
     this.onView,
     this.onEdit,
@@ -92,28 +92,32 @@ class CustomPathshalaCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Row(
-            children: [
-              Expanded(
-                child: _StatChip(
-                  icon: Icons.people_outline,
-                  count: studentsCount,
-                  label: 'Students',
-                  colors: colors,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _StatChip(
-                  icon: Icons.groups_outlined,
-                  count: teachersCount,
-                  label: 'Teachers',
-                  colors: colors,
-                ),
-              ),
-            ],
-          ),
+          if (studentsCount != null || teachersCount != null) ...[
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                if (studentsCount != null)
+                  Expanded(
+                    child: _StatChip(
+                      icon: Icons.people_outline,
+                      count: studentsCount!,
+                      label: 'Students',
+                      colors: colors,
+                    ),
+                  ),
+                if (studentsCount != null && teachersCount != null) const SizedBox(width: 8),
+                if (teachersCount != null)
+                  Expanded(
+                    child: _StatChip(
+                      icon: Icons.groups_outlined,
+                      count: teachersCount!,
+                      label: 'Teachers',
+                      colors: colors,
+                    ),
+                  ),
+              ],
+            ),
+          ],
           const Spacer(),
           const SizedBox(height: 14),
           Divider(color: colors.dividerColor, height: 1),
