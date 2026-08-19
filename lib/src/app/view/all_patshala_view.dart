@@ -11,6 +11,7 @@ import '../../features/registry/presentation/widgets/custom_widgets/custom_searc
 import '../../features/registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
 import '../../features/registry/presentation/view/add_person_view.dart';
+import 'patshala_details_view.dart';
 
 // TODO: replace with the signed-in user's real organization id once
 // an auth/session concept exists in the app.
@@ -156,7 +157,11 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
           code: pathshala.code,
           location: _locationOf(pathshala),
           isActive: pathshala.isOperational,
-          onView: () {},
+          onView: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => PatshalaDetailsView(pathshala: pathshala)),
+            );
+          },
           onEdit: () {
             Navigator.of(context)
                 .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView(existingPathshala: pathshala)))
