@@ -20,9 +20,13 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
 
+  <!-- Matches the browser/status bar chrome to the app's top bar color
+       (#FAFCFB) instead of the Flutter-template default blue. -->
+  <meta name="theme-color" content="#FAFCFB">
+
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="geetha_pathshala_management_web">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
@@ -38,6 +42,13 @@
        app renders its own focus/border styling for form fields. */
     flt-glass-pane, flutter-view, canvas, *:focus {
       outline: none !important;
+    }
+
+    /* Matches the page background to the app's top bar color so there's no
+       color seam behind the status bar/notch on mobile before Flutter's
+       canvas paints. */
+    html, body {
+      background-color: #FAFCFB;
     }
   </style>
 </head>

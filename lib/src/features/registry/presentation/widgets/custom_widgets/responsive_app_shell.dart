@@ -56,24 +56,26 @@ class ResponsiveAppShell extends StatelessWidget {
         return Scaffold(
           backgroundColor: colors.tileColor,
           drawer: isMobile ? Drawer(width: 260, child: SafeArea(child: sidebar)) : null,
-          body: Row(
-            children: [
-              if (!isMobile) sidebar,
-              Expanded(
-                child: Builder(
-                  builder: (innerContext) => Column(
-                    children: [
-                      CustomTopBar(
-                        title: topBarTitle,
-                        onBack: onTopBarBack,
-                        onMenuTap: isMobile ? () => Scaffold.of(innerContext).openDrawer() : null,
-                      ),
-                      Expanded(child: body),
-                    ],
+          body: SafeArea(
+            child: Row(
+              children: [
+                if (!isMobile) sidebar,
+                Expanded(
+                  child: Builder(
+                    builder: (innerContext) => Column(
+                      children: [
+                        CustomTopBar(
+                          title: topBarTitle,
+                          onBack: onTopBarBack,
+                          onMenuTap: isMobile ? () => Scaffold.of(innerContext).openDrawer() : null,
+                        ),
+                        Expanded(child: body),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

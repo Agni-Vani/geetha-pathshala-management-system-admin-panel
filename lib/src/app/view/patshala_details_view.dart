@@ -264,6 +264,8 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
                 children: [
                   Text(
                     pathshala.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: colors.textColor),
                   ),
                   Container(
@@ -330,18 +332,18 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
       child: Stack(
         children: [
           Positioned(
-            top: -30,
-            right: -30,
+            top: isNarrow ? -16 : -30,
+            right: isNarrow ? -16 : -30,
             child: Container(
-              width: 140,
-              height: 140,
+              width: isNarrow ? 80 : 140,
+              height: isNarrow ? 80 : 140,
               decoration: BoxDecoration(shape: BoxShape.circle, color: colors.primaryColor.withValues(alpha: 0.05)),
             ),
           ),
           isNarrow
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [info, const SizedBox(height: 20), SizedBox(width: double.infinity, child: scheduleButton)],
+                  children: [info, const SizedBox(height: 16), SizedBox(width: double.infinity, child: scheduleButton)],
                 )
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -500,7 +502,14 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
           children: [
             Icon(Icons.call_outlined, size: 15, color: colors.hintColor),
             const SizedBox(width: 8),
-            Text(_demoAdmin.phone, style: TextStyle(fontSize: 13, color: colors.textColor)),
+            Flexible(
+              child: Text(
+                _demoAdmin.phone,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, color: colors.textColor),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 6),
@@ -508,7 +517,14 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
           children: [
             Icon(Icons.mail_outline, size: 15, color: colors.hintColor),
             const SizedBox(width: 8),
-            Text(_demoAdmin.email, style: TextStyle(fontSize: 13, color: colors.textColor)),
+            Flexible(
+              child: Text(
+                _demoAdmin.email,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, color: colors.textColor),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 6),
@@ -516,7 +532,14 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
           children: [
             Icon(Icons.calendar_today_outlined, size: 15, color: colors.hintColor),
             const SizedBox(width: 8),
-            Text('যোগদান: ${_demoAdmin.joinedOn}', style: TextStyle(fontSize: 13, color: colors.textColor)),
+            Flexible(
+              child: Text(
+                'যোগদান: ${_demoAdmin.joinedOn}',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 13, color: colors.textColor),
+              ),
+            ),
           ],
         ),
       ],

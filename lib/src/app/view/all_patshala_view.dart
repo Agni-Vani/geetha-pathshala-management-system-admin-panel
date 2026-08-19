@@ -148,7 +148,7 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
         maxCrossAxisExtent: 360,
         crossAxisSpacing: 24,
         mainAxisSpacing: 24,
-        mainAxisExtent: 320,
+        mainAxisExtent: 270,
       ),
       itemBuilder: (context, index) {
         final pathshala = pathshalas[index];

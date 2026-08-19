@@ -118,7 +118,6 @@ class CustomPathshalaCard extends StatelessWidget {
               ],
             ),
           ],
-          const Spacer(),
           const SizedBox(height: 14),
           Divider(color: colors.dividerColor, height: 1),
           const SizedBox(height: 14),
