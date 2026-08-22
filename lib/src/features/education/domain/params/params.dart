@@ -38,6 +38,18 @@ final class ListGroupsParams {
   });
 }
 
+final class ListStudentAdmissionsParams {
+  final String pathshalaId;
+
+  const ListStudentAdmissionsParams({required this.pathshalaId});
+}
+
+final class ListTeacherAssignmentsParams {
+  final String pathshalaId;
+
+  const ListTeacherAssignmentsParams({required this.pathshalaId});
+}
+
 final class IndividualAttendanceEntry {
   final String personId;
   final AttendanceStatus status;

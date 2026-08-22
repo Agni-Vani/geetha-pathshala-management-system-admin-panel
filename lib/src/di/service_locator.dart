@@ -1,3 +1,4 @@
+import 'package:geetha_pathshala_management_web/src/app/controller/pathshala_details_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_pathshala_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_person_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_pathshalas_controller.dart';
@@ -84,6 +85,7 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(() => UpdatePathshala(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => ListCommittees(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => GetCommitteeById(sl<RegistryRepository>()));
+  sl.registerLazySingleton(() => ListCommitteeMemberships(sl<RegistryRepository>()));
 
   // IAM Use Cases (Named)
   sl.registerLazySingleton(
@@ -125,6 +127,12 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(
     () => AssignTeacher(repository: sl<EducationRepository>()),
   );
+  sl.registerLazySingleton(
+    () => ListStudentAdmissions(repository: sl<EducationRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ListTeacherAssignments(repository: sl<EducationRepository>()),
+  );
 
   // Communication Use Cases (Named)
   sl.registerLazySingleton(
@@ -150,5 +158,15 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   );
   sl.registerFactory(
     () => ListPathshalasController(listPathshalas: sl<ListPathshalas>()),
+  );
+  sl.registerFactory(
+    () => PathshalaDetailsController(
+      listCommittees: sl<ListCommittees>(),
+      listCommitteeMemberships: sl<ListCommitteeMemberships>(),
+      getPersonById: sl<GetPersonById>(),
+      getNotices: sl<GetNotices>(),
+      listStudentAdmissions: sl<ListStudentAdmissions>(),
+      listTeacherAssignments: sl<ListTeacherAssignments>(),
+    ),
   );
 }

@@ -77,6 +77,22 @@ final class MockEducationDatasource implements EducationDatasource {
   }
 
   @override
+  Future<List<StudentAdmissionModel>> listStudentAdmissions(
+    ListStudentAdmissionsParams params,
+  ) async {
+    await _simulateProcessing();
+    return _admissions.where((a) => a.pathshalaId == params.pathshalaId).toList();
+  }
+
+  @override
+  Future<List<TeacherAssignmentModel>> listTeacherAssignments(
+    ListTeacherAssignmentsParams params,
+  ) async {
+    await _simulateProcessing();
+    return _teacherAssignments.where((a) => a.pathshalaId == params.pathshalaId).toList();
+  }
+
+  @override
   Future<AttendanceSessionModel> recordAttendance(
     RecordAttendanceParams params,
   ) async {

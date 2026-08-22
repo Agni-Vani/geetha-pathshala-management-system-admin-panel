@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
 
+import '../../core/shared/reactive_notifier/process_notifier.dart';
+import '../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../core/theme/app_colors.dart';
+import '../../di/di.dart';
 import '../../features/registry/domain/registry_domain.dart';
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
 import '../../features/registry/presentation/view/add_person_view.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_section_header.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
+import '../controller/pathshala_details_controller.dart';
 import 'all_patshala_view.dart';
 
 const _bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+const _bnMonths = [
+  'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
+  'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর',
+];
 
 String _bn(Object value) {
   return value.toString().split('').map((c) {
     final digit = int.tryParse(c);
     return digit != null ? _bnDigits[digit] : c;
   }).join();
+}
+
+String _bnDate(DateTime date) {
+  return '${_bn(date.day)} ${_bnMonths[date.month - 1]}, ${_bn(date.year)}';
 }
 
 class _StatInfo {
@@ -24,22 +36,6 @@ class _StatInfo {
   final Color tint;
 
   const _StatInfo({required this.icon, required this.label, required this.value, required this.tint});
-}
-
-class _AdminInfo {
-  final String name;
-  final String role;
-  final String phone;
-  final String email;
-  final String joinedOn;
-
-  const _AdminInfo({
-    required this.name,
-    required this.role,
-    required this.phone,
-    required this.email,
-    required this.joinedOn,
-  });
 }
 
 class PatshalaDetailsView extends StatefulWidget {
@@ -54,20 +50,26 @@ class PatshalaDetailsView extends StatefulWidget {
 class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
   static const _tabs = ['সারসংক্ষেপ', 'প্রশাসক', 'শিক্ষক', 'শিক্ষার্থী', 'উপস্থিতি', 'কার্যক্রম'];
 
-  // TODO: this section's data (head, stats, administrator profile) isn't
-  // backed by the domain layer yet — placeholder values only, matching the
-  // provided design, until a real usecase/entity exists for them.
-  static const _demoHead = 'Sri Ramakanta Das';
-  static const _demoAdmin = _AdminInfo(
-    name: 'সঞ্জয় রায়',
-    role: 'প্রধান প্রশাসক',
-    phone: '+৮৮০ ১৭১২-৩৪৫৬৭৮',
-    email: 'sanjay.roy@gitapathshala.org',
-    joinedOn: '১২ জানুয়ারি, ২০২৩',
-  );
+  final PathshalaDetailsController controller = sl.get<PathshalaDetailsController>();
+  late final SnackbarNotifier snackbarNotifier;
 
   int _selectedIndex = 1;
   int _selectedTab = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    snackbarNotifier = SnackbarNotifier(context: context);
+    _loadDetails();
+  }
+
+  void _loadDetails() {
+    controller.load(
+      organizationId: widget.pathshala.organizationId,
+      pathshalaId: widget.pathshala.id,
+      snackbarNotifier: snackbarNotifier,
+    );
+  }
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
@@ -123,12 +125,38 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
     );
   }
 
-  List<_StatInfo> _stats(AppColors colors) => [
-        _StatInfo(icon: Icons.people_alt_outlined, label: 'শিক্ষার্থী', value: _bn(85), tint: colors.primaryColor),
-        _StatInfo(icon: Icons.record_voice_over_outlined, label: 'শিক্ষক', value: _bn(5), tint: const Color(0xFFB8860B)),
-        _StatInfo(icon: Icons.event_available_outlined, label: 'উপস্থিতি', value: '${_bn(93)}%', tint: const Color(0xFF2E7BC4)),
-        _StatInfo(icon: Icons.campaign_outlined, label: 'নোটিশ', value: _bn(12), tint: colors.errorColor),
-      ];
+  List<_StatInfo> _stats(AppColors colors) {
+    final isLoading = controller.processStatusNotifier.status is ProcessLoading;
+    return [
+      _StatInfo(
+        icon: Icons.people_alt_outlined,
+        label: 'শিক্ষার্থী',
+        value: isLoading ? '—' : _bn(controller.studentsCount),
+        tint: colors.primaryColor,
+      ),
+      _StatInfo(
+        icon: Icons.record_voice_over_outlined,
+        label: 'শিক্ষক',
+        value: isLoading ? '—' : _bn(controller.teachersCount),
+        tint: const Color(0xFFB8860B),
+      ),
+      // Attendance reporting isn't built yet (no session data exists to
+      // aggregate a rate from), so this stays a placeholder dash rather
+      // than a fabricated percentage.
+      const _StatInfo(
+        icon: Icons.event_available_outlined,
+        label: 'উপস্থিতি',
+        value: '—',
+        tint: Color(0xFF2E7BC4),
+      ),
+      _StatInfo(
+        icon: Icons.campaign_outlined,
+        label: 'নোটিশ',
+        value: isLoading ? '—' : _bn(controller.noticesCount),
+        tint: colors.errorColor,
+      ),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,25 +174,28 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 640;
+              child: AnimatedBuilder(
+                animation: Listenable.merge([controller, controller.processStatusNotifier]),
+                builder: (context, _) => LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 640;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildTopRow(colors, pathshala, isNarrow),
-                      const SizedBox(height: 20),
-                      _buildHeaderCard(colors, pathshala, isNarrow),
-                      const SizedBox(height: 24),
-                      _buildStatsGrid(colors, isNarrow),
-                      const SizedBox(height: 24),
-                      _buildTabs(colors),
-                      const SizedBox(height: 20),
-                      _buildTabContent(colors, isNarrow),
-                    ],
-                  );
-                },
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTopRow(colors, pathshala, isNarrow),
+                        const SizedBox(height: 20),
+                        _buildHeaderCard(colors, pathshala, isNarrow),
+                        const SizedBox(height: 24),
+                        _buildStatsGrid(colors, isNarrow),
+                        const SizedBox(height: 24),
+                        _buildTabs(colors),
+                        const SizedBox(height: 20),
+                        _buildTabContent(colors, isNarrow),
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -301,7 +332,14 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
                 children: [
                   Icon(Icons.person_outline, size: 16, color: colors.hintColor),
                   const SizedBox(width: 6),
-                  Text('Head: $_demoHead', style: TextStyle(fontSize: 13, color: colors.textColor)),
+                  Flexible(
+                    child: Text(
+                      'Head: ${controller.primaryAdministrator?.person.displayName ?? "এখনো নির্ধারিত হয়নি"}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 13, color: colors.textColor),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -483,52 +521,127 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
       );
     }
 
-    final photo = CircleAvatar(
-      radius: 40,
-      backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
-      child: Icon(Icons.person, color: colors.primaryColor, size: 40),
-    );
+    final isLoading = controller.processStatusNotifier.status is ProcessLoading;
+    final admin = controller.primaryAdministrator;
 
-    final details = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(_demoAdmin.name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textColor)),
-        const SizedBox(height: 2),
-        Text(_demoAdmin.role, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.primaryColor)),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Icon(Icons.call_outlined, size: 15, color: colors.hintColor),
-            const SizedBox(width: 8),
-            Text(_demoAdmin.phone, style: TextStyle(fontSize: 13, color: colors.textColor)),
-          ],
+    Widget body;
+    if (isLoading) {
+      body = const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    } else if (admin == null) {
+      body = Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        decoration: BoxDecoration(color: colors.tileColor, borderRadius: BorderRadius.circular(12)),
+        child: Center(
+          child: Text('কোনো প্রশাসক এখনো নিয়োগ করা হয়নি।', style: TextStyle(color: colors.hintColor)),
         ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Icon(Icons.mail_outline, size: 15, color: colors.hintColor),
-            const SizedBox(width: 8),
-            Text(_demoAdmin.email, style: TextStyle(fontSize: 13, color: colors.textColor)),
-          ],
-        ),
-        const SizedBox(height: 6),
-        Row(
-          children: [
-            Icon(Icons.calendar_today_outlined, size: 15, color: colors.hintColor),
-            const SizedBox(width: 8),
-            Text('যোগদান: ${_demoAdmin.joinedOn}', style: TextStyle(fontSize: 13, color: colors.textColor)),
-          ],
-        ),
-      ],
-    );
+      );
+    } else {
+      final photo = CircleAvatar(
+        radius: 40,
+        backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
+        child: Icon(Icons.person, color: colors.primaryColor, size: 40),
+      );
 
-    final changeButton = _pillButton(
-      onPressed: () {},
-      icon: Icons.manage_accounts_outlined,
-      label: 'প্রশাসক পরিবর্তন',
-      filled: false,
-      colors: colors,
-    );
+      final details = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(admin.person.displayName, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: colors.textColor)),
+          const SizedBox(height: 2),
+          Text(admin.membership.title, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.primaryColor)),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Icon(Icons.call_outlined, size: 15, color: colors.hintColor),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  admin.person.primaryPhone ?? '—',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13, color: colors.textColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(Icons.mail_outline, size: 15, color: colors.hintColor),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  admin.person.primaryEmail ?? '—',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13, color: colors.textColor),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(Icons.calendar_today_outlined, size: 15, color: colors.hintColor),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  'যোগদান: ${_bnDate(admin.membership.effectiveFrom)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13, color: colors.textColor),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+
+      final changeButton = _pillButton(
+        onPressed: () {},
+        icon: Icons.manage_accounts_outlined,
+        label: 'প্রশাসক পরিবর্তন',
+        filled: false,
+        colors: colors,
+      );
+
+      body = Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(color: colors.tileColor, borderRadius: BorderRadius.circular(12)),
+        child: Stack(
+          children: [
+            Positioned(
+              bottom: -20,
+              right: -10,
+              child: Icon(Icons.groups, size: 110, color: colors.primaryColor.withValues(alpha: 0.06)),
+            ),
+            isNarrow
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(children: [photo, const SizedBox(width: 16), Expanded(child: details)]),
+                      const SizedBox(height: 16),
+                      SizedBox(width: double.infinity, child: changeButton),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      photo,
+                      const SizedBox(width: 16),
+                      Expanded(child: details),
+                      changeButton,
+                    ],
+                  ),
+          ],
+        ),
+      );
+    }
 
     return Container(
       width: double.infinity,
@@ -543,39 +656,7 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
         children: [
           const CustomSectionHeader(icon: Icons.shield_outlined, title: 'বর্তমান প্রশাসক'),
           const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(color: colors.tileColor, borderRadius: BorderRadius.circular(12)),
-            child: Stack(
-              children: [
-                Positioned(
-                  bottom: -20,
-                  right: -10,
-                  child: Icon(Icons.groups, size: 110, color: colors.primaryColor.withValues(alpha: 0.06)),
-                ),
-                isNarrow
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(children: [photo, const SizedBox(width: 16), Expanded(child: details)]),
-                          const SizedBox(height: 16),
-                          SizedBox(width: double.infinity, child: changeButton),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          photo,
-                          const SizedBox(width: 16),
-                          Expanded(child: details),
-                          changeButton,
-                        ],
-                      ),
-              ],
-            ),
-          ),
+          body,
         ],
       ),
     );
