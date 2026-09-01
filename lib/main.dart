@@ -4,6 +4,7 @@ import 'package:geetha_pathshala_management_web/src/core/theme/app_theme.dart';
 import 'package:geetha_pathshala_management_web/src/di/service_locator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'src/features/registry/presentation/view/registry_route_builders.dart';
 import 'src/features/registry/presentation/view/splash_view.dart';
 
 Future<void> main() async {
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
       theme: AppTheme().lightTheme,
       darkTheme: AppTheme().darkTheme,
       themeMode: ThemeMode.light,
+      routes: RegistryRouteBuilders.routes,
       home: const SplashView(),
     );
   }

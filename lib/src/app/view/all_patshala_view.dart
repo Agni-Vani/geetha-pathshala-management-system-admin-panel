@@ -9,13 +9,20 @@ import '../../core/theme/app_colors.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_pathshala_card.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_search_filter_bar.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
+import '../../features/registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
-import '../../features/registry/presentation/view/add_person_view.dart';
 import 'patshala_details_view.dart';
 
 // TODO: replace with the signed-in user's real organization id once
 // an auth/session concept exists in the app.
 const _organizationId = 'org-gp-central';
+
+/// Narrowest a pathshala card may get before the grid drops a column.
+const _minCardWidth = 300.0;
+
+/// Below this card width the card stacks its two action buttons and so needs
+/// to be taller — see `_stackedActionsBreakpoint` in CustomPathshalaCard.
+const _stackedCardWidth = 276.0;
 
 class AllPatshalaView extends StatefulWidget {
   const AllPatshalaView({super.key});
@@ -28,7 +35,7 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
   final ListPathshalasController listPathshalasController = sl.get<ListPathshalasController>();
   late final SnackbarNotifier snackbarNotifier;
 
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
 
   @override
   void initState() {
@@ -39,15 +46,7 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
-    switch (index) {
-      case 2:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const AddPersonRegistryView()),
-        );
-        break;
-      default:
-        setState(() => _selectedIndex = index);
-    }
+    RegistrySidebarNavigation.pushReplacement(context, index);
   }
 
   void _refreshList() {
@@ -141,36 +140,44 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
       );
     }
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 360,
-        crossAxisSpacing: 24,
-        mainAxisSpacing: 24,
-        mainAxisExtent: 320,
-      ),
-      itemBuilder: (context, index) {
-        final pathshala = pathshalas[index];
-        return CustomPathshalaCard(
-          name: pathshala.name,
-          code: pathshala.code,
-          location: _locationOf(pathshala),
-          isActive: pathshala.isOperational,
-          onView: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => PatshalaDetailsView(pathshala: pathshala)),
-            );
-          },
-          onEdit: () {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView(existingPathshala: pathshala)))
-                .then((_) => _refreshList());
-          },
-        );
-      },
-      itemCount: pathshalas.length,
-    );
+    // A column is only added while every card can still be at least
+    // [_minCardWidth] wide — below that the contents get squeezed and overflow.
+    return LayoutBuilder(builder: (context, constraints) {
+      const spacing = 24.0;
+      final columns = ((constraints.maxWidth + spacing) / (_minCardWidth + spacing)).floor().clamp(1, 4);
+      final cardWidth = (constraints.maxWidth - spacing * (columns - 1)) / columns;
+
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: columns,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
+          mainAxisExtent: cardWidth < _stackedCardWidth ? 372 : 320,
+        ),
+        itemBuilder: (context, index) {
+          final pathshala = pathshalas[index];
+          return CustomPathshalaCard(
+            name: pathshala.name,
+            code: pathshala.code,
+            location: _locationOf(pathshala),
+            isActive: pathshala.isOperational,
+            onView: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => PatshalaDetailsView(pathshala: pathshala)),
+              );
+            },
+            onEdit: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView(existingPathshala: pathshala)))
+                  .then((_) => _refreshList());
+            },
+          );
+        },
+        itemCount: pathshalas.length,
+      );
+    });
   }
 
   @override

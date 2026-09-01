@@ -6,11 +6,10 @@ import '../../core/theme/app_colors.dart';
 import '../../di/di.dart';
 import '../../features/registry/domain/registry_domain.dart';
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
-import '../../features/registry/presentation/view/add_person_view.dart';
+import '../../features/registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_section_header.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
 import '../controller/pathshala_details_controller.dart';
-import 'all_patshala_view.dart';
 
 const _bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 const _bnMonths = [
@@ -53,7 +52,7 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
   final PathshalaDetailsController controller = sl.get<PathshalaDetailsController>();
   late final SnackbarNotifier snackbarNotifier;
 
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
   int _selectedTab = 1;
 
   @override
@@ -73,16 +72,7 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
-    switch (index) {
-      case 1:
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const AllPatshalaView()));
-        break;
-      case 2:
-        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const AddPersonRegistryView()));
-        break;
-      default:
-        setState(() => _selectedIndex = index);
-    }
+    RegistrySidebarNavigation.pushReplacement(context, index);
   }
 
   // Material's OutlinedButton.icon/ElevatedButton.icon throw a

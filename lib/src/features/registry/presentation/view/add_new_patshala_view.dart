@@ -15,8 +15,7 @@ import '../widgets/custom_widgets/custom_section_divider.dart';
 import '../widgets/custom_widgets/custom_section_header.dart';
 import '../widgets/custom_widgets/custom_toggle_field.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
-import '../../../../app/view/all_patshala_view.dart';
-import 'add_person_view.dart';
+import 'registry_sidebar_navigation.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
   final Pathshala? existingPathshala;
@@ -28,7 +27,7 @@ class AddNewPatshalaView extends StatefulWidget {
 }
 
 class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
-  int _selectedIndex = 1;
+  final int _selectedIndex = 1;
   CreatePathshalaController createPathshalaController = sl.get<CreatePathshalaController>();
   late final SnackbarNotifier snackbarNotifier;
 
@@ -49,20 +48,8 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   bool get _isEditing => widget.existingPathshala != null;
 
   void _onSidebarItemSelected(int index) {
-    switch (index) {
-      case 1:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const AllPatshalaView()),
-        );
-        break;
-      case 2:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const AddPersonRegistryView()),
-        );
-        break;
-      default:
-        setState(() => _selectedIndex = index);
-    }
+    if (index == _selectedIndex) return;
+    RegistrySidebarNavigation.pushReplacement(context, index);
   }
 
   @override

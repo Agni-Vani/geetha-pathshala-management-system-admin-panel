@@ -4,13 +4,13 @@ import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifie
 import 'package:geetha_pathshala_management_web/src/di/di.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_person_controller.dart';
 
-import '../../../../app/view/all_patshala_view.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/custom_widgets/custom_date_field.dart';
 import '../widgets/custom_widgets/custom_form_field.dart';
 import '../widgets/custom_widgets/custom_section_divider.dart';
 import '../widgets/custom_widgets/custom_section_header.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
+import 'registry_sidebar_navigation.dart';
 
 class AddPersonRegistryView extends StatefulWidget {
   const AddPersonRegistryView({super.key});
@@ -22,7 +22,7 @@ class AddPersonRegistryView extends StatefulWidget {
 class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
   static const _genders = ['Male', 'Female', 'Other'];
 
-  int _selectedIndex = 2;
+  final int _selectedIndex = 2;
   CreatePersonController createPersonController = sl.get<CreatePersonController>();
   late final SnackbarNotifier snackbarNotifier;
 
@@ -35,15 +35,7 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
-    switch (index) {
-      case 1:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const AllPatshalaView()),
-        );
-        break;
-      default:
-        setState(() => _selectedIndex = index);
-    }
+    RegistrySidebarNavigation.pushReplacement(context, index);
   }
 
   @override

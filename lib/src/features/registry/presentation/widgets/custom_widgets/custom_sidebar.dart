@@ -44,11 +44,12 @@ class CustomSidebar extends StatelessWidget {
       width: isCollapsed ? 76 : 260,
       decoration: BoxDecoration(
         color: colors.drawerColor,
+        border: Border(right: BorderSide(color: colors.dividerColor)),
       ),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24.0),
+            padding: EdgeInsets.fromLTRB(isCollapsed ? 10 : 18, 18, isCollapsed ? 10 : 18, 14),
             child: Column(
               children: [
                 CircleAvatar(
@@ -92,32 +93,33 @@ class CustomSidebar extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: EdgeInsets.fromLTRB(isCollapsed ? 8 : 12, 12, isCollapsed ? 8 : 12, 28),
+            padding: EdgeInsets.fromLTRB(isCollapsed ? 8 : 12, 8, isCollapsed ? 8 : 12, 24),
             child: Tooltip(
               message: isCollapsed ? 'Logout' : '',
               child: InkWell(
                 onTap: onLogout,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(18),
                 child: Container(
                   padding: EdgeInsets.symmetric(
-                    vertical: 12,
+                    vertical: 14,
                     horizontal: isCollapsed ? 0 : 16,
                   ),
                   decoration: BoxDecoration(
                     color: colors.errorColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: colors.errorColor.withValues(alpha: 0.12)),
                   ),
                   child: Row(
                     mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
                     children: [
-                      Icon(Icons.logout, color: colors.errorColor),
+                      Icon(Icons.logout_rounded, color: colors.errorColor),
                       if (!isCollapsed) ...[
                         const SizedBox(width: 12),
                         Text(
                           'Logout',
                           style: TextStyle(
                             color: colors.errorColor,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -153,30 +155,41 @@ class _SidebarMenuTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tile = Padding(
-      padding: const EdgeInsets.only(bottom: 4.0),
+      padding: const EdgeInsets.only(bottom: 6),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(18),
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: isCollapsed ? 0 : 16),
+          padding: EdgeInsets.symmetric(vertical: 13, horizontal: isCollapsed ? 0 : 14),
           decoration: BoxDecoration(
-            color: isSelected ? colors.primaryColor : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            color: isSelected ? colors.primaryColor.withValues(alpha: 0.12) : Colors.transparent,
+            borderRadius: BorderRadius.circular(18),
+            border: isSelected ? Border.all(color: colors.primaryColor.withValues(alpha: 0.16)) : null,
           ),
           child: Row(
             mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
             children: [
+              if (!isCollapsed && isSelected)
+                Container(
+                  width: 4,
+                  height: 24,
+                  margin: const EdgeInsets.only(right: 12),
+                  decoration: BoxDecoration(
+                    color: colors.primaryColor,
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                ),
               Icon(
                 icon,
-                color: isSelected ? colors.invertTextColor : colors.grey,
+                color: isSelected ? colors.primaryColor : colors.grey,
               ),
               if (!isCollapsed) ...[
                 const SizedBox(width: 12),
                 Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? colors.invertTextColor : colors.textColor,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected ? colors.primaryColor : colors.textColor,
+                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     fontSize: 14,
                   ),
                 ),
