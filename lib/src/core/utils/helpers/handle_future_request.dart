@@ -1,3 +1,4 @@
+import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
 import 'package:pagination_pkg/pagination_pkg.dart';
 
 import '../../async_handlers/async_request.dart';
@@ -13,6 +14,8 @@ Future<T?> handleFutureRequest<T>({
   required AsyncRequest<T> Function() request,
   Debugger? debugger,
   ProcessStatusNotifier? processStatusNotifier,
+  SnackbarNotifier? successSnackbarNotifier,
+  SnackbarNotifier? errorSnackbarNotifier,
   void Function(T data)? onSuccess,
   void Function(FailedRepoCall<T> failure)? onError,
 }) async {
@@ -30,6 +33,7 @@ Future<T?> handleFutureRequest<T>({
     }
 
     debugger?.log('Success:: ${response.message}');
+    successSnackbarNotifier?.notifySuccess(message: response.message);
 
     return data;
   }
@@ -40,6 +44,7 @@ Future<T?> handleFutureRequest<T>({
     onError?.call(response);
 
     debugger?.log('Error:: $response');
+    errorSnackbarNotifier?.notifyError(message: response.message);
 
     return null;
   }

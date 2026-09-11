@@ -56,7 +56,7 @@ class AppColors {
     buttonContentColor: Colors.white,
     activeButtonContentColor: Colors.white,
     inActiveButtonColor: _surfaceColor,
-    inActiveButtonContentColor: _primaryColor,
+    inActiveButtonContentColor: const Color.fromARGB(255, 111, 112, 112),
     drawerColor: _surfaceColor,
     borderColor: const Color(0xFFBBCAC9),
     popupBackgroundColor: _surfaceColor,

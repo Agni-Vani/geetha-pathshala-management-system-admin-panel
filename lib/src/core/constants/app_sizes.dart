@@ -30,7 +30,7 @@ class AppSizes {
     Radius.circular(10.0),
   );
   static const BorderRadius rectangleButtonRadius = BorderRadius.all(
-    Radius.circular(24.0),
+    Radius.circular(8.0),
   );
   static const BorderRadius smallRectangleTileRadius = BorderRadius.all(
     Radius.circular(4.0),
