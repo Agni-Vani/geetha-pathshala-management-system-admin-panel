@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../app/view/all_patshala_view.dart';
-import 'add_person_view.dart';
+import '../../../../app/view/all_people_view.dart';
 import 'attendance_view.dart';
 import 'dashboard_view.dart';
 import 'events_view.dart';
@@ -16,7 +16,7 @@ abstract final class RegistryRouteBuilders {
   static Map<String, WidgetBuilder> get routes => {
     RegistryRouteNames.dashboard: (_) => const DashboardView(),
     RegistryRouteNames.pathshalas: (_) => const AllPatshalaView(),
-    RegistryRouteNames.peopleRegistry: (_) => const AddPersonRegistryView(),
+    RegistryRouteNames.peopleRegistry: (_) => const AllPeopleView(),
     RegistryRouteNames.students: (_) => const StudentsView(),
     RegistryRouteNames.teachers: (_) => const TeachersView(),
     RegistryRouteNames.attendance: (_) => const AttendanceView(),

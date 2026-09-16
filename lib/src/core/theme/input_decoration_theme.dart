@@ -7,7 +7,10 @@ class DInputDecorationTheme {
   static InputDecorationTheme lightTheme = InputDecorationTheme(
     filled: true,
     floatingLabelBehavior: FloatingLabelBehavior.always,
-    prefixIconConstraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
+    // Keeps a gap between the icon and the text; a bare `maxWidth` here would
+    // glue them together. Fields that need exact control use AppFieldDecoration.
+    prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 40),
+    suffixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 40),
     contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
     fillColor: AppColors.light().backgroundColor,
     focusColor: AppColors.light().backgroundColor,
@@ -37,7 +40,10 @@ class DInputDecorationTheme {
   static InputDecorationTheme darkTheme = InputDecorationTheme(
     filled: true,
     floatingLabelBehavior: FloatingLabelBehavior.never,
-    prefixIconConstraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
+    // Keeps a gap between the icon and the text; a bare `maxWidth` here would
+    // glue them together. Fields that need exact control use AppFieldDecoration.
+    prefixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 40),
+    suffixIconConstraints: const BoxConstraints(minWidth: 48, minHeight: 40),
     contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
     fillColor: AppColors.dark().backgroundColor,
     focusColor: AppColors.dark().textColor,

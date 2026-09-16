@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_field_decoration.dart';
 
 class CustomSearchFilterBar extends StatelessWidget {
   final String searchHint;
@@ -8,39 +9,29 @@ class CustomSearchFilterBar extends StatelessWidget {
   final String branchHint;
   final ValueChanged<String>? onSearchChanged;
 
+  /// Listings without a regional breakdown (the people registry, for one)
+  /// reuse this bar for its search field alone.
+  final bool showFilters;
+
   const CustomSearchFilterBar({
     super.key,
     this.searchHint = 'Search by name or code...',
     this.districtHint = 'All Districts',
     this.branchHint = 'All Branches',
     this.onSearchChanged,
+    this.showFilters = true,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
 
-    InputDecoration fieldDecoration(String hint, {Widget? prefixIcon}) {
-      return InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(color: colors.hintColor, fontSize: 13),
-        prefixIcon: prefixIcon,
-        filled: true,
-        fillColor: colors.tileColor,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.borderColor),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.borderColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: colors.primaryColor),
-        ),
+    InputDecoration fieldDecoration(String hint, {IconData? prefixIcon}) {
+      return AppFieldDecoration.build(
+        context,
+        hint: hint,
+        prefix: prefixIcon,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       );
     }
 
@@ -48,7 +39,7 @@ class CustomSearchFilterBar extends StatelessWidget {
       onChanged: onSearchChanged,
       decoration: fieldDecoration(
         searchHint,
-        prefixIcon: Icon(Icons.search, size: 18, color: colors.hintColor),
+        prefixIcon: Icons.search,
       ),
     );
 
@@ -86,6 +77,8 @@ class CustomSearchFilterBar extends StatelessWidget {
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
+          if (!showFilters) return searchField;
+
           if (constraints.maxWidth < 640) {
             return Column(
               children: [

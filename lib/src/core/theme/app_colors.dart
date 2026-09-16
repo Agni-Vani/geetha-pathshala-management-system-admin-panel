@@ -147,4 +147,35 @@ class AppColors {
   Color get fillColor => backgroundColor;
   Color get focusedBorderColor => primaryColor;
   Color get unselectedTileColor => _unselectedTileColor;
+
+  /// Deep maroon used for sidebar navigation and the Om badge — the app's
+  /// second brand colour alongside the orange [primaryColor].
+  Color get maroonColor =>
+      _isDark ? const Color(0xFFD99B85) : const Color(0xFF6E2C1E);
+
+  /// Foreground on a solid [maroonColor] fill — the dark theme's maroon is a
+  /// light clay, where white would wash out.
+  Color get onMaroonColor =>
+      _isDark ? const Color(0xFF3A1409) : Colors.white;
+
+  /// Warm parchment fill for registry cards — a touch creamier than
+  /// [backgroundColor] so a card reads as paper laid on the page.
+  Color get cardSurfaceColor =>
+      _isDark ? const Color(0xFF13201F) : const Color(0xFFFFFCF6);
+
+  /// Gold used for card borders and the corner flourishes.
+  Color get ornamentColor =>
+      _isDark ? const Color(0xFF6B5836) : const Color(0xFFE6CDA4);
+
+  /// Soft peach behind avatars and small icon tiles.
+  Color get softAccentColor =>
+      _isDark ? const Color(0xFF3A2A16) : const Color(0xFFFBE6CC);
+
+  /// Opaque surface for dialogs and pop-ups.
+  ///
+  /// [backgroundColor] is deliberately translucent so panels blend with the
+  /// illustrated app background — but a dialog sits above a dark scrim, where
+  /// that translucency reads as dirty grey. Dialogs use this instead.
+  Color get dialogBackgroundColor =>
+      _isDark ? const Color(0xFF0E1C1C) : const Color(0xFFFFFCF7);
 }

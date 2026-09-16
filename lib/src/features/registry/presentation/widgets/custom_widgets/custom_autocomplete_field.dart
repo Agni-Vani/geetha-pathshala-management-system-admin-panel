@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_field_decoration.dart';
 
 class CustomAutocompleteField extends StatelessWidget {
   final String label;
@@ -61,24 +62,13 @@ class CustomAutocompleteField extends StatelessWidget {
               enabled: enabled,
               onChanged: onChanged,
               style: TextStyle(fontSize: 13, color: colors.textColor),
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: TextStyle(color: colors.hintColor, fontSize: 13),
-                suffixIcon: Icon(Icons.arrow_drop_down, color: colors.hintColor),
-                filled: true,
-                fillColor: colors.tileColor,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: colors.borderColor),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: colors.borderColor),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: colors.primaryColor),
+              decoration: AppFieldDecoration.build(
+                context,
+                hint: hint,
+                suffixWidget: AppFieldDecoration.suffixIcon(
+                  context,
+                  Icons.arrow_drop_down,
+                  size: 24,
                 ),
               ),
             );

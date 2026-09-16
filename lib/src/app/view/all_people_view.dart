@@ -3,42 +3,37 @@ import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifie
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/di/di.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/domain/registry_domain.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_pathshalas_controller.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_people_controller.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../features/registry/presentation/view/add_person_view.dart';
+import '../../features/registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_empty_state.dart';
-import '../../features/registry/presentation/widgets/custom_widgets/custom_pathshala_card.dart';
+import '../../features/registry/presentation/widgets/custom_widgets/custom_person_card.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_search_filter_bar.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
-import '../../features/registry/presentation/view/registry_sidebar_navigation.dart';
-import '../../features/registry/presentation/view/add_new_patshala_view.dart';
-import 'patshala_details_view.dart';
 
 // TODO: replace with the signed-in user's real organization id once
 // an auth/session concept exists in the app.
 const _organizationId = 'org-gp-central';
 
-/// Narrowest a pathshala card may get before the grid drops a column.
-const _minCardWidth = 300.0;
+/// Narrowest a person card may get before the grid drops a column.
+const _minCardWidth = 240.0;
 
-/// Below this card width the card stacks its two action buttons and so needs
-/// to be taller — see `_stackedActionsBreakpoint` in CustomPathshalaCard.
-const _stackedCardWidth = 276.0;
-
-class AllPatshalaView extends StatefulWidget {
-  const AllPatshalaView({super.key});
+class AllPeopleView extends StatefulWidget {
+  const AllPeopleView({super.key});
 
   @override
-  State<AllPatshalaView> createState() => _AllPatshalaViewState();
+  State<AllPeopleView> createState() => _AllPeopleViewState();
 }
 
-class _AllPatshalaViewState extends State<AllPatshalaView> {
-  final ListPathshalasController listPathshalasController = sl.get<ListPathshalasController>();
+class _AllPeopleViewState extends State<AllPeopleView> {
+  final ListPeopleController listPeopleController = sl.get<ListPeopleController>();
   late final SnackbarNotifier snackbarNotifier;
 
-  final int _selectedIndex = 1;
+  final int _selectedIndex = 2;
 
-  /// Kept so a refresh after adding a Pathshala keeps the active search applied.
+  /// Kept so a refresh after adding a person keeps the active search applied.
   String? _searchQuery;
 
   @override
@@ -54,7 +49,7 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
   }
 
   void _refreshList() {
-    listPathshalasController.load(
+    listPeopleController.load(
       organizationId: _organizationId,
       searchQuery: _searchQuery,
       snackbarNotifier: snackbarNotifier,
@@ -66,17 +61,18 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
     _refreshList();
   }
 
-  void _openAddPathshala() {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView()))
-        .then((_) => _refreshList());
+  /// Seed data stores gender lowercase while the form saves it capitalised —
+  /// normalise so the grid reads the same either way.
+  String? _displayGender(String? gender) {
+    final value = gender?.trim();
+    if (value == null || value.isEmpty) return null;
+    return value[0].toUpperCase() + value.substring(1).toLowerCase();
   }
 
-  String _locationOf(Pathshala pathshala) {
-    final address = pathshala.address;
-    final subLocality = address.addressLine2?.trim();
-    final secondary = (subLocality != null && subLocality.isNotEmpty) ? subLocality : address.region;
-    return '${address.city}, $secondary';
+  void _openAddPerson() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => const AddPersonRegistryView()))
+        .then((_) => _refreshList());
   }
 
   Widget _buildHeader(BuildContext context, AppColors colors, bool isNarrow) {
@@ -84,19 +80,19 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "পাঠশালা সমূহ",
+          "ব্যক্তি রেজিস্ট্রি",
           style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: colors.primaryColor),
         ),
         const SizedBox(height: 4),
         Text(
-          "Manage and monitor all registered Gita Pathshalas across regions.",
+          "Manage everyone registered in the community directory.",
           style: TextStyle(color: Colors.black),
         ),
       ],
     );
 
     final addButton = InkWell(
-      onTap: _openAddPathshala,
+      onTap: _openAddPerson,
       borderRadius: BorderRadius.circular(8),
       child: Container(
         height: 52,
@@ -110,7 +106,7 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
             Icon(Icons.add, size: 18, color: Colors.white),
             const SizedBox(width: 8),
             Text(
-              'Add New Pathshala',
+              'Add New Person',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
             ),
           ],
@@ -136,38 +132,37 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
   }
 
   Widget _buildGrid(AppColors colors) {
-    final status = listPathshalasController.processStatusNotifier.status;
-    final pathshalas = listPathshalasController.pathshalas;
+    final status = listPeopleController.processStatusNotifier.status;
+    final people = listPeopleController.people;
 
-    if (status is ProcessLoading && pathshalas.isEmpty) {
+    if (status is ProcessLoading && people.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 48),
         child: Center(child: CircularProgressIndicator(color: colors.primaryColor)),
       );
     }
 
-    if (pathshalas.isEmpty) {
+    if (people.isEmpty) {
       // A search that found nothing is a different problem from an empty
-      // registry, so only the latter invites the user to register one.
+      // registry, so only the latter invites the user to register someone.
       final isSearching = _searchQuery != null && _searchQuery!.trim().isNotEmpty;
 
       return CustomEmptyState(
-        icon: isSearching ? Icons.search_off : Icons.temple_hindu_outlined,
-        title: isSearching ? 'No matching Pathshala found' : 'No Pathshala registered yet',
+        icon: isSearching ? Icons.search_off : Icons.person_add_alt_1_outlined,
+        title: isSearching ? 'No matching person found' : 'No one registered yet',
         message: isSearching
-            ? 'No Pathshala matches "${_searchQuery!.trim()}". Try a different name or code.'
-            : 'No Gita Pathshala has been registered. Add the first one to get started.',
-        actionLabel: isSearching ? null : 'Add New Pathshala',
-        onAction: isSearching ? null : _openAddPathshala,
+            ? 'No person matches "${_searchQuery!.trim()}". Try a different name.'
+            : 'The community directory is empty. Register the first person to get started.',
+        actionLabel: isSearching ? null : 'Add New Person',
+        onAction: isSearching ? null : _openAddPerson,
       );
     }
 
     // A column is only added while every card can still be at least
     // [_minCardWidth] wide — below that the contents get squeezed and overflow.
     return LayoutBuilder(builder: (context, constraints) {
-      const spacing = 24.0;
+      const spacing = 20.0;
       final columns = ((constraints.maxWidth + spacing) / (_minCardWidth + spacing)).floor().clamp(1, 4);
-      final cardWidth = (constraints.maxWidth - spacing * (columns - 1)) / columns;
 
       return GridView.builder(
         shrinkWrap: true,
@@ -176,28 +171,23 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
           crossAxisCount: columns,
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
-          mainAxisExtent: cardWidth < _stackedCardWidth ? 372 : 320,
+          // Fits the card's content plus a second chip row on narrow cards;
+          // the card's Spacer absorbs the slack when the chips fit on one line.
+          mainAxisExtent: 218,
         ),
         itemBuilder: (context, index) {
-          final pathshala = pathshalas[index];
-          return CustomPathshalaCard(
-            name: pathshala.name,
-            code: pathshala.code,
-            location: _locationOf(pathshala),
-            isActive: pathshala.isOperational,
-            onView: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => PatshalaDetailsView(pathshala: pathshala)),
-              );
-            },
-            onEdit: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView(existingPathshala: pathshala)))
-                  .then((_) => _refreshList());
-            },
+          final person = people[index];
+          return CustomPersonCard(
+            name: person.displayName,
+            legalName: person.legalName,
+            phone: person.primaryPhone,
+            email: person.primaryEmail,
+            gender: _displayGender(person.gender),
+            dateOfBirth: person.dateOfBirth,
+            isActive: person.status == PersonStatus.active,
           );
         },
-        itemCount: pathshalas.length,
+        itemCount: people.length,
       );
     });
   }
@@ -226,11 +216,15 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
                     children: [
                       _buildHeader(context, colors, isNarrow),
                       const SizedBox(height: 24),
-                      CustomSearchFilterBar(onSearchChanged: _onSearchChanged),
+                      CustomSearchFilterBar(
+                        searchHint: 'Search by name...',
+                        showFilters: false,
+                        onSearchChanged: _onSearchChanged,
+                      ),
                       const SizedBox(height: 24),
                       AnimatedBuilder(
                         animation: Listenable.merge(
-                          [listPathshalasController, listPathshalasController.processStatusNotifier],
+                          [listPeopleController, listPeopleController.processStatusNotifier],
                         ),
                         builder: (context, _) => _buildGrid(colors),
                       ),

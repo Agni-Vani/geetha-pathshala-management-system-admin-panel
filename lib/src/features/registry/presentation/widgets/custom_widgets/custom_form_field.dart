@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_field_decoration.dart';
 
 class CustomFormField extends StatelessWidget {
   final String label;
@@ -49,28 +50,10 @@ class CustomFormField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
-    final decoration = InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: colors.hintColor, fontSize: 13),
-      prefixIcon: prefixIcon != null
-          ? Icon(prefixIcon, size: 18, color: colors.hintColor)
-          : null,
-      filled: true,
-      fillColor: colors.tileColor,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colors.primaryColor),
-      ),
+    final decoration = AppFieldDecoration.build(
+      context,
+      hint: hint,
+      prefix: prefixIcon,
     );
 
     return Column(

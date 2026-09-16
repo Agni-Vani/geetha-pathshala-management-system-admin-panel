@@ -8,7 +8,6 @@ import '../../../../../core/theme/app_colors.dart';
 /// stack instead of clipping their labels.
 const _stackedActionsBreakpoint = 240.0;
 
-const _omBadgeColor = Color(0xFF6E2C1E);
 const _omGlyphColor = Color(0xFFE3C08A);
 
 class CustomPathshalaCard extends StatelessWidget {
@@ -40,34 +39,40 @@ class CustomPathshalaCard extends StatelessWidget {
     return Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
+        color: colors.cardSurfaceColor,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: colors.shadowColor, blurRadius: 6, offset: const Offset(0, 2))],
+        border: Border.all(color: colors.ornamentColor),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadowColor,
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Stack(
         children: [
-          // Illustration sits behind everything as a soft, washed-out texture.
-          // It covers the whole card at any size — so it scales with the card
-          // and leaves no visible edge — and the scrim on top of it keeps the
-          // text fully legible.
+          // Illustration covers the whole card and a radial mask anchored at
+          // the bottom-right corner dissolves everything but that corner.
+          // Sizing the image to the corner instead left its top and left sides
+          // showing as straight edges, which is what this avoids.
           Positioned.fill(
-            child: Image.asset(
-              Assets.gurukulImage,
-              fit: BoxFit.cover,
-              alignment: Alignment.bottomCenter,
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    colors.backgroundColor.withValues(alpha: 0.93),
-                    colors.backgroundColor.withValues(alpha: 0.9),
-                    colors.tileColor.withValues(alpha: 0.9),
-                  ],
-                  stops: const [0, 0.55, 1],
+            child: IgnorePointer(
+              child: ShaderMask(
+                shaderCallback: (bounds) => const RadialGradient(
+                  center: Alignment.bottomRight,
+                  radius: 0.75,
+                  colors: [Colors.white, Colors.transparent],
+                  stops: [0, 1],
+                ).createShader(bounds),
+                blendMode: BlendMode.dstIn,
+                child: Opacity(
+                  opacity: 0.22,
+                  child: Image.asset(
+                    Assets.gurukulImage,
+                    fit: BoxFit.contain,
+                    alignment: Alignment.bottomRight,
+                  ),
                 ),
               ),
             ),
@@ -75,12 +80,24 @@ class CustomPathshalaCard extends StatelessWidget {
           Positioned(
             bottom: 6,
             left: 10,
-            child: Text('❖', style: TextStyle(fontSize: 11, color: colors.primaryColor.withValues(alpha: 0.35))),
+            child: Text(
+              '❖',
+              style: TextStyle(
+                fontSize: 11,
+                color: colors.primaryColor.withValues(alpha: 0.35),
+              ),
+            ),
           ),
           Positioned(
             bottom: 6,
             right: 10,
-            child: Text('❖', style: TextStyle(fontSize: 11, color: colors.primaryColor.withValues(alpha: 0.35))),
+            child: Text(
+              '❖',
+              style: TextStyle(
+                fontSize: 11,
+                color: colors.primaryColor.withValues(alpha: 0.35),
+              ),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(18),
@@ -94,9 +111,14 @@ class CustomPathshalaCard extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.topLeft,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
-                            color: isActive ? const Color(0xFFE6F4EA) : colors.tileColor,
+                            color: isActive
+                                ? const Color(0xFFE6F4EA)
+                                : colors.tileColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -106,7 +128,9 @@ class CustomPathshalaCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: isActive ? const Color(0xFF1E7B34) : colors.hintColor,
+                              color: isActive
+                                  ? const Color(0xFF1E7B34)
+                                  : colors.hintColor,
                             ),
                           ),
                         ),
@@ -115,8 +139,14 @@ class CustomPathshalaCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     CircleAvatar(
                       radius: 18,
-                      backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
-                      child: Icon(Icons.temple_hindu_outlined, color: colors.primaryColor, size: 18),
+                      backgroundColor: colors.primaryColor.withValues(
+                        alpha: 0.12,
+                      ),
+                      child: Icon(
+                        Icons.temple_hindu_outlined,
+                        color: colors.primaryColor,
+                        size: 18,
+                      ),
                     ),
                   ],
                 ),
@@ -126,7 +156,7 @@ class CustomPathshalaCard extends StatelessWidget {
                   children: [
                     CircleAvatar(
                       radius: 20,
-                      backgroundColor: _omBadgeColor,
+                      backgroundColor: colors.maroonColor,
                       child: Text(
                         'ॐ',
                         style: GoogleFonts.notoSansDevanagari(
@@ -145,7 +175,10 @@ class CustomPathshalaCard extends StatelessWidget {
                           name,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.yatraOne(fontSize: 17, color: colors.textColor),
+                          style: GoogleFonts.yatraOne(
+                            fontSize: 17,
+                            color: colors.textColor,
+                          ),
                         ),
                       ),
                     ),
@@ -156,12 +189,20 @@ class CustomPathshalaCard extends StatelessWidget {
                   'Code: $code',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: colors.primaryColor),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: colors.primaryColor,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(Icons.location_on_outlined, size: 16, color: colors.hintColor),
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: colors.hintColor,
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
@@ -186,7 +227,8 @@ class CustomPathshalaCard extends StatelessWidget {
                             colors: colors,
                           ),
                         ),
-                      if (studentsCount != null && teachersCount != null) const SizedBox(width: 8),
+                      if (studentsCount != null && teachersCount != null)
+                        const SizedBox(width: 8),
                       if (teachersCount != null)
                         Expanded(
                           child: _StatChip(
@@ -337,11 +379,19 @@ class _StatChip extends StatelessWidget {
           child: Text.rich(
             TextSpan(
               text: '$count ',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: colors.textColor),
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: colors.textColor,
+              ),
               children: [
                 TextSpan(
                   text: label,
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.normal, color: colors.hintColor),
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.normal,
+                    color: colors.hintColor,
+                  ),
                 ),
               ],
             ),

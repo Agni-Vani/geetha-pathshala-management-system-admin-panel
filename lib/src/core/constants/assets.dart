@@ -7,6 +7,7 @@ class Assets {
   static const String backgroundImage = 'assets/images/gita.jpg';
   static const String gurukulImage = 'assets/images/gurukuls.jpg';
   static const String peacockFeatherImage = 'assets/images/palok.jpg';
+  static const String lotusImage = 'assets/images/poddo3.jpg';
 
   // // ----------- icons -----------
   // static const String _iconAssets = 'assets/icon';

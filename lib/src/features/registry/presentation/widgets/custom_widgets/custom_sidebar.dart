@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/constants/assets.dart';
 import '../../../../../core/theme/app_colors.dart';
 
 class SidebarMenuItem {
@@ -42,92 +43,151 @@ class CustomSidebar extends StatelessWidget {
 
     return Container(
       width: isCollapsed ? 76 : 260,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colors.drawerColor,
         border: Border(right: BorderSide(color: colors.dividerColor)),
       ),
-      child: Column(
+      child: Stack(
         children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(isCollapsed ? 10 : 18, 18, isCollapsed ? 10 : 18, 14),
-            child: Column(
-              children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
-                  child: Icon(
-                    Icons.temple_hindu_outlined,
-                    color: colors.primaryColor,
-                    size: 28,
-                  ),
-                ),
-                if (!isCollapsed) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    'গীতা পাঠশালা',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: colors.primaryColor,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 8 : 12),
-              itemCount: _menuItems.length,
-              itemBuilder: (context, index) {
-                final item = _menuItems[index];
-                return _SidebarMenuTile(
-                  icon: item.icon,
-                  label: item.label,
-                  isSelected: selectedIndex == index,
-                  isCollapsed: isCollapsed,
-                  onTap: () => onItemSelected(index),
-                  colors: colors,
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(isCollapsed ? 8 : 12, 8, isCollapsed ? 8 : 12, 24),
-            child: Tooltip(
-              message: isCollapsed ? 'Logout' : '',
-              child: InkWell(
-                onTap: onLogout,
-                borderRadius: BorderRadius.circular(18),
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 14,
-                    horizontal: isCollapsed ? 0 : 16,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.errorColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(18),
-                    border: Border.all(color: colors.errorColor.withValues(alpha: 0.12)),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
-                    children: [
-                      Icon(Icons.logout_rounded, color: colors.errorColor),
-                      if (!isCollapsed) ...[
-                        const SizedBox(width: 12),
-                        Text(
-                          'Logout',
-                          style: TextStyle(
-                            color: colors.errorColor,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ],
+          // Lotus resting at the foot of the sidebar, faded almost to a
+          // watermark and dissolved into the panel at its top edge so it never
+          // competes with the menu labels.
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: IgnorePointer(
+              child: ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.white],
+                  stops: [0, 0.6],
+                ).createShader(bounds),
+                blendMode: BlendMode.dstIn,
+                child: Opacity(
+                  opacity: 0.16,
+                  child: Image.asset(
+                    Assets.lotusImage,
+                    height: 300,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.bottomCenter,
                   ),
                 ),
               ),
             ),
+          ),
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  isCollapsed ? 10 : 18,
+                  18,
+                  isCollapsed ? 10 : 18,
+                  14,
+                ),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 28,
+                      backgroundColor: colors.primaryColor.withValues(
+                        alpha: 0.12,
+                      ),
+                      child: Icon(
+                        Icons.temple_hindu_outlined,
+                        color: colors.primaryColor,
+                        size: 28,
+                      ),
+                    ),
+                    if (!isCollapsed) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'গীতা পাঠশালা',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: colors.primaryColor,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isCollapsed ? 8 : 12,
+                  ),
+                  itemCount: _menuItems.length,
+                  itemBuilder: (context, index) {
+                    final item = _menuItems[index];
+                    return _SidebarMenuTile(
+                      icon: item.icon,
+                      label: item.label,
+                      isSelected: selectedIndex == index,
+                      isCollapsed: isCollapsed,
+                      onTap: () => onItemSelected(index),
+                      colors: colors,
+                    );
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                  isCollapsed ? 8 : 12,
+                  8,
+                  isCollapsed ? 8 : 12,
+                  24,
+                ),
+                child: Tooltip(
+                  message: isCollapsed ? 'Logout' : '',
+                  child: InkWell(
+                    onTap: onLogout,
+                    borderRadius: BorderRadius.circular(18),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: isCollapsed ? 0 : 16,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.maroonColor,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: colors.maroonColor.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: isCollapsed
+                            ? MainAxisAlignment.center
+                            : MainAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.logout_rounded,
+                            color: colors.onMaroonColor,
+                          ),
+                          if (!isCollapsed) ...[
+                            const SizedBox(width: 12),
+                            Text(
+                              'Logout',
+                              style: TextStyle(
+                                color: colors.onMaroonColor,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -160,14 +220,23 @@ class _SidebarMenuTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 13, horizontal: isCollapsed ? 0 : 14),
+          padding: EdgeInsets.symmetric(
+            vertical: 13,
+            horizontal: isCollapsed ? 0 : 14,
+          ),
           decoration: BoxDecoration(
-            color: isSelected ? colors.primaryColor.withValues(alpha: 0.12) : Colors.transparent,
+            color: isSelected
+                ? colors.primaryColor.withValues(alpha: 0.12)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(18),
-            border: isSelected ? Border.all(color: colors.primaryColor.withValues(alpha: 0.16)) : null,
+            border: isSelected
+                ? Border.all(color: colors.primaryColor.withValues(alpha: 0.16))
+                : null,
           ),
           child: Row(
-            mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
+            mainAxisAlignment: isCollapsed
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.start,
             children: [
               if (!isCollapsed && isSelected)
                 Container(
@@ -181,14 +250,16 @@ class _SidebarMenuTile extends StatelessWidget {
                 ),
               Icon(
                 icon,
-                color: isSelected ? colors.primaryColor : colors.grey,
+                color: isSelected ? colors.primaryColor : colors.maroonColor,
               ),
               if (!isCollapsed) ...[
                 const SizedBox(width: 12),
                 Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? colors.primaryColor : colors.textColor,
+                    color: isSelected
+                        ? colors.primaryColor
+                        : colors.maroonColor,
                     fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                     fontSize: 14,
                   ),
