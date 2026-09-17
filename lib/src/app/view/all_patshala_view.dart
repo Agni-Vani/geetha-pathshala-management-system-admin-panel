@@ -109,9 +109,14 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
           children: [
             Icon(Icons.add, size: 18, color: Colors.white),
             const SizedBox(width: 8),
-            Text(
-              'Add New Pathshala',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+            Flexible(
+              child: Text(
+                'Add New Pathshala',
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -176,7 +181,10 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
           crossAxisCount: columns,
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
-          mainAxisExtent: cardWidth < _stackedCardWidth ? 372 : 320,
+          // Sized to the card's content. Anything taller leaves dead space
+          // between the location row and the buttons, because the card's
+          // Spacer pins the actions to the bottom edge.
+          mainAxisExtent: cardWidth < _stackedCardWidth ? 300 : 262,
         ),
         itemBuilder: (context, index) {
           final pathshala = pathshalas[index];

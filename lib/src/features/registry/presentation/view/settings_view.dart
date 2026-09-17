@@ -207,7 +207,10 @@ class _SettingsViewState extends State<SettingsView> {
             ),
           ),
           const SizedBox(height: 20),
-          Row(
+          Wrap(
+            spacing: 16,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               CircleAvatar(
                 radius: 32,
@@ -218,7 +221,6 @@ class _SettingsViewState extends State<SettingsView> {
                   size: 30,
                 ),
               ),
-              const SizedBox(width: 16),
               // CustomButton needs a bounded width here — a bare Row child
               // otherwise gets an unbounded main-axis width, crashing
               // Material's tap-target padding.

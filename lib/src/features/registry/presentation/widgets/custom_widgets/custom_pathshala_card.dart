@@ -53,25 +53,28 @@ class CustomPathshalaCard extends StatelessWidget {
       child: Stack(
         children: [
           // Illustration covers the whole card and a radial mask anchored at
-          // the bottom-right corner dissolves everything but that corner.
-          // Sizing the image to the corner instead left its top and left sides
-          // showing as straight edges, which is what this avoids.
+          // the bottom-right corner fades it out with distance: strongest in
+          // that corner, still faintly readable up at the top. Masking rather
+          // than sizing the image to a corner is what keeps its edges from
+          // showing as straight lines.
           Positioned.fill(
             child: IgnorePointer(
               child: ShaderMask(
                 shaderCallback: (bounds) => const RadialGradient(
                   center: Alignment.bottomRight,
-                  radius: 0.75,
+                  // Reaches past the card so the far corners keep a trace of
+                  // the image instead of clearing to nothing.
+                  radius: 1.5,
                   colors: [Colors.white, Colors.transparent],
                   stops: [0, 1],
                 ).createShader(bounds),
                 blendMode: BlendMode.dstIn,
                 child: Opacity(
-                  opacity: 0.22,
+                  opacity: 0.26,
                   child: Image.asset(
                     Assets.gurukulImage,
-                    fit: BoxFit.contain,
-                    alignment: Alignment.bottomRight,
+                    fit: BoxFit.cover,
+                    alignment: Alignment.bottomCenter,
                   ),
                 ),
               ),
@@ -134,18 +137,6 @@ class CustomPathshalaCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    CircleAvatar(
-                      radius: 18,
-                      backgroundColor: colors.primaryColor.withValues(
-                        alpha: 0.12,
-                      ),
-                      child: Icon(
-                        Icons.temple_hindu_outlined,
-                        color: colors.primaryColor,
-                        size: 18,
                       ),
                     ),
                   ],

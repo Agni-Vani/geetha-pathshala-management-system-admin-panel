@@ -44,6 +44,7 @@ class CustomSearchFilterBar extends StatelessWidget {
     );
 
     final districtDropdown = DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: null,
       items: const [],
       onChanged: (_) {},
@@ -53,6 +54,7 @@ class CustomSearchFilterBar extends StatelessWidget {
     );
 
     final branchDropdown = DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: null,
       items: const [],
       onChanged: (_) {},
@@ -78,6 +80,18 @@ class CustomSearchFilterBar extends StatelessWidget {
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (!showFilters) return searchField;
+
+          if (constraints.maxWidth < 380) {
+            return Column(
+              children: [
+                searchField,
+                const SizedBox(height: 12),
+                districtDropdown,
+                const SizedBox(height: 12),
+                branchDropdown,
+              ],
+            );
+          }
 
           if (constraints.maxWidth < 640) {
             return Column(

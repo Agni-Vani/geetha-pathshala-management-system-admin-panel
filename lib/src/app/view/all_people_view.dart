@@ -105,9 +105,14 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           children: [
             Icon(Icons.add, size: 18, color: Colors.white),
             const SizedBox(width: 8),
-            Text(
-              'Add New Person',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+            Flexible(
+              child: Text(
+                'Add New Person',
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+              ),
             ),
           ],
         ),

@@ -23,7 +23,8 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
   static const _genders = ['Male', 'Female', 'Other'];
 
   final int _selectedIndex = 2;
-  CreatePersonController createPersonController = sl.get<CreatePersonController>();
+  CreatePersonController createPersonController = sl
+      .get<CreatePersonController>();
   late final SnackbarNotifier snackbarNotifier;
 
   final _legalNameController = TextEditingController();
@@ -93,6 +94,62 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
     );
   }
 
+  /// Cancel and save, sitting inside the form card rather than in a
+  /// separate bar below it.
+  Widget _buildFormActions() {
+    // The Wrap shrink-wraps, so on its own it lands at the Column's start
+    // edge. Stretching it makes its end-alignment actually right-align.
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.end,
+        spacing: 15,
+        runSpacing: 10,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          // The Center inside would stretch to the Wrap's full width; the
+          // Row this used to sit in passed unbounded constraints, so it
+          // shrink-wrapped there. IntrinsicWidth restores that.
+          IntrinsicWidth(
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
+              onTap: () => Navigator.of(context).maybePop(),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.black),
+                ),
+                height: 35,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                  child: Center(
+                    child: Text(
+                      'Cancel',
+                      style: TextStyle(fontSize: 12, color: Colors.black),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          RProcessNotifierButton(
+            key: UniqueKey(),
+            height: 50,
+            width: 200,
+            generalText: 'Save Person',
+            loadingText: 'Saving Information',
+            errorText: 'Error Saving Information',
+            processStatusNotifier: createPersonController.processStatusNotifier,
+            onSave: (processNotifier) => _handleSave(),
+            onDone: () {
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
@@ -108,53 +165,88 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
           Expanded(
             child: Container(
               color: colors.tileColor,
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+              // One scroll for the whole page. The form used to live in its own
+              // scroll box inside a height-constrained card, which on a short
+              // (landscape) viewport shrank to a sliver and hid the fields.
+              child: Scrollbar(
+                controller: _formScrollController,
+                thumbVisibility: true,
+                thickness: 6,
+                radius: const Radius.circular(3),
+                child: SingleChildScrollView(
+                  controller: _formScrollController,
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('People', style: TextStyle(fontSize: 12, color: colors.hintColor)),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4),
-                        child: Icon(Icons.chevron_right, size: 14, color: colors.hintColor),
+                      Row(
+                        children: [
+                          Text(
+                            'People',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colors.hintColor,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(
+                              Icons.chevron_right,
+                              size: 14,
+                              color: colors.hintColor,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              'Add New Person',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: colors.hintColor,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      Text('Add New Person', style: TextStyle(fontSize: 12, color: colors.hintColor)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Add New Person',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: colors.primaryColor),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Register a new person in the community directory.',
-                    style: TextStyle(color: colors.hintColor),
-                  ),
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      margin: const EdgeInsets.only(top: 16, bottom: 8),
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: colors.backgroundColor,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
+                      const SizedBox(height: 12),
+                      Text(
+                        'Add New Person',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: colors.primaryColor,
+                        ),
                       ),
-                      child: Scrollbar(
-                        controller: _formScrollController,
-                        thumbVisibility: true,
-                        thickness: 6,
-                        radius: const Radius.circular(3),
-                        child: SingleChildScrollView(
-                          controller: _formScrollController,
-                          scrollDirection: Axis.vertical,
-                          padding: const EdgeInsets.only(left: 24, right: 28, top: 24, bottom: 32),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Register a new person in the community directory.',
+                        style: TextStyle(color: colors.hintColor),
+                      ),
+                      Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(top: 16),
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: colors.backgroundColor,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const CustomSectionHeader(icon: Icons.badge_outlined, title: 'General Information'),
+                              const CustomSectionHeader(
+                                icon: Icons.badge_outlined,
+                                title: 'General Information',
+                              ),
                               const SizedBox(height: 12),
                               Divider(color: colors.dividerColor),
                               const SizedBox(height: 20),
@@ -164,19 +256,24 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
                                   hint: 'e.g. Radha Krishna Das',
                                   isRequired: true,
                                   controller: _legalNameController,
-                                  onTextChanged: createPersonController.onChangeLegalName,
+                                  onTextChanged:
+                                      createPersonController.onChangeLegalName,
                                 ),
                                 CustomFormField(
                                   label: 'Preferred Name',
                                   hint: 'e.g. Radhe',
                                   controller: _preferredNameController,
-                                  onTextChanged: createPersonController.onChangePreferredName,
+                                  onTextChanged: createPersonController
+                                      .onChangePreferredName,
                                 ),
                               ]),
                               const SizedBox(height: 24),
                               const CustomSectionDivider(),
                               const SizedBox(height: 24),
-                              const CustomSectionHeader(icon: Icons.event_outlined, title: 'Personal Details'),
+                              const CustomSectionHeader(
+                                icon: Icons.event_outlined,
+                                title: 'Personal Details',
+                              ),
                               const SizedBox(height: 12),
                               Divider(color: colors.dividerColor),
                               const SizedBox(height: 20),
@@ -186,21 +283,26 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
                                   CustomDateField(
                                     label: 'Date of Birth',
                                     value: createPersonController.dateOfBirth,
-                                    onChanged: createPersonController.selectDateOfBirth,
+                                    onChanged: createPersonController
+                                        .selectDateOfBirth,
                                   ),
                                   CustomFormField.dropdown(
                                     label: 'Gender',
                                     hint: 'Select Gender',
                                     items: _genders,
                                     value: createPersonController.gender,
-                                    onChanged: createPersonController.selectGender,
+                                    onChanged:
+                                        createPersonController.selectGender,
                                   ),
                                 ]),
                               ),
                               const SizedBox(height: 24),
                               const CustomSectionDivider(),
                               const SizedBox(height: 24),
-                              const CustomSectionHeader(icon: Icons.contact_phone_outlined, title: 'Contact Information'),
+                              const CustomSectionHeader(
+                                icon: Icons.contact_phone_outlined,
+                                title: 'Contact Information',
+                              ),
                               const SizedBox(height: 12),
                               Divider(color: colors.dividerColor),
                               const SizedBox(height: 20),
@@ -211,7 +313,8 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
                                   prefixIcon: Icons.call_outlined,
                                   keyboardType: TextInputType.phone,
                                   controller: _primaryPhoneController,
-                                  onTextChanged: createPersonController.onChangePrimaryPhone,
+                                  onTextChanged: createPersonController
+                                      .onChangePrimaryPhone,
                                 ),
                                 CustomFormField(
                                   label: 'Primary Email',
@@ -219,68 +322,37 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
                                   prefixIcon: Icons.mail_outline,
                                   keyboardType: TextInputType.emailAddress,
                                   controller: _primaryEmailController,
-                                  onTextChanged: createPersonController.onChangePrimaryEmail,
+                                  onTextChanged: createPersonController
+                                      .onChangePrimaryEmail,
                                 ),
                               ]),
+                              const SizedBox(height: 28),
+                              Divider(color: colors.dividerColor),
+                              const SizedBox(height: 18),
+                              _buildFormActions(),
                             ],
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                InkWell(
-                  borderRadius: BorderRadius.circular(8),
-                  onTap: () => Navigator.of(context).maybePop(),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.black),
-                    ),
-                    height: 35,
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                      child: Center(
-                        child: Text('Cancel', style: TextStyle(fontSize: 12, color: Colors.black)),
-                      ),
-                    ),
-                  ),
+          // A phone in landscape has ~430pt of height; the copyright strip is
+          // the first thing worth giving back to the form.
+          if (MediaQuery.sizeOf(context).height >= 520)
+            Container(
+              color: colors.tileColor,
+              height: 40,
+              child: Center(
+                child: Text(
+                  '© 2024 Geetha Pathshala Management. All rights reserved.',
+                  style: TextStyle(fontSize: 12, color: colors.hintColor),
                 ),
-                const SizedBox(width: 15),
-                RProcessNotifierButton(
-                  key: UniqueKey(),
-                  height: 50,
-                  width: 200,
-                  generalText: 'Save Person',
-                  loadingText: 'Saving Information',
-                  errorText: 'Error Saving Information',
-                  processStatusNotifier: createPersonController.processStatusNotifier,
-                  onSave: (processNotifier) => _handleSave(),
-                  onDone: () {
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ),
-          Container(
-            color: colors.tileColor,
-            height: 40,
-            child: Center(
-              child: Text(
-                '© 2024 Geetha Pathshala Management. All rights reserved.',
-                style: TextStyle(fontSize: 12, color: colors.hintColor),
               ),
             ),
-          ),
         ],
       ),
     );

@@ -141,7 +141,14 @@ class _ReportsViewState extends State<ReportsView> {
         children: [
           Icon(Icons.calendar_today_outlined, size: 16, color: colors.hintColor),
           const SizedBox(width: 8),
-          const Text('May 1, 2024 – May 20, 2024', style: TextStyle(fontSize: 13)),
+          const Flexible(
+            child: Text(
+              'May 1, 2024 – May 20, 2024',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/shared/widget/app_background.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../view/registry_sidebar_navigation.dart';
 import 'custom_sidebar.dart';
 import 'custom_top_bar.dart';
 
@@ -33,9 +34,26 @@ class ResponsiveAppShell extends StatelessWidget {
     required this.body,
   });
 
+  /// What the "« Overview" chip should do from here.
+  ///
+  /// It used to always call `maybePop`, which does nothing on a top-level
+  /// screen — the chip looked tappable but was dead. Now it pops when there is
+  /// something to pop, otherwise it goes to the Overview it names. On Overview
+  /// itself, with nothing to pop, there is nowhere to go and it is hidden.
+  VoidCallback? _resolveBackAction(BuildContext context) {
+    if (Navigator.of(context).canPop()) {
+      return onTopBarBack ?? () => Navigator.of(context).maybePop();
+    }
+    const overviewIndex = 0;
+    if (selectedIndex == overviewIndex) return null;
+    return () =>
+        RegistrySidebarNavigation.pushReplacement(context, overviewIndex);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
+    final backAction = _resolveBackAction(context);
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -69,21 +87,38 @@ class ResponsiveAppShell extends StatelessWidget {
                 )
               : null,
           drawerScrimColor: colors.textColor.withValues(alpha: 0.12),
-          body: Row(
+          body: Column(
             children: [
-              if (!isMobile) sidebar,
+              // Paint the status bar / notch strip in the top bar's colour so
+              // the bar reads as starting below it, then inset the rest for
+              // the remaining cutouts and the home indicator.
+              Container(
+                height: MediaQuery.paddingOf(context).top,
+                color: colors.drawerColor,
+              ),
               Expanded(
-                child: Builder(
-                  builder: (innerContext) => Column(
+                child: SafeArea(
+                  top: false,
+                  child: Row(
                     children: [
-                      CustomTopBar(
-                        title: topBarTitle,
-                        onBack: onTopBarBack,
-                        onMenuTap: isMobile
-                            ? () => Scaffold.of(innerContext).openDrawer()
-                            : null,
+                      if (!isMobile) sidebar,
+                      Expanded(
+                        child: Builder(
+                          builder: (innerContext) => Column(
+                            children: [
+                              CustomTopBar(
+                                title: topBarTitle,
+                                onBack: backAction,
+                                onMenuTap: isMobile
+                                    ? () =>
+                                          Scaffold.of(innerContext).openDrawer()
+                                    : null,
+                              ),
+                              Expanded(child: AppBackground(child: body)),
+                            ],
+                          ),
+                        ),
                       ),
-                      Expanded(child: AppBackground(child: body)),
                     ],
                   ),
                 ),

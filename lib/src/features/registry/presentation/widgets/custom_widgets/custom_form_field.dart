@@ -79,6 +79,7 @@ class CustomFormField extends StatelessWidget {
         const SizedBox(height: 6),
         if (isDropdown)
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: value,
             items: items
                 .map((item) =>

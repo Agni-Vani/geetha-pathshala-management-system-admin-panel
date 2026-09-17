@@ -173,11 +173,15 @@ class CustomSidebar extends StatelessWidget {
                           ),
                           if (!isCollapsed) ...[
                             const SizedBox(width: 12),
-                            Text(
-                              'Logout',
-                              style: TextStyle(
-                                color: colors.onMaroonColor,
-                                fontWeight: FontWeight.w700,
+                            Flexible(
+                              child: Text(
+                                'Logout',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: colors.onMaroonColor,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ],
@@ -254,14 +258,20 @@ class _SidebarMenuTile extends StatelessWidget {
               ),
               if (!isCollapsed) ...[
                 const SizedBox(width: 12),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: isSelected
-                        ? colors.primaryColor
-                        : colors.maroonColor,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                    fontSize: 14,
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: isSelected
+                          ? colors.primaryColor
+                          : colors.maroonColor,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w500,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
               ],

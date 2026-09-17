@@ -31,7 +31,6 @@ class CustomTopBar extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final isCompact = constraints.maxWidth < 900;
                 final isVeryCompact = constraints.maxWidth < 640;
 
                 return Row(
@@ -52,39 +51,55 @@ class CustomTopBar extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                     ],
-                    InkWell(
-                      onTap: onBack,
-                      borderRadius: BorderRadius.circular(16),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.tileColor,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.keyboard_double_arrow_left,
-                              color: colors.primaryColor,
-                            ),
-                            if (!isVeryCompact) ...[
-                              const SizedBox(width: 6),
-                              Text(
-                                title,
-                                style: TextStyle(
-                                  color: colors.primaryColor,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ],
+                    if (onBack == null)
+                      // Without a back chip this corner would sit empty, so
+                      // the app's name takes the slot instead.
+                      Flexible(
+                        child: Text(
+                          'গীতা পাঠশালা',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: colors.primaryColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
-                    ),
+                    if (onBack != null)
+                      InkWell(
+                        onTap: onBack,
+                        borderRadius: BorderRadius.circular(16),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.tileColor,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.keyboard_double_arrow_left,
+                                color: colors.primaryColor,
+                              ),
+                              if (!isVeryCompact) ...[
+                                const SizedBox(width: 6),
+                                Text(
+                                  title,
+                                  style: TextStyle(
+                                    color: colors.primaryColor,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
                     if (!isVeryCompact) ...[
                       const SizedBox(width: 18),
                       Expanded(
@@ -130,45 +145,6 @@ class CustomTopBar extends StatelessWidget {
                           Icons.notifications_none,
                           color: colors.textColor,
                           size: 20,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    InkWell(
-                      onTap: onProfileTap,
-                      borderRadius: BorderRadius.circular(20),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.tileColor,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: colors.textColor,
-                              child: Icon(
-                                Icons.person_outline,
-                                color: colors.invertTextColor,
-                                size: 18,
-                              ),
-                            ),
-                            if (!isCompact) ...[
-                              const SizedBox(width: 8),
-                              Text(
-                                'Admin',
-                                style: TextStyle(
-                                  color: colors.textColor,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ],
                         ),
                       ),
                     ),

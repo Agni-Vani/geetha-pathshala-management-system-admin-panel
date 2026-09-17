@@ -184,7 +184,14 @@ class _NoticesViewState extends State<NoticesView> {
                   children: [
                     Icon(Icons.calendar_today_outlined, size: 13, color: colors.hintColor),
                     const SizedBox(width: 6),
-                    Text(notice.date, style: TextStyle(fontSize: 12, color: colors.hintColor)),
+                    Expanded(
+                      child: Text(
+                        notice.date,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: colors.hintColor),
+                      ),
+                    ),
                   ],
                 ),
               ],

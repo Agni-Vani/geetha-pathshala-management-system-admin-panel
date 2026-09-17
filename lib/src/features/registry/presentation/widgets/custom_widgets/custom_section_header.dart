@@ -15,12 +15,16 @@ class CustomSectionHeader extends StatelessWidget {
       children: [
         Icon(icon, color: colors.primaryColor, size: 20),
         const SizedBox(width: 8),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: colors.textColor,
+        Expanded(
+          child: Text(
+            title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colors.textColor,
+            ),
           ),
         ),
       ],

@@ -113,7 +113,7 @@ class _EventsViewState extends State<EventsView> {
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: 20,
                           mainAxisSpacing: 20,
-                          mainAxisExtent: 210,
+                          mainAxisExtent: 250,
                         ),
                         itemCount: _demoEvents.length,
                         itemBuilder: (context, index) =>
@@ -188,6 +188,24 @@ class _EventsViewState extends State<EventsView> {
     );
   }
 
+  Widget _metaChip(AppColors colors, IconData icon, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 13, color: colors.hintColor),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 12, color: colors.hintColor),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildEventCard(AppColors colors, _EventItem event) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
@@ -226,6 +244,8 @@ class _EventsViewState extends State<EventsView> {
               const SizedBox(height: 12),
               Text(
                 event.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -240,29 +260,13 @@ class _EventsViewState extends State<EventsView> {
                 style: TextStyle(fontSize: 13, color: colors.hintColor),
               ),
               const Spacer(),
-              Row(
+              Wrap(
+                spacing: 12,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Icon(
-                    Icons.calendar_today_outlined,
-                    size: 13,
-                    color: colors.hintColor,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    event.date,
-                    style: TextStyle(fontSize: 12, color: colors.hintColor),
-                  ),
-                  const SizedBox(width: 12),
-                  Icon(
-                    Icons.schedule_outlined,
-                    size: 13,
-                    color: colors.hintColor,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    event.time,
-                    style: TextStyle(fontSize: 12, color: colors.hintColor),
-                  ),
+                  _metaChip(colors, Icons.calendar_today_outlined, event.date),
+                  _metaChip(colors, Icons.schedule_outlined, event.time),
                 ],
               ),
               const SizedBox(height: 6),

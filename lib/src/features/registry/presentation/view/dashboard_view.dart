@@ -197,9 +197,16 @@ class _DashboardViewState extends State<DashboardView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Attendance Overview', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: colors.textColor)),
+              Expanded(
+                child: Text(
+                  'Attendance Overview',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: colors.textColor),
+                ),
+              ),
+              const SizedBox(width: 8),
               Text('This Week', style: TextStyle(fontSize: 12, color: colors.hintColor)),
             ],
           ),
@@ -270,11 +277,12 @@ class _DashboardViewState extends State<DashboardView> {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 16,
+            runSpacing: 6,
             children: [
               _legendDot(colors.primaryColor, 'ছেলে ৬২%'),
-              const SizedBox(width: 16),
               _legendDot(const Color(0xFFF48FB1), 'মেয়ে ৩৮%'),
             ],
           ),
@@ -337,7 +345,14 @@ class _DashboardViewState extends State<DashboardView> {
                   child: Text(item.$1, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: colors.textColor)),
                 ),
                 const SizedBox(width: 8),
-                Text(item.$2, style: TextStyle(fontSize: 11, color: colors.hintColor)),
+                Flexible(
+                  child: Text(
+                    item.$2,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 11, color: colors.hintColor),
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 12),
