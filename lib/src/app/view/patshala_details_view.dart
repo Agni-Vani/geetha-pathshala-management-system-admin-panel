@@ -5,11 +5,14 @@ import '../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../core/theme/app_colors.dart';
 import '../../di/di.dart';
 import '../../features/registry/domain/registry_domain.dart';
+import '../../features/registry/presentation/view/add_class_view.dart';
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
+import '../../features/registry/presentation/view/class_schedule_view.dart';
 import '../../features/registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_section_header.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
 import '../controller/pathshala_details_controller.dart';
+import '../../core/constants/app_sizes.dart';
 
 const _bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
 const _bnMonths = [
@@ -163,7 +166,7 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: AppSizes.pagePadding(context),
               child: AnimatedBuilder(
                 animation: Listenable.merge([controller, controller.processStatusNotifier]),
                 builder: (context, _) => LayoutBuilder(
@@ -173,12 +176,12 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildTopRow(colors, pathshala, isNarrow),
+                        _buildTopRow(colors, pathshala),
                         const SizedBox(height: 20),
                         _buildHeaderCard(colors, pathshala, isNarrow),
-                        const SizedBox(height: 24),
+                        SizedBox(height: AppSizes.sectionGap(context)),
                         _buildStatsGrid(colors, isNarrow),
-                        const SizedBox(height: 24),
+                        SizedBox(height: AppSizes.sectionGap(context)),
                         _buildTabs(colors),
                         const SizedBox(height: 20),
                         _buildTabContent(colors, isNarrow),
@@ -204,8 +207,8 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
     );
   }
 
-  Widget _buildTopRow(AppColors colors, Pathshala pathshala, bool isNarrow) {
-    final breadcrumb = Row(
+  Widget _buildTopRow(AppColors colors, Pathshala pathshala) {
+    return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Text('Pathshalas', style: TextStyle(fontSize: 12, color: colors.hintColor)),
@@ -221,45 +224,6 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
             style: TextStyle(fontSize: 12, color: colors.textColor, fontWeight: FontWeight.w600),
           ),
         ),
-      ],
-    );
-
-    final actions = Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _pillButton(
-          onPressed: () {
-            Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView(existingPathshala: pathshala)))
-                .then((_) => setState(() {}));
-          },
-          icon: Icons.edit_outlined,
-          label: 'Edit',
-          filled: false,
-          colors: colors,
-        ),
-        const SizedBox(width: 12),
-        _pillButton(
-          onPressed: () {},
-          icon: Icons.add,
-          label: 'Add Class',
-          filled: true,
-          colors: colors,
-        ),
-      ],
-    );
-
-    if (isNarrow) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [breadcrumb, const SizedBox(height: 12), actions],
-      );
-    }
-
-    return Row(
-      children: [
-        Expanded(child: breadcrumb),
-        actions,
       ],
     );
   }
@@ -338,12 +302,57 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
       ],
     );
 
+    final editButton = _pillButton(
+      onPressed: () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView(existingPathshala: pathshala)))
+            .then((_) => setState(() {}));
+      },
+      icon: Icons.edit_outlined,
+      label: 'Edit',
+      filled: false,
+      colors: colors,
+      expand: isNarrow,
+    );
+
+    final addClassButton = _pillButton(
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => AddClassView(pathshala: pathshala)),
+        );
+      },
+      icon: Icons.add,
+      label: 'Add Class',
+      filled: true,
+      colors: colors,
+      expand: isNarrow,
+    );
+
     final scheduleButton = _pillButton(
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => ClassScheduleView(pathshala: pathshala)),
+        );
+      },
       icon: Icons.visibility_outlined,
       label: 'View Class Schedule',
       filled: true,
       colors: colors,
+    );
+
+    final actionsColumn = Column(
+      crossAxisAlignment: isNarrow ? CrossAxisAlignment.stretch : CrossAxisAlignment.end,
+      children: [
+        Row(
+          children: [
+            isNarrow ? Expanded(child: editButton) : editButton,
+            const SizedBox(width: 12),
+            isNarrow ? Expanded(child: addClassButton) : addClassButton,
+          ],
+        ),
+        const SizedBox(height: 12),
+        SizedBox(width: isNarrow ? double.infinity : null, child: scheduleButton),
+      ],
     );
 
     return Container(
@@ -369,14 +378,14 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
           isNarrow
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [info, const SizedBox(height: 20), SizedBox(width: double.infinity, child: scheduleButton)],
+                  children: [info, const SizedBox(height: 20), actionsColumn],
                 )
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(child: info),
                     const SizedBox(width: 16),
-                    scheduleButton,
+                    actionsColumn,
                   ],
                 ),
         ],

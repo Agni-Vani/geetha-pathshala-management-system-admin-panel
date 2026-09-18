@@ -5,6 +5,7 @@ import '../widgets/custom_widgets/custom_button.dart';
 import '../widgets/custom_widgets/custom_status_badge.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
 import 'registry_sidebar_navigation.dart';
+import '../../../../core/constants/app_sizes.dart';
 
 class _AttendanceSummary {
   final IconData icon;
@@ -134,7 +135,7 @@ class _AttendanceViewState extends State<AttendanceView> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: AppSizes.pagePadding(context),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final isNarrow = constraints.maxWidth < 640;
@@ -143,9 +144,9 @@ class _AttendanceViewState extends State<AttendanceView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(colors, isNarrow),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       _buildSummaryGrid(colors, isNarrow),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       _buildTable(colors),
                     ],
                   );

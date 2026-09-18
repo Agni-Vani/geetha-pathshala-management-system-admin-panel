@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/constants/assets.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/constants/app_sizes.dart';
 
 class SidebarMenuItem {
   final IconData icon;
@@ -145,22 +146,16 @@ class CustomSidebar extends StatelessWidget {
                   message: isCollapsed ? 'Logout' : '',
                   child: InkWell(
                     onTap: onLogout,
-                    borderRadius: BorderRadius.circular(18),
+                    borderRadius: AppSizes.rectangleButtonRadius,
                     child: Container(
                       padding: EdgeInsets.symmetric(
                         vertical: 14,
                         horizontal: isCollapsed ? 0 : 16,
                       ),
                       decoration: BoxDecoration(
-                        color: colors.maroonColor,
-                        borderRadius: BorderRadius.circular(18),
-                        boxShadow: [
-                          BoxShadow(
-                            color: colors.maroonColor.withValues(alpha: 0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+                        color: colors.primaryColor.withValues(alpha: 0.12),
+                        borderRadius: AppSizes.rectangleButtonRadius,
+                        border: Border.all(color: colors.primaryColor.withValues(alpha: 0.16)),
                       ),
                       child: Row(
                         mainAxisAlignment: isCollapsed
@@ -169,7 +164,7 @@ class CustomSidebar extends StatelessWidget {
                         children: [
                           Icon(
                             Icons.logout_rounded,
-                            color: colors.onMaroonColor,
+                            color: colors.primaryColor,
                           ),
                           if (!isCollapsed) ...[
                             const SizedBox(width: 12),
@@ -179,7 +174,7 @@ class CustomSidebar extends StatelessWidget {
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
-                                  color: colors.onMaroonColor,
+                                  color: colors.primaryColor,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -222,7 +217,7 @@ class _SidebarMenuTile extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: AppSizes.rectangleButtonRadius,
         child: Container(
           padding: EdgeInsets.symmetric(
             vertical: 13,
@@ -232,7 +227,7 @@ class _SidebarMenuTile extends StatelessWidget {
             color: isSelected
                 ? colors.primaryColor.withValues(alpha: 0.12)
                 : Colors.transparent,
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: AppSizes.rectangleButtonRadius,
             border: isSelected
                 ? Border.all(color: colors.primaryColor.withValues(alpha: 0.16))
                 : null,

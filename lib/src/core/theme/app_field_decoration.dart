@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../constants/app_sizes.dart';
 import 'app_colors.dart';
 
 /// Single source of truth for form field visuals (borders, padding and the
@@ -20,9 +21,7 @@ class AppFieldDecoration {
   /// Icon -> text.
   static const double _iconTextGap = 10;
 
-  static const BorderRadius borderRadius = BorderRadius.all(
-    Radius.circular(8),
-  );
+  static const BorderRadius borderRadius = AppSizes.textFieldBorderRadius;
 
   static const EdgeInsets contentPadding = EdgeInsets.symmetric(
     horizontal: 14,

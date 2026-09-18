@@ -5,6 +5,7 @@ import '../widgets/custom_widgets/custom_button.dart';
 import '../widgets/custom_widgets/custom_status_badge.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
 import 'registry_sidebar_navigation.dart';
+import '../../../../core/constants/app_sizes.dart';
 
 class _NoticeItem {
   final String title;
@@ -86,7 +87,7 @@ class _NoticesViewState extends State<NoticesView> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: AppSizes.pagePadding(context),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final isNarrow = constraints.maxWidth < 640;
@@ -95,7 +96,7 @@ class _NoticesViewState extends State<NoticesView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(colors, isNarrow),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       for (final notice in _demoNotices) ...[
                         _buildNoticeCard(colors, notice),
                         const SizedBox(height: 16),

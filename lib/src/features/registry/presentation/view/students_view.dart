@@ -6,6 +6,7 @@ import '../widgets/custom_widgets/custom_search_filter_bar.dart';
 import '../widgets/custom_widgets/custom_status_badge.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
 import 'registry_sidebar_navigation.dart';
+import '../../../../core/constants/app_sizes.dart';
 
 class _StudentRow {
   final String name;
@@ -100,7 +101,7 @@ class _StudentsViewState extends State<StudentsView> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: AppSizes.pagePadding(context),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final isNarrow = constraints.maxWidth < 640;
@@ -109,13 +110,13 @@ class _StudentsViewState extends State<StudentsView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(colors, isNarrow),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       CustomSearchFilterBar(
                         searchHint: 'Search students...',
                         districtHint: 'All Classes',
                         branchHint: 'All Pathshalas',
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       _buildTable(colors, isNarrow),
                     ],
                   );

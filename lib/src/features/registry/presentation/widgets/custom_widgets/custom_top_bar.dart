@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/constants/app_sizes.dart';
 
 class CustomTopBar extends StatelessWidget {
   final String title;
@@ -38,13 +39,13 @@ class CustomTopBar extends StatelessWidget {
                     if (onMenuTap != null) ...[
                       InkWell(
                         onTap: onMenuTap,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppSizes.rectangleButtonRadius,
                         child: Container(
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
                             color: colors.tileColor,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppSizes.rectangleButtonRadius,
                           ),
                           child: Icon(Icons.menu, color: colors.textColor),
                         ),
@@ -69,7 +70,7 @@ class CustomTopBar extends StatelessWidget {
                     if (onBack != null)
                       InkWell(
                         onTap: onBack,
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppSizes.rectangleButtonRadius,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 14,
@@ -77,7 +78,7 @@ class CustomTopBar extends StatelessWidget {
                           ),
                           decoration: BoxDecoration(
                             color: colors.tileColor,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: AppSizes.rectangleButtonRadius,
                           ),
                           child: Row(
                             children: [
@@ -108,7 +109,7 @@ class CustomTopBar extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(horizontal: 14),
                           decoration: BoxDecoration(
                             color: colors.tileColor,
-                            borderRadius: BorderRadius.circular(18),
+                            borderRadius: AppSizes.rectangleButtonRadius,
                           ),
                           child: Row(
                             children: [

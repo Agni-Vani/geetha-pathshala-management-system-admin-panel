@@ -16,6 +16,7 @@ import '../widgets/custom_widgets/custom_section_header.dart';
 import '../widgets/custom_widgets/custom_toggle_field.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
 import 'registry_sidebar_navigation.dart';
+import '../../../../core/constants/app_sizes.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
   final Pathshala? existingPathshala;
@@ -159,6 +160,8 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   /// Cancel and save, sitting inside the form card rather than in a
   /// separate bar below it.
   Widget _buildFormActions() {
+    final colors = AppColors.context(context);
+
     // The Wrap shrink-wraps, so on its own it lands at the Column's start
     // edge. Stretching it makes its end-alignment actually right-align.
     return SizedBox(
@@ -174,20 +177,20 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
           // shrink-wrapped there. IntrinsicWidth restores that.
           IntrinsicWidth(
             child: InkWell(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppSizes.rectangleButtonRadius,
               onTap: () => Navigator.of(context).maybePop(),
               child: Container(
+                height: 50,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.black),
+                  borderRadius: AppSizes.rectangleButtonRadius,
+                  border: Border.all(color: colors.primaryColor),
                 ),
-                height: 35,
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(fontSize: 12, color: Colors.black),
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.primaryColor),
                     ),
                   ),
                 ),
@@ -242,7 +245,7 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                 radius: const Radius.circular(3),
                 child: SingleChildScrollView(
                   controller: _formScrollController,
-                  padding: const EdgeInsets.all(24),
+                  padding: AppSizes.pagePadding(context),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

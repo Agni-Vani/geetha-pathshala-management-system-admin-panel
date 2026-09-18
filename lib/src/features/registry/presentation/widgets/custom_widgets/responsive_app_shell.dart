@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/shared/widget/app_background.dart';
 import '../../../../../core/theme/app_colors.dart';
-import '../../view/registry_sidebar_navigation.dart';
 import 'custom_sidebar.dart';
 import 'custom_top_bar.dart';
 
@@ -34,20 +33,15 @@ class ResponsiveAppShell extends StatelessWidget {
     required this.body,
   });
 
-  /// What the "« Overview" chip should do from here.
+  /// The top bar's back chip, or null when there is nothing to go back to.
   ///
-  /// It used to always call `maybePop`, which does nothing on a top-level
-  /// screen — the chip looked tappable but was dead. Now it pops when there is
-  /// something to pop, otherwise it goes to the Overview it names. On Overview
-  /// itself, with nothing to pop, there is nowhere to go and it is hidden.
+  /// Top-level screens are reached from the sidebar by replacement, so there
+  /// is no previous screen and the chip would be dead; returning null hides it
+  /// and the top bar shows the app's name in its place. Screens pushed on top
+  /// (add / edit / details) get a working back chip.
   VoidCallback? _resolveBackAction(BuildContext context) {
-    if (Navigator.of(context).canPop()) {
-      return onTopBarBack ?? () => Navigator.of(context).maybePop();
-    }
-    const overviewIndex = 0;
-    if (selectedIndex == overviewIndex) return null;
-    return () =>
-        RegistrySidebarNavigation.pushReplacement(context, overviewIndex);
+    if (!Navigator.of(context).canPop()) return null;
+    return onTopBarBack ?? () => Navigator.of(context).maybePop();
   }
 
   @override

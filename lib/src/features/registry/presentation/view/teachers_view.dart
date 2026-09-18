@@ -5,7 +5,9 @@ import '../widgets/custom_widgets/custom_button.dart';
 import '../widgets/custom_widgets/custom_search_filter_bar.dart';
 import '../widgets/custom_widgets/custom_status_badge.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
+import 'add_teacher_view.dart';
 import 'registry_sidebar_navigation.dart';
+import '../../../../core/constants/app_sizes.dart';
 
 class _TeacherRow {
   final String name;
@@ -67,7 +69,27 @@ class TeachersView extends StatefulWidget {
 class _TeachersViewState extends State<TeachersView> {
   final ScrollController _tableScrollController = ScrollController();
 
+  final List<_TeacherRow> _teachers = List.of(_demoTeachers);
+
   int _selectedIndex = 4;
+
+  Future<void> _addNewTeacher() async {
+    final teacher = await Navigator.of(context).push<TeacherOption>(
+      MaterialPageRoute(builder: (_) => const AddTeacherView()),
+    );
+    if (teacher == null) return;
+
+    setState(() {
+      _teachers.add(
+        _TeacherRow(
+          name: teacher.name,
+          subject: teacher.subject ?? '—',
+          pathshala: '—',
+          isActive: true,
+        ),
+      );
+    });
+  }
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
@@ -95,7 +117,7 @@ class _TeachersViewState extends State<TeachersView> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: AppSizes.pagePadding(context),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final isNarrow = constraints.maxWidth < 640;
@@ -104,13 +126,13 @@ class _TeachersViewState extends State<TeachersView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(colors, isNarrow),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       CustomSearchFilterBar(
                         searchHint: 'Search teachers...',
                         districtHint: 'All Subjects',
                         branchHint: 'All Pathshalas',
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       _buildTable(colors),
                     ],
                   );
@@ -158,7 +180,7 @@ class _TeachersViewState extends State<TeachersView> {
       child: CustomButton(
         label: 'Add Teacher',
         icon: Icons.add,
-        onPressed: () {},
+        onPressed: _addNewTeacher,
       ),
     );
 
@@ -216,7 +238,7 @@ class _TeachersViewState extends State<TeachersView> {
                   DataColumn(label: Text('কার্যক্রম')),
                 ],
                 rows: [
-                  for (final teacher in _demoTeachers)
+                  for (final teacher in _teachers)
                     DataRow(
                       cells: [
                         DataCell(

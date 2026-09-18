@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../../core/constants/assets.dart';
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/constants/app_sizes.dart';
 
 /// Below this width the two action buttons no longer fit side by side, so they
 /// stack instead of clipping their labels.
@@ -323,7 +324,7 @@ class _ActionButton extends StatelessWidget {
         // in a narrow card; the content is what should shrink here.
         minimumSize: const Size(0, 40),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

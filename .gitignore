@@ -47,3 +47,5 @@ app.*.map.json
 # Agentic guidelines (local only)
 agentic_development_guideline.md
 
+# Widget Preview related
+.widget_preview/

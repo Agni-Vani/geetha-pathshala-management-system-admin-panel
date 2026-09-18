@@ -13,6 +13,7 @@ import '../../features/registry/presentation/widgets/custom_widgets/responsive_a
 import '../../features/registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
 import 'patshala_details_view.dart';
+import '../../core/constants/app_sizes.dart';
 
 // TODO: replace with the signed-in user's real organization id once
 // an auth/session concept exists in the app.
@@ -97,12 +98,12 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
 
     final addButton = InkWell(
       onTap: _openAddPathshala,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: AppSizes.rectangleButtonRadius,
       child: Container(
         height: 52,
         width: isNarrow ? double.infinity : null,
         padding: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(color: colors.primaryColor, borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(color: colors.primaryColor, borderRadius: AppSizes.rectangleButtonRadius),
         child: Row(
           mainAxisSize: isNarrow ? MainAxisSize.max : MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -224,7 +225,7 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: AppSizes.pagePadding(context),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final isNarrow = constraints.maxWidth < 640;
@@ -233,9 +234,9 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(context, colors, isNarrow),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       CustomSearchFilterBar(onSearchChanged: _onSearchChanged),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 10),
                       AnimatedBuilder(
                         animation: Listenable.merge(
                           [listPathshalasController, listPathshalasController.processStatusNotifier],

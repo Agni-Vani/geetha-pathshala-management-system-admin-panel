@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/constants/app_sizes.dart';
 
 /// Shown in place of a list/grid when nothing is registered yet: explains the
 /// emptiness and offers the action that fixes it.
@@ -75,7 +76,7 @@ class CustomEmptyState extends StatelessWidget {
                 backgroundColor: colors.primaryColor,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
               ),
             ),
           ],

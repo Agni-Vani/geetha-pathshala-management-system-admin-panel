@@ -12,6 +12,7 @@ import '../../features/registry/presentation/widgets/custom_widgets/custom_empty
 import '../../features/registry/presentation/widgets/custom_widgets/custom_person_card.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_search_filter_bar.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
+import '../../core/constants/app_sizes.dart';
 
 // TODO: replace with the signed-in user's real organization id once
 // an auth/session concept exists in the app.
@@ -93,12 +94,12 @@ class _AllPeopleViewState extends State<AllPeopleView> {
 
     final addButton = InkWell(
       onTap: _openAddPerson,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: AppSizes.rectangleButtonRadius,
       child: Container(
         height: 52,
         width: isNarrow ? double.infinity : null,
         padding: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(color: colors.primaryColor, borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(color: colors.primaryColor, borderRadius: AppSizes.rectangleButtonRadius),
         child: Row(
           mainAxisSize: isNarrow ? MainAxisSize.max : MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
@@ -211,7 +212,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
+              padding: AppSizes.pagePadding(context),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final isNarrow = constraints.maxWidth < 640;
@@ -220,13 +221,13 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(context, colors, isNarrow),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       CustomSearchFilterBar(
                         searchHint: 'Search by name...',
                         showFilters: false,
                         onSearchChanged: _onSearchChanged,
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       AnimatedBuilder(
                         animation: Listenable.merge(
                           [listPeopleController, listPeopleController.processStatusNotifier],

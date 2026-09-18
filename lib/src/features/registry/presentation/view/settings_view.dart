@@ -5,6 +5,7 @@ import '../widgets/custom_widgets/custom_button.dart';
 import '../widgets/custom_widgets/custom_form_field.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
 import 'registry_sidebar_navigation.dart';
+import '../../../../core/constants/app_sizes.dart';
 
 const _settingsTabs = [
   'Organization Profile',
@@ -65,7 +66,7 @@ class _SettingsViewState extends State<SettingsView> {
         children: [
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
+              padding: AppSizes.pagePadding(context),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final isNarrow = constraints.maxWidth < 900;
@@ -86,7 +87,7 @@ class _SettingsViewState extends State<SettingsView> {
                         'প্রতিষ্ঠানের তথ্য ও অ্যাপ্লিকেশন কনফিগারেশন পরিচালনা করুন।',
                         style: TextStyle(color: colors.hintColor),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: AppSizes.sectionGap(context)),
                       SizedBox(
                         width: isNarrow ? double.infinity : 320,
                         child: _buildTabSelector(colors),

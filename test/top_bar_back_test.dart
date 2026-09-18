@@ -5,7 +5,6 @@ import 'package:geetha_pathshala_management_web/src/core/theme/app_theme.dart';
 import 'package:geetha_pathshala_management_web/src/di/service_locator.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/view/registry_route_builders.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/view/registry_route_names.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/view/dashboard_view.dart';
 import 'package:geetha_pathshala_management_web/src/app/view/all_patshala_view.dart';
 
 Future<void> _boot(WidgetTester tester, String route) async {
@@ -35,17 +34,19 @@ void main() {
   testWidgets('hidden on overview', (tester) async {
     await _boot(tester, RegistryRouteNames.dashboard);
     expect(find.byIcon(Icons.keyboard_double_arrow_left), findsNothing);
+    // The app's name takes the empty slot instead.
+    expect(find.text('গীতা পাঠশালা'), findsOneWidget);
   });
 
-  testWidgets('goes to overview from a top-level screen', (tester) async {
+  testWidgets('has no profile button', (tester) async {
     await _boot(tester, RegistryRouteNames.pathshalas);
-    expect(find.byIcon(Icons.keyboard_double_arrow_left), findsOneWidget);
+    expect(find.byIcon(Icons.person_outline), findsNothing);
+  });
 
-    await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
-    await tester.pumpAndSettle();
-    while (tester.takeException() != null) {}
-
-    expect(find.byType(DashboardView), findsOneWidget);
+  testWidgets('hidden on a top-level screen, name shown instead', (tester) async {
+    await _boot(tester, RegistryRouteNames.pathshalas);
+    expect(find.byIcon(Icons.keyboard_double_arrow_left), findsNothing);
+    expect(find.text('গীতা পাঠশালা'), findsOneWidget);
   });
 
   testWidgets('pops back from a pushed screen', (tester) async {

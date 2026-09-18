@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_field_decoration.dart';
+import '../../../../../core/constants/app_sizes.dart';
 
 class CustomSearchFilterBar extends StatelessWidget {
   final String searchHint;
@@ -65,7 +66,9 @@ class CustomSearchFilterBar extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      // The bar's own inset adds to the page's section gap below it, so it
+      // tightens on a phone along with the page padding.
+      padding: EdgeInsets.all(AppSizes.isCompact(context) ? 12 : 16),
       decoration: BoxDecoration(
         color: colors.surfaceColor,
         borderRadius: BorderRadius.circular(12),

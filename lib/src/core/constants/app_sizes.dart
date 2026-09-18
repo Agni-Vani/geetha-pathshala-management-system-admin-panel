@@ -3,6 +3,22 @@ import 'package:flutter/material.dart';
 class AppSizes {
   AppSizes._(); // Private constructor to prevent instantiation
 
+  // Page layout
+  /// Below this width a page is laid out for a phone.
+  static const double compactBreakpoint = 640;
+
+  static bool isCompact(BuildContext context) =>
+      MediaQuery.sizeOf(context).width < compactBreakpoint;
+
+  /// Outer padding of a page's scroll body. 24 on every edge spends a lot of
+  /// a ~390pt phone screen on nothing, so it tightens there.
+  static EdgeInsets pagePadding(BuildContext context) =>
+      EdgeInsets.all(isCompact(context) ? 16 : 24);
+
+  /// Vertical gap between a page's major sections (header, filters, grid…).
+  static double sectionGap(BuildContext context) =>
+      isCompact(context) ? 16 : 24;
+
   // Padding and Margin Constants
   static const double smallPadding = 8.0;
   static const double mediumPadding = 16.0;
@@ -29,8 +45,10 @@ class AppSizes {
   static const BorderRadius textFieldBorderRadius = BorderRadius.all(
     Radius.circular(10.0),
   );
+  /// Corner radius shared by every tappable control — buttons, sidebar items,
+  /// top-bar chips — so they all read as one family.
   static const BorderRadius rectangleButtonRadius = BorderRadius.all(
-    Radius.circular(8.0),
+    Radius.circular(12.0),
   );
   static const BorderRadius smallRectangleTileRadius = BorderRadius.all(
     Radius.circular(4.0),
