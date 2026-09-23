@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/custom_widgets/custom_date_field.dart';
-import '../widgets/custom_widgets/custom_form_field.dart';
-import '../widgets/custom_widgets/custom_section_divider.dart';
-import '../widgets/custom_widgets/custom_section_header.dart';
-import '../widgets/custom_widgets/responsive_app_shell.dart';
-import 'registry_sidebar_navigation.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_date_field.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_form_field.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_section_divider.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_section_header.dart';
+import '../../../registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
+import '../../../registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
 
 class TeacherOption {

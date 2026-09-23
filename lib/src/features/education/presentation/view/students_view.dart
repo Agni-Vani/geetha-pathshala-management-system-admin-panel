@@ -1,113 +1,79 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/custom_widgets/custom_button.dart';
-import '../widgets/custom_widgets/custom_status_badge.dart';
-import '../widgets/custom_widgets/responsive_app_shell.dart';
-import 'registry_sidebar_navigation.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_button.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_search_filter_bar.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_status_badge.dart';
+import '../../../registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
+import '../../../registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
 
-class _AttendanceSummary {
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color tint;
-
-  const _AttendanceSummary({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.tint,
-  });
-}
-
-class _AttendanceRow {
+class _StudentRow {
   final String name;
   final String studentClass;
   final String pathshala;
-  final bool isPresent;
+  final bool isActive;
 
-  const _AttendanceRow({
+  const _StudentRow({
     required this.name,
     required this.studentClass,
     required this.pathshala,
-    required this.isPresent,
+    required this.isActive,
   });
 }
 
-// TODO: static design-stage data — swap for RecordAttendance/session
-// aggregates once a "list today's attendance" usecase exists.
-const _demoSummary = [
-  _AttendanceSummary(
-    icon: Icons.groups_outlined,
-    value: '৮৫',
-    label: 'Total Students',
-    tint: Color(0xFF1565C0),
-  ),
-  _AttendanceSummary(
-    icon: Icons.check_circle_outline,
-    value: '৭৮',
-    label: 'Present',
-    tint: Color(0xFF1E7B34),
-  ),
-  _AttendanceSummary(
-    icon: Icons.cancel_outlined,
-    value: '৭',
-    label: 'Absent',
-    tint: Color(0xFFBA1A1A),
-  ),
-  _AttendanceSummary(
-    icon: Icons.pie_chart_outline,
-    value: '৯২%',
-    label: 'Attendance %',
-    tint: Color(0xFFAD6800),
-  ),
-];
-
-const _demoAttendance = [
-  _AttendanceRow(
+// TODO: static design-stage data — swap for a real ListStudents usecase
+// once the education feature exposes one.
+const _demoStudents = [
+  _StudentRow(
     name: 'অনন্যা শর্মা',
     studentClass: 'শ্রেণি ৫',
     pathshala: 'Chattogram North Gita Pathshala',
-    isPresent: true,
+    isActive: true,
   ),
-  _AttendanceRow(
+  _StudentRow(
     name: 'বিবান পাটেল',
     studentClass: 'শ্রেণি ৬',
     pathshala: 'Dhaka Central Gita Pathshala',
-    isPresent: true,
+    isActive: true,
   ),
-  _AttendanceRow(
+  _StudentRow(
     name: 'ইশিকা ভার্মা',
     studentClass: 'শ্রেণি ৪',
     pathshala: 'Sylhet East Gita Pathshala',
-    isPresent: false,
+    isActive: true,
   ),
-  _AttendanceRow(
+  _StudentRow(
     name: 'কৃষ্ণ তিওয়ারি',
     studentClass: 'শ্রেণি ৭',
     pathshala: 'Chattogram North Gita Pathshala',
-    isPresent: true,
+    isActive: true,
   ),
-  _AttendanceRow(
+  _StudentRow(
     name: 'মায়রা জোশী',
     studentClass: 'শ্রেণি ৩',
     pathshala: 'Dhaka Central Gita Pathshala',
-    isPresent: true,
+    isActive: false,
+  ),
+  _StudentRow(
+    name: 'অর্জুন সিং',
+    studentClass: 'শ্রেণি ৫',
+    pathshala: 'Sylhet East Gita Pathshala',
+    isActive: true,
   ),
 ];
 
-class AttendanceView extends StatefulWidget {
-  const AttendanceView({super.key});
+class StudentsView extends StatefulWidget {
+  const StudentsView({super.key});
 
   @override
-  State<AttendanceView> createState() => _AttendanceViewState();
+  State<StudentsView> createState() => _StudentsViewState();
 }
 
-class _AttendanceViewState extends State<AttendanceView> {
+class _StudentsViewState extends State<StudentsView> {
   final ScrollController _tableScrollController = ScrollController();
 
-  int _selectedIndex = 5;
+  int _selectedIndex = 3;
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
@@ -145,9 +111,13 @@ class _AttendanceViewState extends State<AttendanceView> {
                     children: [
                       _buildHeader(colors, isNarrow),
                       SizedBox(height: AppSizes.sectionGap(context)),
-                      _buildSummaryGrid(colors, isNarrow),
+                      CustomSearchFilterBar(
+                        searchHint: 'Search students...',
+                        districtHint: 'All Classes',
+                        branchHint: 'All Pathshalas',
+                      ),
                       SizedBox(height: AppSizes.sectionGap(context)),
-                      _buildTable(colors),
+                      _buildTable(colors, isNarrow),
                     ],
                   );
                 },
@@ -174,7 +144,7 @@ class _AttendanceViewState extends State<AttendanceView> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'উপস্থিতি',
+          'শিক্ষার্থী',
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
@@ -183,17 +153,17 @@ class _AttendanceViewState extends State<AttendanceView> {
         ),
         const SizedBox(height: 4),
         Text(
-          'আজকের ক্লাস-ভিত্তিক উপস্থিতির সারসংক্ষেপ ও রেকর্ড।',
+          'সকল পাঠশালার নিবন্ধিত শিক্ষার্থীদের তালিকা ও পরিচালনা।',
           style: TextStyle(color: colors.hintColor),
         ),
       ],
     );
 
-    final exportButton = SizedBox(
+    final addButton = SizedBox(
       width: isNarrow ? double.infinity : null,
       child: CustomButton(
-        label: 'Export Report',
-        icon: Icons.download_outlined,
+        label: 'Add Student',
+        icon: Icons.add,
         onPressed: () {},
       ),
     );
@@ -201,88 +171,24 @@ class _AttendanceViewState extends State<AttendanceView> {
     if (isNarrow) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [titleBlock, const SizedBox(height: 16), exportButton],
+        children: [titleBlock, const SizedBox(height: 16), addButton],
       );
     }
 
-    // CustomButton needs a bounded width here — a bare Row child otherwise
-    // gets an unbounded main-axis width, crashing Material's tap-target
+    // CustomButton (ElevatedButton/OutlinedButton) needs a bounded width
+    // here — as a bare Row child it gets an unbounded main-axis width from
+    // Row's non-flex-child layout, which crashes Material's tap-target
     // padding. IntrinsicWidth bounds it to its natural content size.
     return Row(
       children: [
         Expanded(child: titleBlock),
         const SizedBox(width: 16),
-        IntrinsicWidth(child: exportButton),
+        IntrinsicWidth(child: addButton),
       ],
     );
   }
 
-  Widget _buildSummaryGrid(AppColors colors, bool isNarrow) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: isNarrow ? 2 : 4,
-        crossAxisSpacing: 20,
-        mainAxisSpacing: 20,
-        mainAxisExtent: 110,
-      ),
-      itemCount: _demoSummary.length,
-      itemBuilder: (context, index) {
-        final item = _demoSummary[index];
-        return Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: colors.backgroundColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: colors.shadowColor,
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: item.tint.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(item.icon, color: item.tint, size: 22),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      item.value,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: colors.textColor,
-                      ),
-                    ),
-                    Text(
-                      item.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12, color: colors.hintColor),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTable(AppColors colors) {
+  Widget _buildTable(AppColors colors, bool isNarrow) {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
@@ -314,28 +220,64 @@ class _AttendanceViewState extends State<AttendanceView> {
                   DataColumn(label: Text('শ্রেণি')),
                   DataColumn(label: Text('পাঠশালা')),
                   DataColumn(label: Text('স্ট্যাটাস')),
+                  DataColumn(label: Text('কার্যক্রম')),
                 ],
                 rows: [
-                  for (final row in _demoAttendance)
+                  for (final student in _demoStudents)
                     DataRow(
                       cells: [
                         DataCell(
-                          Text(
-                            row.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: colors.textColor,
-                            ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleAvatar(
+                                radius: 16,
+                                backgroundColor: colors.primaryColor.withValues(
+                                  alpha: 0.12,
+                                ),
+                                child: Icon(
+                                  Icons.person,
+                                  size: 18,
+                                  color: colors.primaryColor,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                student.name,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.textColor,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        DataCell(Text(row.studentClass)),
-                        DataCell(Text(row.pathshala)),
+                        DataCell(Text(student.studentClass)),
+                        DataCell(Text(student.pathshala)),
                         DataCell(
                           CustomStatusBadge(
-                            label: row.isPresent ? 'Present' : 'Absent',
-                            tone: row.isPresent
+                            label: student.isActive ? 'Active' : 'Inactive',
+                            tone: student.isActive
                                 ? StatusTone.positive
-                                : StatusTone.negative,
+                                : StatusTone.neutral,
+                          ),
+                        ),
+                        DataCell(
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit_outlined, size: 18),
+                                onPressed: () {},
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.visibility_outlined,
+                                  size: 18,
+                                ),
+                                onPressed: () {},
+                              ),
+                            ],
                           ),
                         ),
                       ],

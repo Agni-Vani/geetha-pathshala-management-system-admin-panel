@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../widgets/custom_widgets/custom_button.dart';
-import '../widgets/custom_widgets/custom_search_filter_bar.dart';
-import '../widgets/custom_widgets/custom_status_badge.dart';
-import '../widgets/custom_widgets/responsive_app_shell.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_button.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_search_filter_bar.dart';
+import '../../../registry/presentation/widgets/custom_widgets/custom_status_badge.dart';
+import '../../../registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
 import 'add_teacher_view.dart';
-import 'registry_sidebar_navigation.dart';
+import '../../../registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
 
 class _TeacherRow {
