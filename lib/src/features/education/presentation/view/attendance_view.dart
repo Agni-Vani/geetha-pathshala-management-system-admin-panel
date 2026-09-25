@@ -13,12 +13,7 @@ class _AttendanceSummary {
   final String label;
   final Color tint;
 
-  const _AttendanceSummary({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.tint,
-  });
+  const _AttendanceSummary({required this.icon, required this.value, required this.label, required this.tint});
 }
 
 class _AttendanceRow {
@@ -27,74 +22,24 @@ class _AttendanceRow {
   final String pathshala;
   final bool isPresent;
 
-  const _AttendanceRow({
-    required this.name,
-    required this.studentClass,
-    required this.pathshala,
-    required this.isPresent,
-  });
+  const _AttendanceRow({required this.name, required this.studentClass, required this.pathshala, required this.isPresent});
 }
 
 // TODO: static design-stage data — swap for RecordAttendance/session
 // aggregates once a "list today's attendance" usecase exists.
 const _demoSummary = [
-  _AttendanceSummary(
-    icon: Icons.groups_outlined,
-    value: '৮৫',
-    label: 'Total Students',
-    tint: Color(0xFF1565C0),
-  ),
-  _AttendanceSummary(
-    icon: Icons.check_circle_outline,
-    value: '৭৮',
-    label: 'Present',
-    tint: Color(0xFF1E7B34),
-  ),
-  _AttendanceSummary(
-    icon: Icons.cancel_outlined,
-    value: '৭',
-    label: 'Absent',
-    tint: Color(0xFFBA1A1A),
-  ),
-  _AttendanceSummary(
-    icon: Icons.pie_chart_outline,
-    value: '৯২%',
-    label: 'Attendance %',
-    tint: Color(0xFFAD6800),
-  ),
+  _AttendanceSummary(icon: Icons.groups_outlined, value: '৮৫', label: 'Total Students', tint: Color(0xFF1565C0)),
+  _AttendanceSummary(icon: Icons.check_circle_outline, value: '৭৮', label: 'Present', tint: Color(0xFF1E7B34)),
+  _AttendanceSummary(icon: Icons.cancel_outlined, value: '৭', label: 'Absent', tint: Color(0xFFBA1A1A)),
+  _AttendanceSummary(icon: Icons.pie_chart_outline, value: '৯২%', label: 'Attendance %', tint: Color(0xFFAD6800)),
 ];
 
 const _demoAttendance = [
-  _AttendanceRow(
-    name: 'অনন্যা শর্মা',
-    studentClass: 'শ্রেণি ৫',
-    pathshala: 'Chattogram North Gita Pathshala',
-    isPresent: true,
-  ),
-  _AttendanceRow(
-    name: 'বিবান পাটেল',
-    studentClass: 'শ্রেণি ৬',
-    pathshala: 'Dhaka Central Gita Pathshala',
-    isPresent: true,
-  ),
-  _AttendanceRow(
-    name: 'ইশিকা ভার্মা',
-    studentClass: 'শ্রেণি ৪',
-    pathshala: 'Sylhet East Gita Pathshala',
-    isPresent: false,
-  ),
-  _AttendanceRow(
-    name: 'কৃষ্ণ তিওয়ারি',
-    studentClass: 'শ্রেণি ৭',
-    pathshala: 'Chattogram North Gita Pathshala',
-    isPresent: true,
-  ),
-  _AttendanceRow(
-    name: 'মায়রা জোশী',
-    studentClass: 'শ্রেণি ৩',
-    pathshala: 'Dhaka Central Gita Pathshala',
-    isPresent: true,
-  ),
+  _AttendanceRow(name: 'অনন্যা শর্মা', studentClass: 'শ্রেণি ৫', pathshala: 'Chattogram North Gita Pathshala', isPresent: true),
+  _AttendanceRow(name: 'বিবান পাটেল', studentClass: 'শ্রেণি ৬', pathshala: 'Dhaka Central Gita Pathshala', isPresent: true),
+  _AttendanceRow(name: 'ইশিকা ভার্মা', studentClass: 'শ্রেণি ৪', pathshala: 'Sylhet East Gita Pathshala', isPresent: false),
+  _AttendanceRow(name: 'কৃষ্ণ তিওয়ারি', studentClass: 'শ্রেণি ৭', pathshala: 'Chattogram North Gita Pathshala', isPresent: true),
+  _AttendanceRow(name: 'মায়রা জোশী', studentClass: 'শ্রেণি ৩', pathshala: 'Dhaka Central Gita Pathshala', isPresent: true),
 ];
 
 class AttendanceView extends StatefulWidget {
@@ -175,34 +120,24 @@ class _AttendanceViewState extends State<AttendanceView> {
       children: [
         Text(
           'উপস্থিতি',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: colors.primaryColor,
-          ),
+          style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colors.primaryColor),
         ),
         const SizedBox(height: 4),
-        Text(
-          'আজকের ক্লাস-ভিত্তিক উপস্থিতির সারসংক্ষেপ ও রেকর্ড।',
-          style: TextStyle(color: colors.hintColor),
-        ),
+        Text('আজকের ক্লাস-ভিত্তিক উপস্থিতির সারসংক্ষেপ ও রেকর্ড।', style: TextStyle(color: colors.hintColor)),
       ],
     );
 
-    final exportButton = SizedBox(
+    /* final exportButton = SizedBox(
       width: isNarrow ? double.infinity : null,
       child: CustomButton(
         label: 'Export Report',
         icon: Icons.download_outlined,
         onPressed: () {},
       ),
-    );
+    ); */
 
     if (isNarrow) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [titleBlock, const SizedBox(height: 16), exportButton],
-      );
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [titleBlock, const SizedBox(height: 16)]);
     }
 
     // CustomButton needs a bounded width here — a bare Row child otherwise
@@ -212,7 +147,7 @@ class _AttendanceViewState extends State<AttendanceView> {
       children: [
         Expanded(child: titleBlock),
         const SizedBox(width: 16),
-        IntrinsicWidth(child: exportButton),
+        // IntrinsicWidth(child: exportButton),
       ],
     );
   }
@@ -235,22 +170,13 @@ class _AttendanceViewState extends State<AttendanceView> {
           decoration: BoxDecoration(
             color: colors.backgroundColor,
             borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: colors.shadowColor,
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: colors.shadowColor, blurRadius: 6, offset: const Offset(0, 2))],
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: item.tint.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                decoration: BoxDecoration(color: item.tint.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
                 child: Icon(item.icon, color: item.tint, size: 22),
               ),
               const SizedBox(width: 12),
@@ -260,11 +186,7 @@ class _AttendanceViewState extends State<AttendanceView> {
                   children: [
                     Text(
                       item.value,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: colors.textColor,
-                      ),
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: colors.textColor),
                     ),
                     Text(
                       item.label,
@@ -289,13 +211,7 @@ class _AttendanceViewState extends State<AttendanceView> {
       decoration: BoxDecoration(
         color: colors.backgroundColor,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadowColor,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: colors.shadowColor, blurRadius: 6, offset: const Offset(0, 2))],
       ),
       child: LayoutBuilder(
         builder: (context, constraints) => Scrollbar(
@@ -322,10 +238,7 @@ class _AttendanceViewState extends State<AttendanceView> {
                         DataCell(
                           Text(
                             row.name,
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: colors.textColor,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.w600, color: colors.textColor),
                           ),
                         ),
                         DataCell(Text(row.studentClass)),
@@ -333,9 +246,7 @@ class _AttendanceViewState extends State<AttendanceView> {
                         DataCell(
                           CustomStatusBadge(
                             label: row.isPresent ? 'Present' : 'Absent',
-                            tone: row.isPresent
-                                ? StatusTone.positive
-                                : StatusTone.negative,
+                            tone: row.isPresent ? StatusTone.positive : StatusTone.negative,
                           ),
                         ),
                       ],

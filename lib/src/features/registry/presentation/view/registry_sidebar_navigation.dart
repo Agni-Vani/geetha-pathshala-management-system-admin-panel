@@ -18,12 +18,12 @@ abstract final class RegistrySidebarNavigation {
       case 5:
         return RegistryRouteNames.attendance;
       case 6:
-        return RegistryRouteNames.notices;
+      //   return RegistryRouteNames.notices;
+      // case 7:
+      //   return RegistryRouteNames.events;
+      // case 8:
+      //   return RegistryRouteNames.reports;
       case 7:
-        return RegistryRouteNames.events;
-      case 8:
-        return RegistryRouteNames.reports;
-      case 9:
         return RegistryRouteNames.settings;
       default:
         return RegistryRouteNames.pathshalas;
