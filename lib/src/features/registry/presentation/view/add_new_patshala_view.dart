@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geetha_pathshala_management_web/src/core/constants/app_sizes.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/widget/process_notifier_button.dart';
 import 'package:geetha_pathshala_management_web/src/di/di.dart';
@@ -16,7 +17,6 @@ import '../widgets/custom_widgets/custom_section_header.dart';
 import '../widgets/custom_widgets/custom_toggle_field.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
 import 'registry_sidebar_navigation.dart';
-import '../../../../core/constants/app_sizes.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
   final Pathshala? existingPathshala;
@@ -29,23 +29,10 @@ class AddNewPatshalaView extends StatefulWidget {
 
 class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   final int _selectedIndex = 1;
-  CreatePathshalaController createPathshalaController = sl
-      .get<CreatePathshalaController>();
-  late final SnackbarNotifier snackbarNotifier;
-
-  final _nameController = TextEditingController();
-  final _branchNameController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _mobileController = TextEditingController();
-  final _emailController = TextEditingController();
-
-  final _formScrollController = ScrollController();
-
-  DateTime? _establishedOn;
-  bool _isActive = true;
-  String? _selectedDistrict;
-  String? _selectedUpazila;
-  String? _existingAddressLine2;
+  final CreatePathshalaController _controller =
+      sl.get<CreatePathshalaController>();
+  late final SnackbarNotifier _snackbarNotifier;
+  final ScrollController _formScrollController = ScrollController();
 
   bool get _isEditing => widget.existingPathshala != null;
 
@@ -56,77 +43,18 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
 
   @override
   void initState() {
-    snackbarNotifier = SnackbarNotifier(context: context);
-    final existing = widget.existingPathshala;
-    if (existing != null) {
-      _nameController.text = existing.name;
-      _addressController.text = existing.address.addressLine1;
-      _existingAddressLine2 = existing.address.addressLine2;
-      _selectedDistrict = existing.address.region;
-      _selectedUpazila = existing.address.city;
-      _establishedOn = existing.startedOn;
-      _isActive = existing.isOperational;
-    }
     super.initState();
+    _snackbarNotifier = SnackbarNotifier(context: context);
+    if (widget.existingPathshala != null) {
+      _controller.initializeForEdit(widget.existingPathshala!);
+    }
   }
 
   @override
   void dispose() {
     _formScrollController.dispose();
-    _nameController.dispose();
-    _branchNameController.dispose();
-    _addressController.dispose();
-    _mobileController.dispose();
-    _emailController.dispose();
+    _controller.dispose();
     super.dispose();
-  }
-
-  void _handleSave() {
-    final missingMobile = !_isEditing && _mobileController.text.trim().isEmpty;
-    if (_nameController.text.trim().isEmpty ||
-        _selectedDistrict == null ||
-        _selectedUpazila == null ||
-        missingMobile) {
-      snackbarNotifier.notifyError(
-        message: 'Please fill in all required fields.',
-      );
-      return;
-    }
-
-    if (_isEditing) {
-      final params = UpdatePathshalaParams(
-        pathshalaId: widget.existingPathshala!.id,
-        name: _nameController.text.trim(),
-        addressLine1: _addressController.text.trim(),
-        addressLine2: _existingAddressLine2,
-        city: _selectedUpazila!,
-        district: _selectedDistrict!,
-        startedOn: _establishedOn,
-      );
-
-      createPathshalaController.update(
-        params: params,
-        snackbarNotifier: snackbarNotifier,
-      );
-      return;
-    }
-
-    final params = CreatePathshalaParams(
-      // TODO: replace with the signed-in user's real organization id once
-      // an auth/session concept exists in the app.
-      organizationId: 'org-gp-central',
-      code: 'PS-${DateTime.now().millisecondsSinceEpoch}',
-      name: _nameController.text.trim(),
-      addressLine1: _addressController.text.trim(),
-      city: _selectedUpazila!,
-      district: _selectedDistrict!,
-      startedOn: _establishedOn,
-    );
-
-    createPathshalaController.create(
-      params: params,
-      snackbarNotifier: snackbarNotifier,
-    );
   }
 
   Widget _fieldRow(List<Widget> fields) {
@@ -190,7 +118,11 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.primaryColor),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: colors.primaryColor,
+                      ),
                     ),
                   ),
                 ),
@@ -202,15 +134,14 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
             height: 50,
             width: 200,
             generalText: _isEditing ? 'Update Pathshala' : 'Save Pathshala',
-            loadingText: _isEditing
-                ? 'Updating Information'
-                : 'Saving Information',
+            loadingText:
+                _isEditing ? 'Updating Information' : 'Saving Information',
             errorText: _isEditing
                 ? 'Error Updating Information'
                 : 'Error Saving Information',
-            processStatusNotifier:
-                createPathshalaController.processStatusNotifier,
-            onSave: (processNotifier) => _handleSave(),
+            processStatusNotifier: _controller.processStatusNotifier,
+            onSave: (processNotifier) =>
+                _controller.submit(snackbarNotifier: _snackbarNotifier),
             onDone: () {
               Navigator.pop(context);
             },
@@ -308,122 +239,125 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const CustomSectionHeader(
-                                icon: Icons.menu_book_outlined,
-                                title: 'General Information',
-                              ),
-                              const SizedBox(height: 12),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 20),
-                              _fieldRow([
-                                CustomFormField(
-                                  label: 'Pathshala Name',
-                                  hint: 'e.g. Gita Govinda Center',
-                                  isRequired: true,
-                                  controller: _nameController,
-                                ),
-                                CustomFormField(
-                                  label: 'Branch Name',
-                                  hint: 'e.g. North District Branch',
-                                  controller: _branchNameController,
-                                ),
-                              ]),
-                              const SizedBox(height: 20),
-                              _fieldRow([
-                                CustomDateField(
-                                  label: 'Date of Establishment',
-                                  value: _establishedOn,
-                                  onChanged: (date) =>
-                                      setState(() => _establishedOn = date),
-                                ),
-                                CustomToggleField(
-                                  label: 'Status',
-                                  value: _isActive,
-                                  onChanged: (active) =>
-                                      setState(() => _isActive = active),
-                                ),
-                              ]),
-                              const SizedBox(height: 24),
-                              const CustomSectionDivider(),
-                              const SizedBox(height: 24),
-                              const CustomSectionHeader(
-                                icon: Icons.location_on_outlined,
-                                title: 'Location Details',
-                              ),
-                              const SizedBox(height: 12),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 20),
-                              _fieldRow([
-                                CustomFormField.dropdown(
-                                  label: 'District',
-                                  hint: 'Select District',
-                                  isRequired: true,
-                                  items: bdDistricts,
-                                  value: _selectedDistrict,
-                                  onChanged: (district) => setState(() {
-                                    _selectedDistrict = district;
-                                    _selectedUpazila = null;
-                                  }),
-                                ),
-                                CustomAutocompleteField(
-                                  key: ValueKey(_selectedDistrict),
-                                  label: 'Upazila',
-                                  hint: _selectedDistrict == null
-                                      ? 'Select District first'
-                                      : 'Select or type Upazila',
-                                  isRequired: true,
-                                  enabled: _selectedDistrict != null,
-                                  options:
-                                      bdUpazilas[_selectedDistrict] ?? const [],
-                                  value: _selectedUpazila,
-                                  onChanged: (upazila) => setState(
-                                    () => _selectedUpazila = upazila,
+                          child: ListenableBuilder(
+                            listenable: _controller,
+                            builder: (context, _) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const CustomSectionHeader(
+                                    icon: Icons.menu_book_outlined,
+                                    title: 'General Information',
                                   ),
-                                ),
-                              ]),
-                              const SizedBox(height: 20),
-                              CustomFormField(
-                                label: 'Full Address',
-                                hint:
-                                    'Enter detailed street address, building number, etc.',
-                                maxLines: 4,
-                                controller: _addressController,
-                              ),
-                              const SizedBox(height: 24),
-                              const CustomSectionDivider(),
-                              const SizedBox(height: 24),
-                              const CustomSectionHeader(
-                                icon: Icons.badge_outlined,
-                                title: 'Contact Details',
-                              ),
-                              const SizedBox(height: 12),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 20),
-                              _fieldRow([
-                                CustomFormField(
-                                  label: 'Mobile Number',
-                                  hint: '+880 1XXX-XXXXXX',
-                                  isRequired: !_isEditing,
-                                  prefixIcon: Icons.call_outlined,
-                                  keyboardType: TextInputType.phone,
-                                  controller: _mobileController,
-                                ),
-                                CustomFormField(
-                                  label: 'Email Address',
-                                  hint: 'contact@pathshala.org',
-                                  prefixIcon: Icons.mail_outline,
-                                  keyboardType: TextInputType.emailAddress,
-                                  controller: _emailController,
-                                ),
-                              ]),
-                              const SizedBox(height: 28),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 18),
-                              _buildFormActions(),
-                            ],
+                                  const SizedBox(height: 12),
+                                  Divider(color: colors.dividerColor),
+                                  const SizedBox(height: 20),
+                                  _fieldRow([
+                                    CustomFormField(
+                                      label: 'Pathshala Name',
+                                      hint: 'e.g. Gita Govinda Center',
+                                      isRequired: true,
+                                      controller: _controller.nameController,
+                                    ),
+                                    CustomFormField(
+                                      label: 'Branch Name',
+                                      hint: 'e.g. North District Branch',
+                                      controller:
+                                          _controller.branchNameController,
+                                    ),
+                                  ]),
+                                  const SizedBox(height: 20),
+                                  _fieldRow([
+                                    CustomDateField(
+                                      label: 'Date of Establishment',
+                                      value: _controller.establishedOn,
+                                      onChanged:
+                                          _controller.onEstablishedDateChanged,
+                                    ),
+                                    CustomToggleField(
+                                      label: 'Status',
+                                      value: _controller.isActive,
+                                      onChanged: _controller.onActiveToggled,
+                                    ),
+                                  ]),
+                                  const SizedBox(height: 24),
+                                  const CustomSectionDivider(),
+                                  const SizedBox(height: 24),
+                                  const CustomSectionHeader(
+                                    icon: Icons.location_on_outlined,
+                                    title: 'Location Details',
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Divider(color: colors.dividerColor),
+                                  const SizedBox(height: 20),
+                                  _fieldRow([
+                                    CustomFormField.dropdown(
+                                      label: 'District',
+                                      hint: 'Select District',
+                                      isRequired: true,
+                                      items: bdDistricts,
+                                      value: _controller.selectedDistrict,
+                                      onChanged: _controller.onDistrictChanged,
+                                    ),
+                                    CustomAutocompleteField(
+                                      key: ValueKey(
+                                          _controller.selectedDistrict),
+                                      label: 'Upazila',
+                                      hint: _controller.selectedDistrict == null
+                                          ? 'Select District first'
+                                          : 'Select or type Upazila',
+                                      isRequired: true,
+                                      enabled:
+                                          _controller.selectedDistrict != null,
+                                      options: bdUpazilas[
+                                              _controller.selectedDistrict] ??
+                                          const [],
+                                      value: _controller.selectedUpazila,
+                                      onChanged: _controller.onUpazilaChanged,
+                                    ),
+                                  ]),
+                                  const SizedBox(height: 20),
+                                  CustomFormField(
+                                    label: 'Full Address',
+                                    hint:
+                                        'Enter detailed street address, building number, etc.',
+                                    maxLines: 4,
+                                    controller: _controller.addressController,
+                                  ),
+                                  const SizedBox(height: 24),
+                                  const CustomSectionDivider(),
+                                  const SizedBox(height: 24),
+                                  const CustomSectionHeader(
+                                    icon: Icons.badge_outlined,
+                                    title: 'Contact Details',
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Divider(color: colors.dividerColor),
+                                  const SizedBox(height: 20),
+                                  _fieldRow([
+                                    CustomFormField(
+                                      label: 'Mobile Number',
+                                      hint: '+880 1XXX-XXXXXX',
+                                      isRequired: !_isEditing,
+                                      prefixIcon: Icons.call_outlined,
+                                      keyboardType: TextInputType.phone,
+                                      controller: _controller.mobileController,
+                                    ),
+                                    CustomFormField(
+                                      label: 'Email Address',
+                                      hint: 'contact@pathshala.org',
+                                      prefixIcon: Icons.mail_outline,
+                                      keyboardType: TextInputType.emailAddress,
+                                      controller: _controller.emailController,
+                                    ),
+                                  ]),
+                                  const SizedBox(height: 28),
+                                  Divider(color: colors.dividerColor),
+                                  const SizedBox(height: 18),
+                                  _buildFormActions(),
+                                ],
+                              );
+                            },
                           ),
                         ),
                       ),
