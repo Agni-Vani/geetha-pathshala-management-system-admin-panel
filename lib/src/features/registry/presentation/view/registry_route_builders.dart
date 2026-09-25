@@ -20,9 +20,9 @@ abstract final class RegistryRouteBuilders {
     RegistryRouteNames.students: (_) => const StudentsView(),
     RegistryRouteNames.teachers: (_) => const TeachersView(),
     RegistryRouteNames.attendance: (_) => const AttendanceView(),
-    RegistryRouteNames.notices: (_) => const NoticesView(),
-    RegistryRouteNames.events: (_) => const EventsView(),
-    RegistryRouteNames.reports: (_) => const ReportsView(),
+    // RegistryRouteNames.notices: (_) => const NoticesView(),
+    // RegistryRouteNames.events: (_) => const EventsView(),
+    // RegistryRouteNames.reports: (_) => const ReportsView(),
     RegistryRouteNames.settings: (_) => const SettingsView(),
   };
 }

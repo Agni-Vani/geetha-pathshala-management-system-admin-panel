@@ -17,13 +17,7 @@ class CustomSidebar extends StatelessWidget {
   final VoidCallback? onLogout;
   final bool isCollapsed;
 
-  const CustomSidebar({
-    super.key,
-    required this.selectedIndex,
-    required this.onItemSelected,
-    this.onLogout,
-    this.isCollapsed = false,
-  });
+  const CustomSidebar({super.key, required this.selectedIndex, required this.onItemSelected, this.onLogout, this.isCollapsed = false});
 
   static const List<SidebarMenuItem> _menuItems = [
     SidebarMenuItem(icon: Icons.dashboard_outlined, label: 'ড্যাশবোর্ড'),
@@ -32,9 +26,9 @@ class CustomSidebar extends StatelessWidget {
     SidebarMenuItem(icon: Icons.people_outline, label: 'শিক্ষার্থী'),
     SidebarMenuItem(icon: Icons.badge_outlined, label: 'শিক্ষক'),
     SidebarMenuItem(icon: Icons.how_to_reg_outlined, label: 'উপস্থিতি'),
-    SidebarMenuItem(icon: Icons.note_alt_outlined, label: 'নোটিশ'),
+    /*     SidebarMenuItem(icon: Icons.note_alt_outlined, label: 'নোটিশ'),
     SidebarMenuItem(icon: Icons.calendar_month_outlined, label: 'অনুষ্ঠান'),
-    SidebarMenuItem(icon: Icons.bar_chart_outlined, label: 'রিপোর্ট'),
+    SidebarMenuItem(icon: Icons.bar_chart_outlined, label: 'রিপোর্ট'), */
     SidebarMenuItem(icon: Icons.settings_outlined, label: 'সেটিংস'),
   ];
 
@@ -83,34 +77,19 @@ class CustomSidebar extends StatelessWidget {
           Column(
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(
-                  isCollapsed ? 10 : 18,
-                  18,
-                  isCollapsed ? 10 : 18,
-                  14,
-                ),
+                padding: EdgeInsets.fromLTRB(isCollapsed ? 10 : 18, 18, isCollapsed ? 10 : 18, 14),
                 child: Column(
                   children: [
                     CircleAvatar(
                       radius: 28,
-                      backgroundColor: colors.primaryColor.withValues(
-                        alpha: 0.12,
-                      ),
-                      child: Icon(
-                        Icons.temple_hindu_outlined,
-                        color: colors.primaryColor,
-                        size: 28,
-                      ),
+                      backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
+                      child: Icon(Icons.temple_hindu_outlined, color: colors.primaryColor, size: 28),
                     ),
                     if (!isCollapsed) ...[
                       const SizedBox(height: 8),
                       Text(
                         'গীতা পাঠশালা',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: colors.primaryColor,
-                        ),
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: colors.primaryColor),
                       ),
                     ],
                   ],
@@ -118,9 +97,7 @@ class CustomSidebar extends StatelessWidget {
               ),
               Expanded(
                 child: ListView.builder(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isCollapsed ? 8 : 12,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 8 : 12),
                   itemCount: _menuItems.length,
                   itemBuilder: (context, index) {
                     final item = _menuItems[index];
@@ -136,36 +113,23 @@ class CustomSidebar extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.fromLTRB(
-                  isCollapsed ? 8 : 12,
-                  8,
-                  isCollapsed ? 8 : 12,
-                  24,
-                ),
+                padding: EdgeInsets.fromLTRB(isCollapsed ? 8 : 12, 8, isCollapsed ? 8 : 12, 24),
                 child: Tooltip(
                   message: isCollapsed ? 'Logout' : '',
                   child: InkWell(
                     onTap: onLogout,
                     borderRadius: AppSizes.rectangleButtonRadius,
                     child: Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 14,
-                        horizontal: isCollapsed ? 0 : 16,
-                      ),
+                      padding: EdgeInsets.symmetric(vertical: 14, horizontal: isCollapsed ? 0 : 16),
                       decoration: BoxDecoration(
                         color: colors.primaryColor.withValues(alpha: 0.12),
                         borderRadius: AppSizes.rectangleButtonRadius,
                         border: Border.all(color: colors.primaryColor.withValues(alpha: 0.16)),
                       ),
                       child: Row(
-                        mainAxisAlignment: isCollapsed
-                            ? MainAxisAlignment.center
-                            : MainAxisAlignment.start,
+                        mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.logout_rounded,
-                            color: colors.primaryColor,
-                          ),
+                          Icon(Icons.logout_rounded, color: colors.primaryColor),
                           if (!isCollapsed) ...[
                             const SizedBox(width: 12),
                             Flexible(
@@ -173,10 +137,7 @@ class CustomSidebar extends StatelessWidget {
                                 'Logout',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  color: colors.primaryColor,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                style: TextStyle(color: colors.primaryColor, fontWeight: FontWeight.w700),
                               ),
                             ),
                           ],
@@ -219,38 +180,23 @@ class _SidebarMenuTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppSizes.rectangleButtonRadius,
         child: Container(
-          padding: EdgeInsets.symmetric(
-            vertical: 13,
-            horizontal: isCollapsed ? 0 : 14,
-          ),
+          padding: EdgeInsets.symmetric(vertical: 13, horizontal: isCollapsed ? 0 : 14),
           decoration: BoxDecoration(
-            color: isSelected
-                ? colors.primaryColor.withValues(alpha: 0.12)
-                : Colors.transparent,
+            color: isSelected ? colors.primaryColor.withValues(alpha: 0.12) : Colors.transparent,
             borderRadius: AppSizes.rectangleButtonRadius,
-            border: isSelected
-                ? Border.all(color: colors.primaryColor.withValues(alpha: 0.16))
-                : null,
+            border: isSelected ? Border.all(color: colors.primaryColor.withValues(alpha: 0.16)) : null,
           ),
           child: Row(
-            mainAxisAlignment: isCollapsed
-                ? MainAxisAlignment.center
-                : MainAxisAlignment.start,
+            mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
             children: [
               if (!isCollapsed && isSelected)
                 Container(
                   width: 4,
                   height: 24,
                   margin: const EdgeInsets.only(right: 12),
-                  decoration: BoxDecoration(
-                    color: colors.primaryColor,
-                    borderRadius: BorderRadius.circular(99),
-                  ),
+                  decoration: BoxDecoration(color: colors.primaryColor, borderRadius: BorderRadius.circular(99)),
                 ),
-              Icon(
-                icon,
-                color: isSelected ? colors.primaryColor : colors.maroonColor,
-              ),
+              Icon(icon, color: isSelected ? colors.primaryColor : colors.maroonColor),
               if (!isCollapsed) ...[
                 const SizedBox(width: 12),
                 Expanded(
@@ -259,12 +205,8 @@ class _SidebarMenuTile extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
-                      color: isSelected
-                          ? colors.primaryColor
-                          : colors.maroonColor,
-                      fontWeight: isSelected
-                          ? FontWeight.w700
-                          : FontWeight.w500,
+                      color: isSelected ? colors.primaryColor : colors.maroonColor,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                       fontSize: 14,
                     ),
                   ),

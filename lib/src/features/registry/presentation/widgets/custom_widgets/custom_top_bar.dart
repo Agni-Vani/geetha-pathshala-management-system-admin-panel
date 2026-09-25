@@ -10,14 +10,7 @@ class CustomTopBar extends StatelessWidget {
   final VoidCallback? onProfileTap;
   final VoidCallback? onMenuTap;
 
-  const CustomTopBar({
-    super.key,
-    required this.title,
-    this.onBack,
-    this.onNotificationTap,
-    this.onProfileTap,
-    this.onMenuTap,
-  });
+  const CustomTopBar({super.key, required this.title, this.onBack, this.onNotificationTap, this.onProfileTap, this.onMenuTap});
 
   @override
   Widget build(BuildContext context) {
@@ -43,10 +36,7 @@ class CustomTopBar extends StatelessWidget {
                         child: Container(
                           width: 40,
                           height: 40,
-                          decoration: BoxDecoration(
-                            color: colors.tileColor,
-                            borderRadius: AppSizes.rectangleButtonRadius,
-                          ),
+                          decoration: BoxDecoration(color: colors.tileColor, borderRadius: AppSizes.rectangleButtonRadius),
                           child: Icon(Icons.menu, color: colors.textColor),
                         ),
                       ),
@@ -60,11 +50,7 @@ class CustomTopBar extends StatelessWidget {
                           'গীতা পাঠশালা',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: colors.primaryColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                          style: TextStyle(color: colors.primaryColor, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
                     if (onBack != null)
@@ -72,29 +58,16 @@ class CustomTopBar extends StatelessWidget {
                         onTap: onBack,
                         borderRadius: AppSizes.rectangleButtonRadius,
                         child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 10,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colors.tileColor,
-                            borderRadius: AppSizes.rectangleButtonRadius,
-                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(color: colors.tileColor, borderRadius: AppSizes.rectangleButtonRadius),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.keyboard_double_arrow_left,
-                                color: colors.primaryColor,
-                              ),
+                              Icon(Icons.keyboard_double_arrow_left, color: colors.primaryColor),
                               if (!isVeryCompact) ...[
                                 const SizedBox(width: 6),
                                 Text(
                                   title,
-                                  style: TextStyle(
-                                    color: colors.primaryColor,
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 15,
-                                  ),
+                                  style: TextStyle(color: colors.primaryColor, fontWeight: FontWeight.w700, fontSize: 15),
                                 ),
                               ],
                             ],
@@ -103,7 +76,7 @@ class CustomTopBar extends StatelessWidget {
                       ),
                     if (!isVeryCompact) ...[
                       const SizedBox(width: 18),
-                      Expanded(
+                      /*   Expanded(
                         child: Container(
                           height: 44,
                           padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -133,9 +106,9 @@ class CustomTopBar extends StatelessWidget {
                             ],
                           ),
                         ),
-                      ),
+                      ), */
                     ],
-                    const Spacer(),
+                    /*    const Spacer(),
                     InkWell(
                       onTap: onNotificationTap,
                       borderRadius: BorderRadius.circular(20),
@@ -148,7 +121,7 @@ class CustomTopBar extends StatelessWidget {
                           size: 20,
                         ),
                       ),
-                    ),
+                    ), */
                   ],
                 );
               },
