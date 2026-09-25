@@ -3,12 +3,14 @@ import 'package:get_it/get_it.dart';
 import '../features/areas/data/areas_data.dart';
 import '../features/areas/domain/areas_domain.dart';
 import '../features/areas/presentation/controller/geographic_areas_controller.dart';
+import '../features/attendance/data/attendance_data.dart';
+import '../features/attendance/domain/attendance_domain.dart';
 import '../features/authentication/data/authentication_data.dart';
 import '../features/authentication/domain/authentication_domain.dart';
-import '../features/communication/data/communication_data.dart';
-import '../features/communication/domain/communication_domain.dart';
-import '../features/education/data/education_data.dart';
-import '../features/education/domain/education_domain.dart';
+import '../features/classes/data/classes_data.dart';
+import '../features/classes/domain/classes_domain.dart';
+import '../features/notices/data/notices_data.dart';
+import '../features/notices/domain/notices_domain.dart';
 import '../features/pathshala/data/pathshala_data.dart';
 import '../features/pathshala/domain/pathshala_domain.dart';
 import '../features/pathshala/presentation/controller/create_pathshala_controller.dart';
@@ -18,6 +20,10 @@ import '../features/person/data/person_data.dart';
 import '../features/person/domain/person_domain.dart';
 import '../features/person/presentation/controller/create_person_controller.dart';
 import '../features/person/presentation/controller/list_people_controller.dart';
+import '../features/students/data/students_data.dart';
+import '../features/students/domain/students_domain.dart';
+import '../features/teachers/data/teachers_data.dart';
+import '../features/teachers/domain/teachers_domain.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -43,11 +49,20 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     sl.registerLazySingleton<IamDatasource>(
       () => MockIamDatasource(processingDelay: Duration.zero),
     );
-    sl.registerLazySingleton<EducationDatasource>(
-      () => MockEducationDatasource(processingDelay: Duration.zero),
+    sl.registerLazySingleton<StudentsDatasource>(
+      () => MockStudentsDatasource(processingDelay: Duration.zero),
     );
-    sl.registerLazySingleton<CommunicationDatasource>(
-      () => MockCommunicationDatasource(processingDelay: Duration.zero),
+    sl.registerLazySingleton<TeachersDatasource>(
+      () => MockTeachersDatasource(processingDelay: Duration.zero),
+    );
+    sl.registerLazySingleton<AttendanceDatasource>(
+      () => MockAttendanceDatasource(processingDelay: Duration.zero),
+    );
+    sl.registerLazySingleton<ClassesDatasource>(
+      () => MockClassesDatasource(processingDelay: Duration.zero),
+    );
+    sl.registerLazySingleton<NoticesDatasource>(
+      () => MockNoticesDatasource(processingDelay: Duration.zero),
     );
   } else {
     sl.registerLazySingleton<AreasDatasource>(
@@ -62,11 +77,20 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     sl.registerLazySingleton<IamDatasource>(
       () => SupabaseIamDatasource(),
     );
-    sl.registerLazySingleton<EducationDatasource>(
-      () => SupabaseEducationDatasource(),
+    sl.registerLazySingleton<StudentsDatasource>(
+      () => SupabaseStudentsDatasource(),
     );
-    sl.registerLazySingleton<CommunicationDatasource>(
-      () => SupabaseCommunicationDatasource(),
+    sl.registerLazySingleton<TeachersDatasource>(
+      () => SupabaseTeachersDatasource(),
+    );
+    sl.registerLazySingleton<AttendanceDatasource>(
+      () => SupabaseAttendanceDatasource(),
+    );
+    sl.registerLazySingleton<ClassesDatasource>(
+      () => SupabaseClassesDatasource(),
+    );
+    sl.registerLazySingleton<NoticesDatasource>(
+      () => SupabaseNoticesDatasource(),
     );
   }
 
@@ -85,12 +109,21 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton<IamRepository>(
     () => IamRepositoryImpl(datasource: sl<IamDatasource>()),
   );
-  sl.registerLazySingleton<EducationRepository>(
-    () => EducationRepositoryImpl(datasource: sl<EducationDatasource>()),
+  sl.registerLazySingleton<StudentsRepository>(
+    () => StudentsRepositoryImpl(datasource: sl<StudentsDatasource>()),
   );
-  sl.registerLazySingleton<CommunicationRepository>(
-    () => CommunicationRepositoryImpl(
-      datasource: sl<CommunicationDatasource>(),
+  sl.registerLazySingleton<TeachersRepository>(
+    () => TeachersRepositoryImpl(datasource: sl<TeachersDatasource>()),
+  );
+  sl.registerLazySingleton<AttendanceRepository>(
+    () => AttendanceRepositoryImpl(datasource: sl<AttendanceDatasource>()),
+  );
+  sl.registerLazySingleton<ClassesRepository>(
+    () => ClassesRepositoryImpl(datasource: sl<ClassesDatasource>()),
+  );
+  sl.registerLazySingleton<NoticesRepository>(
+    () => NoticesRepositoryImpl(
+      datasource: sl<NoticesDatasource>(),
     ),
   );
 
@@ -144,41 +177,53 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     () => GetCurrentUserAccount(repository: sl<IamRepository>()),
   );
 
-  // Education Use Cases
+  // Students Use Cases
   sl.registerLazySingleton(
-    () => AdmitStudent(repository: sl<EducationRepository>()),
+    () => AdmitStudent(repository: sl<StudentsRepository>()),
   );
   sl.registerLazySingleton(
-    () => TransferStudent(repository: sl<EducationRepository>()),
+    () => TransferStudent(repository: sl<StudentsRepository>()),
   );
   sl.registerLazySingleton(
-    () => ListEducationalGroups(repository: sl<EducationRepository>()),
-  );
-  sl.registerLazySingleton(
-    () => RecordAttendance(repository: sl<EducationRepository>()),
-  );
-  sl.registerLazySingleton(
-    () => CreateTeacherProfile(repository: sl<EducationRepository>()),
-  );
-  sl.registerLazySingleton(
-    () => AssignTeacher(repository: sl<EducationRepository>()),
-  );
-  sl.registerLazySingleton(
-    () => ListStudentAdmissions(repository: sl<EducationRepository>()),
-  );
-  sl.registerLazySingleton(
-    () => ListTeacherAssignments(repository: sl<EducationRepository>()),
+    () => ListStudentAdmissions(repository: sl<StudentsRepository>()),
   );
 
-  // Communication Use Cases
+  // Teachers Use Cases
   sl.registerLazySingleton(
-    () => PublishNotice(repository: sl<CommunicationRepository>()),
+    () => CreateTeacherProfile(repository: sl<TeachersRepository>()),
   );
   sl.registerLazySingleton(
-    () => GetNotices(repository: sl<CommunicationRepository>()),
+    () => AssignTeacher(repository: sl<TeachersRepository>()),
   );
   sl.registerLazySingleton(
-    () => RecordReadReceipt(repository: sl<CommunicationRepository>()),
+    () => ListTeacherAssignments(repository: sl<TeachersRepository>()),
+  );
+
+  // Attendance Use Cases
+  sl.registerLazySingleton(
+    () => RecordAttendance(repository: sl<AttendanceRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => GetSessionAttendance(repository: sl<AttendanceRepository>()),
+  );
+
+  // Classes Use Cases
+  sl.registerLazySingleton(
+    () => ListEducationalGroups(repository: sl<ClassesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ListAcademicYears(repository: sl<ClassesRepository>()),
+  );
+
+  // Notices Use Cases
+  sl.registerLazySingleton(
+    () => PublishNotice(repository: sl<NoticesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => GetNotices(repository: sl<NoticesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => RecordReadReceipt(repository: sl<NoticesRepository>()),
   );
 
   // ==========================================================================
