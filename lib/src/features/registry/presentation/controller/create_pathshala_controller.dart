@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:geetha_pathshala_management_web/src/core/async_handlers/response.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/core/utils/utils.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/domain/registry_domain.dart';
+
+import '../constants/bd_districts.dart';
+import '../constants/bd_upazilas.dart';
 
 /// Controller for the Create / Edit Pathshala form.
 ///
@@ -12,11 +16,17 @@ import 'package:geetha_pathshala_management_web/src/features/registry/domain/reg
 class CreatePathshalaController extends ChangeNotifier {
   final CreatePathshala createPathshala;
   final UpdatePathshala updatePathshala;
+  final ListDistricts? listDistricts;
+  final ListUpazilas? listUpazilas;
 
   CreatePathshalaController({
     required this.createPathshala,
     required this.updatePathshala,
-  });
+    this.listDistricts,
+    this.listUpazilas,
+  }) {
+    _initDistricts();
+  }
 
   // ── Process state ──────────────────────────────────────────────────────────
 
@@ -46,19 +56,50 @@ class CreatePathshalaController extends ChangeNotifier {
 
   String? _selectedDistrict;
   String? get selectedDistrict => _selectedDistrict;
+  String? _selectedDistrictId;
+  String? get selectedDistrictId => _selectedDistrictId;
 
   String? _selectedUpazila;
   String? get selectedUpazila => _selectedUpazila;
+  String? _selectedUpazilaId;
+  String? get selectedUpazilaId => _selectedUpazilaId;
+
+  List<String> _districts = List.of(bdDistricts);
+  List<String> get availableDistricts => _districts;
+
+  List<String> _upazilas = const [];
+  List<String> get availableUpazilas => _upazilas;
+
+  List<District> _districtEntities = const [];
+  List<Upazila> _upazilaEntities = const [];
+
+  Future<void> _initDistricts() async {
+    if (listDistricts == null) return;
+    final res = await listDistricts!.call();
+    if (res is SuccessRepoCall<List<District>> &&
+        res.data != null &&
+        res.data!.isNotEmpty) {
+      _districtEntities = res.data!;
+      final names = res.data!.map((d) => d.name).toSet();
+      names.addAll(bdDistricts);
+      final sorted = names.toList()..sort();
+      _districts = sorted;
+      notifyListeners();
+    }
+  }
 
   // ── Initialization for edit mode ───────────────────────────────────────────
 
   void initializeForEdit(Pathshala pathshala) {
     _existingPathshalaId = pathshala.id;
     nameController.text = pathshala.name;
-    addressController.text = pathshala.address.addressLine1;
+    addressController.text = pathshala.address.detailedAddress ?? pathshala.address.addressLine1;
     _existingAddressLine2 = pathshala.address.addressLine2;
     _selectedDistrict = pathshala.address.region;
+    _selectedDistrictId = pathshala.districtId;
     _selectedUpazila = pathshala.address.city;
+    _selectedUpazilaId = pathshala.upazilaId;
+    _updateUpazilasForDistrict(pathshala.address.region);
     _establishedOn = pathshala.startedOn;
     _isActive = pathshala.isOperational;
   }
@@ -77,12 +118,52 @@ class CreatePathshalaController extends ChangeNotifier {
 
   void onDistrictChanged(String? district) {
     _selectedDistrict = district;
+    _selectedDistrictId = _districtEntities
+        .cast<District?>()
+        .firstWhere(
+          (d) => d?.name.toLowerCase() == district?.toLowerCase(),
+          orElse: () => null,
+        )
+        ?.id;
     _selectedUpazila = null; // reset dependent field
+    _selectedUpazilaId = null;
+    _updateUpazilasForDistrict(district);
+    notifyListeners();
+  }
+
+  Future<void> _updateUpazilasForDistrict(String? district) async {
+    if (district == null || district.isEmpty) {
+      _upazilas = const [];
+      _upazilaEntities = const [];
+      notifyListeners();
+      return;
+    }
+    final initial = Set<String>.from(bdUpazilas[district] ?? const []);
+    if (listUpazilas != null) {
+      final res = await listUpazilas!.call(ListUpazilasParams());
+      if (res is SuccessRepoCall<List<Upazila>> && res.data != null) {
+        _upazilaEntities = res.data!;
+        final distKey =
+            'dist-${district.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}';
+        final matching = res.data!
+            .where((u) => u.districtId == _selectedDistrictId || u.districtId.startsWith(distKey))
+            .toList();
+        initial.addAll(matching.map((u) => u.name));
+      }
+    }
+    _upazilas = initial.toList()..sort();
     notifyListeners();
   }
 
   void onUpazilaChanged(String? upazila) {
     _selectedUpazila = upazila;
+    _selectedUpazilaId = _upazilaEntities
+        .cast<Upazila?>()
+        .firstWhere(
+          (u) => u?.name.toLowerCase() == upazila?.toLowerCase(),
+          orElse: () => null,
+        )
+        ?.id;
     notifyListeners();
   }
 
@@ -118,6 +199,9 @@ class CreatePathshalaController extends ChangeNotifier {
       final params = UpdatePathshalaParams(
         pathshalaId: _existingPathshalaId!,
         name: nameController.text.trim(),
+        districtId: _selectedDistrictId,
+        upazilaId: _selectedUpazilaId,
+        detailedAddress: addressController.text.trim(),
         addressLine1: addressController.text.trim(),
         addressLine2: _existingAddressLine2,
         city: _selectedUpazila!,
@@ -140,6 +224,9 @@ class CreatePathshalaController extends ChangeNotifier {
       organizationId: 'org-gp-central',
       code: 'PS-${DateTime.now().millisecondsSinceEpoch}',
       name: nameController.text.trim(),
+      districtId: _selectedDistrictId,
+      upazilaId: _selectedUpazilaId,
+      detailedAddress: addressController.text.trim(),
       addressLine1: addressController.text.trim(),
       city: _selectedUpazila!,
       district: _selectedDistrict!,

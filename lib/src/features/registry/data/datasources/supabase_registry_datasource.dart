@@ -136,6 +136,9 @@ final class SupabaseRegistryDatasource implements RegistryDatasource {
       'organizationId': params.organizationId,
       'code': params.code,
       'name': params.name,
+      'districtId': params.districtId,
+      'upazilaId': params.upazilaId,
+      'detailedAddress': params.detailedAddress,
       'addressLine1': params.addressLine1,
       'addressLine2': params.addressLine2,
       'city': params.city,
@@ -154,6 +157,9 @@ final class SupabaseRegistryDatasource implements RegistryDatasource {
     final data = await _invoke('updatePathshala', {
       'pathshalaId': params.pathshalaId,
       'name': params.name,
+      'districtId': params.districtId,
+      'upazilaId': params.upazilaId,
+      'detailedAddress': params.detailedAddress,
       'addressLine1': params.addressLine1,
       'addressLine2': params.addressLine2,
       'city': params.city,
@@ -209,5 +215,57 @@ final class SupabaseRegistryDatasource implements RegistryDatasource {
               CommitteeMembershipModel.fromJson(json as Map<String, dynamic>),
         )
         .toList();
+  }
+
+  @override
+  Future<List<DistrictModel>> listDistricts([ListDistrictsParams? params]) async {
+    final data = await _invoke('listDistricts', {
+      if (params?.division != null) 'division': params!.division,
+      if (params?.status != null) 'status': params!.status,
+      if (params?.searchQuery != null) 'searchQuery': params!.searchQuery,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : (data is List ? data : []);
+    return list
+        .map((json) => DistrictModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<DistrictModel> createDistrict(CreateDistrictParams params) async {
+    final data = await _invoke('createDistrict', {
+      'name': params.name,
+      'division': params.division,
+      'status': params.status,
+    });
+    return DistrictModel.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<List<UpazilaModel>> listUpazilas([ListUpazilasParams? params]) async {
+    final data = await _invoke('listUpazilas', {
+      if (params?.districtId != null) 'districtId': params!.districtId,
+      if (params?.status != null) 'status': params!.status,
+      if (params?.searchQuery != null) 'searchQuery': params!.searchQuery,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : (data is List ? data : []);
+    return list
+        .map((json) => UpazilaModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<UpazilaModel> createUpazila(CreateUpazilaParams params) async {
+    final data = await _invoke('createUpazila', {
+      'districtId': params.districtId,
+      'name': params.name,
+      'status': params.status,
+    });
+    return UpazilaModel.fromJson(data as Map<String, dynamic>);
   }
 }

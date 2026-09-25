@@ -9,6 +9,8 @@ abstract class Pathshala {
   String get code;
   String get name;
   PathshalaStatus get status;
+  String? get districtId;
+  String? get upazilaId;
   PathshalaAddress get address;
   GeoCoordinate? get coordinate;
   DateTime? get startedOn;
@@ -26,6 +28,7 @@ abstract class PathshalaAddress {
 
   String get addressLine1;
   String? get addressLine2;
+  String? get detailedAddress;
   String get city;
   String get region;
   String get country;
@@ -33,6 +36,14 @@ abstract class PathshalaAddress {
 
   /// Human-readable address assembled from available address parts.
   String get formatted {
+    final detail = detailedAddress?.trim();
+    if (detail != null && detail.isNotEmpty) {
+      final trailing = [city, region, postalCode, country]
+          .whereType<String>()
+          .where((part) => part.trim().isNotEmpty && !detail.contains(part))
+          .join(', ');
+      return trailing.isEmpty ? detail : '$detail, $trailing';
+    }
     final parts = [
       addressLine1,
       addressLine2,

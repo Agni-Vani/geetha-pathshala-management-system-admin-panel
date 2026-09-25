@@ -83,6 +83,26 @@ final class RegistryRepositoryImpl
     return _request(() => datasource.listCommitteeMemberships(params));
   }
 
+  @override
+  AsyncRequest<List<District>> listDistricts([ListDistrictsParams? params]) {
+    return _request(() => datasource.listDistricts(params));
+  }
+
+  @override
+  AsyncRequest<District> createDistrict(CreateDistrictParams params) {
+    return _request(() => datasource.createDistrict(params));
+  }
+
+  @override
+  AsyncRequest<List<Upazila>> listUpazilas([ListUpazilasParams? params]) {
+    return _request(() => datasource.listUpazilas(params));
+  }
+
+  @override
+  AsyncRequest<Upazila> createUpazila(CreateUpazilaParams params) {
+    return _request(() => datasource.createUpazila(params));
+  }
+
   /// Runs datasource work through the shared repository error boundary.
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(

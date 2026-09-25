@@ -7,7 +7,6 @@ import 'package:geetha_pathshala_management_web/src/features/registry/domain/reg
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_pathshala_controller.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../constants/bd_districts.dart';
 import '../constants/bd_upazilas.dart';
 import '../widgets/custom_widgets/custom_autocomplete_field.dart';
 import '../widgets/custom_widgets/custom_date_field.dart';
@@ -295,7 +294,7 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                                       label: 'District',
                                       hint: 'Select District',
                                       isRequired: true,
-                                      items: bdDistricts,
+                                      items: _controller.availableDistricts,
                                       value: _controller.selectedDistrict,
                                       onChanged: _controller.onDistrictChanged,
                                     ),
@@ -309,18 +308,20 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                                       isRequired: true,
                                       enabled:
                                           _controller.selectedDistrict != null,
-                                      options: bdUpazilas[
-                                              _controller.selectedDistrict] ??
-                                          const [],
+                                      options: _controller.availableUpazilas.isNotEmpty
+                                          ? _controller.availableUpazilas
+                                          : (bdUpazilas[
+                                                  _controller.selectedDistrict] ??
+                                              const []),
                                       value: _controller.selectedUpazila,
                                       onChanged: _controller.onUpazilaChanged,
                                     ),
                                   ]),
                                   const SizedBox(height: 20),
                                   CustomFormField(
-                                    label: 'Full Address',
+                                    label: 'Detailed Address (বিস্তারিত ঠিকানা)',
                                     hint:
-                                        'Enter detailed street address, building number, etc.',
+                                        'Enter detailed street address, holding/building number, village/area, etc.',
                                     maxLines: 4,
                                     controller: _controller.addressController,
                                   ),

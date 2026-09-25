@@ -16,6 +16,8 @@ abstract class PathshalaModel extends Pathshala with _$PathshalaModel {
     required String code,
     required String name,
     required PathshalaStatus status,
+    String? districtId,
+    String? upazilaId,
     required PathshalaAddressModel address,
     required GeoCoordinateModel? coordinate,
     required DateTime? startedOn,
@@ -38,6 +40,7 @@ abstract class PathshalaAddressModel extends PathshalaAddress
   const factory PathshalaAddressModel({
     required String addressLine1,
     required String? addressLine2,
+    String? detailedAddress,
     required String city,
     required String region,
     required String country,

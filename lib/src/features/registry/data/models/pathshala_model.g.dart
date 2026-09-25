@@ -13,6 +13,8 @@ _PathshalaModel _$PathshalaModelFromJson(Map<String, dynamic> json) =>
       code: json['code'] as String,
       name: json['name'] as String,
       status: $enumDecode(_$PathshalaStatusEnumMap, json['status']),
+      districtId: json['districtId'] as String?,
+      upazilaId: json['upazilaId'] as String?,
       address: PathshalaAddressModel.fromJson(
         json['address'] as Map<String, dynamic>,
       ),
@@ -38,6 +40,8 @@ Map<String, dynamic> _$PathshalaModelToJson(_PathshalaModel instance) =>
       'code': instance.code,
       'name': instance.name,
       'status': _$PathshalaStatusEnumMap[instance.status]!,
+      'districtId': instance.districtId,
+      'upazilaId': instance.upazilaId,
       'address': instance.address,
       'coordinate': instance.coordinate,
       'startedOn': instance.startedOn?.toIso8601String(),
@@ -59,6 +63,7 @@ _PathshalaAddressModel _$PathshalaAddressModelFromJson(
 ) => _PathshalaAddressModel(
   addressLine1: json['addressLine1'] as String,
   addressLine2: json['addressLine2'] as String?,
+  detailedAddress: json['detailedAddress'] as String?,
   city: json['city'] as String,
   region: json['region'] as String,
   country: json['country'] as String,
@@ -70,6 +75,7 @@ Map<String, dynamic> _$PathshalaAddressModelToJson(
 ) => <String, dynamic>{
   'addressLine1': instance.addressLine1,
   'addressLine2': instance.addressLine2,
+  'detailedAddress': instance.detailedAddress,
   'city': instance.city,
   'region': instance.region,
   'country': instance.country,

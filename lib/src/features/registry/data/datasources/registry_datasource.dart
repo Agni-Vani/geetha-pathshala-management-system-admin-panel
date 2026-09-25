@@ -43,4 +43,16 @@ abstract interface class RegistryDatasource {
   Future<List<CommitteeMembershipModel>> listCommitteeMemberships(
     ListCommitteeMembershipsParams params,
   );
+
+  /// Lists administrative districts.
+  Future<List<DistrictModel>> listDistricts([ListDistrictsParams? params]);
+
+  /// Creates a new district model.
+  Future<DistrictModel> createDistrict(CreateDistrictParams params);
+
+  /// Lists administrative upazilas.
+  Future<List<UpazilaModel>> listUpazilas([ListUpazilasParams? params]);
+
+  /// Creates a new upazila model under a district.
+  Future<UpazilaModel> createUpazila(CreateUpazilaParams params);
 }
