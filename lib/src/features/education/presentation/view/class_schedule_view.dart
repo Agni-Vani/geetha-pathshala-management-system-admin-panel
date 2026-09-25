@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../registry/domain/registry_domain.dart';
-import '../../../registry/presentation/widgets/custom_widgets/custom_empty_state.dart';
-import '../../../registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
-import '../../../registry/presentation/view/registry_sidebar_navigation.dart';
+import '../../../pathshala/domain/pathshala_domain.dart';
+import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
+import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
+import '../../../../core/navigation/app_sidebar_navigation.dart';
 
 class _ScheduleRow {
   final String subject;

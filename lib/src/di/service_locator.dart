@@ -1,19 +1,23 @@
-import 'package:geetha_pathshala_management_web/src/app/controller/pathshala_details_controller.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_pathshala_controller.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_person_controller.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/geographic_areas_controller.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_pathshalas_controller.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_people_controller.dart';
 import 'package:get_it/get_it.dart';
 
+import '../features/areas/data/areas_data.dart';
+import '../features/areas/domain/areas_domain.dart';
+import '../features/areas/presentation/controller/geographic_areas_controller.dart';
+import '../features/authentication/data/authentication_data.dart';
+import '../features/authentication/domain/authentication_domain.dart';
 import '../features/communication/data/communication_data.dart';
 import '../features/communication/domain/communication_domain.dart';
 import '../features/education/data/education_data.dart';
 import '../features/education/domain/education_domain.dart';
-import '../features/iam/data/iam_data.dart';
-import '../features/iam/domain/iam_domain.dart';
-import '../features/registry/data/registry_data.dart';
-import '../features/registry/domain/registry_domain.dart';
+import '../features/pathshala/data/pathshala_data.dart';
+import '../features/pathshala/domain/pathshala_domain.dart';
+import '../features/pathshala/presentation/controller/create_pathshala_controller.dart';
+import '../features/pathshala/presentation/controller/list_pathshalas_controller.dart';
+import '../features/pathshala/presentation/controller/pathshala_details_controller.dart';
+import '../features/person/data/person_data.dart';
+import '../features/person/domain/person_domain.dart';
+import '../features/person/presentation/controller/create_person_controller.dart';
+import '../features/person/presentation/controller/list_people_controller.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -27,8 +31,14 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   // 1. DATASOURCES (Mock vs Supabase Real)
   // ==========================================================================
   if (useMockData) {
-    sl.registerLazySingleton<RegistryDatasource>(
-      () => MockRegistryDatasource(processingDelay: Duration.zero),
+    sl.registerLazySingleton<AreasDatasource>(
+      () => MockAreasDatasource(processingDelay: Duration.zero),
+    );
+    sl.registerLazySingleton<PersonDatasource>(
+      () => MockPersonDatasource(processingDelay: Duration.zero),
+    );
+    sl.registerLazySingleton<PathshalaDatasource>(
+      () => MockPathshalaDatasource(processingDelay: Duration.zero),
     );
     sl.registerLazySingleton<IamDatasource>(
       () => MockIamDatasource(processingDelay: Duration.zero),
@@ -40,8 +50,14 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
       () => MockCommunicationDatasource(processingDelay: Duration.zero),
     );
   } else {
-    sl.registerLazySingleton<RegistryDatasource>(
-      () => SupabaseRegistryDatasource(),
+    sl.registerLazySingleton<AreasDatasource>(
+      () => SupabaseAreasDatasource(),
+    );
+    sl.registerLazySingleton<PersonDatasource>(
+      () => SupabasePersonDatasource(),
+    );
+    sl.registerLazySingleton<PathshalaDatasource>(
+      () => SupabasePathshalaDatasource(),
     );
     sl.registerLazySingleton<IamDatasource>(
       () => SupabaseIamDatasource(),
@@ -57,8 +73,14 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   // ==========================================================================
   // 2. REPOSITORIES
   // ==========================================================================
-  sl.registerLazySingleton<RegistryRepository>(
-    () => RegistryRepositoryImpl(datasource: sl<RegistryDatasource>()),
+  sl.registerLazySingleton<AreasRepository>(
+    () => AreasRepositoryImpl(sl<AreasDatasource>()),
+  );
+  sl.registerLazySingleton<PersonRepository>(
+    () => PersonRepositoryImpl(sl<PersonDatasource>()),
+  );
+  sl.registerLazySingleton<PathshalaRepository>(
+    () => PathshalaRepositoryImpl(sl<PathshalaDatasource>()),
   );
   sl.registerLazySingleton<IamRepository>(
     () => IamRepositoryImpl(datasource: sl<IamDatasource>()),
@@ -76,24 +98,32 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   // 3. USE CASES
   // ==========================================================================
 
-  // Registry Use Cases (Positional)
-  sl.registerLazySingleton(() => GetOrganization(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => SearchPeople(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => GetPersonById(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => CreatePerson(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => ListPathshalas(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => GetPathshalaById(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => CreatePathshala(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => UpdatePathshala(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => ListCommittees(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => GetCommitteeById(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => ListCommitteeMemberships(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => ListDistricts(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => CreateDistrict(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => ListUpazilas(sl<RegistryRepository>()));
-  sl.registerLazySingleton(() => CreateUpazila(sl<RegistryRepository>()));
+  // Areas Use Cases
+  sl.registerLazySingleton(() => ListDistricts(sl<AreasRepository>()));
+  sl.registerLazySingleton(() => CreateDistrict(sl<AreasRepository>()));
+  sl.registerLazySingleton(() => ListUpazilas(sl<AreasRepository>()));
+  sl.registerLazySingleton(() => CreateUpazila(sl<AreasRepository>()));
 
-  // IAM Use Cases (Named)
+  // Person Use Cases
+  sl.registerLazySingleton(() => SearchPeople(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => GetPersonById(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => CreatePerson(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => GetPersonContacts(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => GetPersonRelationships(sl<PersonRepository>()));
+
+  // Pathshala Use Cases
+  sl.registerLazySingleton(() => GetOrganization(sl<PathshalaRepository>()));
+  sl.registerLazySingleton(() => ListPathshalas(sl<PathshalaRepository>()));
+  sl.registerLazySingleton(() => GetPathshalaById(sl<PathshalaRepository>()));
+  sl.registerLazySingleton(() => CreatePathshala(sl<PathshalaRepository>()));
+  sl.registerLazySingleton(() => UpdatePathshala(sl<PathshalaRepository>()));
+  sl.registerLazySingleton(() => ListCommittees(sl<PathshalaRepository>()));
+  sl.registerLazySingleton(() => GetCommitteeById(sl<PathshalaRepository>()));
+  sl.registerLazySingleton(
+    () => ListCommitteeMemberships(sl<PathshalaRepository>()),
+  );
+
+  // IAM / Authentication Use Cases
   sl.registerLazySingleton(
     () => GetUserAccount(repository: sl<IamRepository>()),
   );
@@ -114,7 +144,7 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     () => GetCurrentUserAccount(repository: sl<IamRepository>()),
   );
 
-  // Education Use Cases (Named)
+  // Education Use Cases
   sl.registerLazySingleton(
     () => AdmitStudent(repository: sl<EducationRepository>()),
   );
@@ -140,7 +170,7 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     () => ListTeacherAssignments(repository: sl<EducationRepository>()),
   );
 
-  // Communication Use Cases (Named)
+  // Communication Use Cases
   sl.registerLazySingleton(
     () => PublishNotice(repository: sl<CommunicationRepository>()),
   );
@@ -151,8 +181,23 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     () => RecordReadReceipt(repository: sl<CommunicationRepository>()),
   );
 
-
-  // Registry controllers
+  // ==========================================================================
+  // 4. CONTROLLERS
+  // ==========================================================================
+  sl.registerFactory(
+    () => GeographicAreasController(
+      listDistricts: sl<ListDistricts>(),
+      createDistrict: sl<CreateDistrict>(),
+      listUpazilas: sl<ListUpazilas>(),
+      createUpazila: sl<CreateUpazila>(),
+    ),
+  );
+  sl.registerFactory(
+    () => CreatePersonController(createPerson: sl<CreatePerson>()),
+  );
+  sl.registerFactory(
+    () => ListPeopleController(searchPeople: sl<SearchPeople>()),
+  );
   sl.registerFactory(
     () => CreatePathshalaController(
       createPathshala: sl<CreatePathshala>(),
@@ -162,21 +207,7 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     ),
   );
   sl.registerFactory(
-    () => CreatePersonController(createPerson: sl<CreatePerson>()),
-  );
-  sl.registerFactory(
     () => ListPathshalasController(listPathshalas: sl<ListPathshalas>()),
-  );
-  sl.registerFactory(
-    () => ListPeopleController(searchPeople: sl<SearchPeople>()),
-  );
-  sl.registerFactory(
-    () => GeographicAreasController(
-      listDistricts: sl<ListDistricts>(),
-      createDistrict: sl<CreateDistrict>(),
-      listUpazilas: sl<ListUpazilas>(),
-      createUpazila: sl<CreateUpazila>(),
-    ),
   );
   sl.registerFactory(
     () => PathshalaDetailsController(

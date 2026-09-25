@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/assets.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../registry/presentation/widgets/custom_widgets/custom_button.dart';
-import '../../../registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
-import '../../../registry/presentation/view/registry_sidebar_navigation.dart';
+import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
+import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
+import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
 
 class _EventItem {

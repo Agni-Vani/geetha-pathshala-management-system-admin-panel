@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:geetha_pathshala_management_web/src/core/theme/app_theme.dart';
 import 'package:geetha_pathshala_management_web/src/di/service_locator.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/view/registry_route_builders.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/view/registry_route_names.dart';
-import 'package:geetha_pathshala_management_web/src/app/view/all_patshala_view.dart';
+import 'package:geetha_pathshala_management_web/src/core/navigation/app_route_builders.dart';
+import 'package:geetha_pathshala_management_web/src/core/navigation/app_route_names.dart';
+import 'package:geetha_pathshala_management_web/src/features/pathshala/presentation/view/all_patshala_view.dart';
 
 Future<void> _boot(WidgetTester tester, String route) async {
   tester.view.devicePixelRatio = 1.0;
