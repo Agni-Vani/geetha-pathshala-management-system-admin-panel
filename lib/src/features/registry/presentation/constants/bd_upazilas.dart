@@ -88,6 +88,13 @@ const Map<String, List<String>> bdUpazilas = {
     'Matlab Uttar',
     'Shahrasti',
   ],
+  'Chapainawabganj': [
+    'Bholahat',
+    'Chapainawabganj Sadar',
+    'Gomastapur',
+    'Nachole',
+    'Shibganj',
+  ],
   'Chattogram': [
     'Anwara',
     'Banshkhali',

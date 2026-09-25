@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$PathshalaModel {
 
- String get id; String get organizationId; String get code; String get name; PathshalaStatus get status; PathshalaAddressModel get address; GeoCoordinateModel? get coordinate; DateTime? get startedOn; DateTime? get closedOn; DateTime get createdAt; DateTime get updatedAt;
+ String get id; String get organizationId; String get code; String get name; PathshalaStatus get status; String? get districtId; String? get upazilaId; PathshalaAddressModel get address; GeoCoordinateModel? get coordinate; DateTime? get startedOn; DateTime? get closedOn; DateTime get createdAt; DateTime get updatedAt;
 /// Create a copy of PathshalaModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $PathshalaModelCopyWith<PathshalaModel> get copyWith => _$PathshalaModelCopyWith
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PathshalaModel&&(identical(other.id, id) || other.id == id)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.address, address) || other.address == address)&&(identical(other.coordinate, coordinate) || other.coordinate == coordinate)&&(identical(other.startedOn, startedOn) || other.startedOn == startedOn)&&(identical(other.closedOn, closedOn) || other.closedOn == closedOn)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PathshalaModel&&(identical(other.id, id) || other.id == id)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.districtId, districtId) || other.districtId == districtId)&&(identical(other.upazilaId, upazilaId) || other.upazilaId == upazilaId)&&(identical(other.address, address) || other.address == address)&&(identical(other.coordinate, coordinate) || other.coordinate == coordinate)&&(identical(other.startedOn, startedOn) || other.startedOn == startedOn)&&(identical(other.closedOn, closedOn) || other.closedOn == closedOn)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,organizationId,code,name,status,address,coordinate,startedOn,closedOn,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,organizationId,code,name,status,districtId,upazilaId,address,coordinate,startedOn,closedOn,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'PathshalaModel(id: $id, organizationId: $organizationId, code: $code, name: $name, status: $status, address: $address, coordinate: $coordinate, startedOn: $startedOn, closedOn: $closedOn, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'PathshalaModel(id: $id, organizationId: $organizationId, code: $code, name: $name, status: $status, districtId: $districtId, upazilaId: $upazilaId, address: $address, coordinate: $coordinate, startedOn: $startedOn, closedOn: $closedOn, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $PathshalaModelCopyWith<$Res>  {
   factory $PathshalaModelCopyWith(PathshalaModel value, $Res Function(PathshalaModel) _then) = _$PathshalaModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String organizationId, String code, String name, PathshalaStatus status, PathshalaAddressModel address, GeoCoordinateModel? coordinate, DateTime? startedOn, DateTime? closedOn, DateTime createdAt, DateTime updatedAt
+ String id, String organizationId, String code, String name, PathshalaStatus status, String? districtId, String? upazilaId, PathshalaAddressModel address, GeoCoordinateModel? coordinate, DateTime? startedOn, DateTime? closedOn, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -65,14 +65,16 @@ class _$PathshalaModelCopyWithImpl<$Res>
 
 /// Create a copy of PathshalaModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? organizationId = null,Object? code = null,Object? name = null,Object? status = null,Object? address = null,Object? coordinate = freezed,Object? startedOn = freezed,Object? closedOn = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? organizationId = null,Object? code = null,Object? name = null,Object? status = null,Object? districtId = freezed,Object? upazilaId = freezed,Object? address = null,Object? coordinate = freezed,Object? startedOn = freezed,Object? closedOn = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as PathshalaStatus,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as PathshalaStatus,districtId: freezed == districtId ? _self.districtId : districtId // ignore: cast_nullable_to_non_nullable
+as String?,upazilaId: freezed == upazilaId ? _self.upazilaId : upazilaId // ignore: cast_nullable_to_non_nullable
+as String?,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
 as PathshalaAddressModel,coordinate: freezed == coordinate ? _self.coordinate : coordinate // ignore: cast_nullable_to_non_nullable
 as GeoCoordinateModel?,startedOn: freezed == startedOn ? _self.startedOn : startedOn // ignore: cast_nullable_to_non_nullable
 as DateTime?,closedOn: freezed == closedOn ? _self.closedOn : closedOn // ignore: cast_nullable_to_non_nullable
@@ -184,10 +186,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String organizationId,  String code,  String name,  PathshalaStatus status,  PathshalaAddressModel address,  GeoCoordinateModel? coordinate,  DateTime? startedOn,  DateTime? closedOn,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String organizationId,  String code,  String name,  PathshalaStatus status,  String? districtId,  String? upazilaId,  PathshalaAddressModel address,  GeoCoordinateModel? coordinate,  DateTime? startedOn,  DateTime? closedOn,  DateTime createdAt,  DateTime updatedAt)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PathshalaModel() when $default != null:
-return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status,_that.address,_that.coordinate,_that.startedOn,_that.closedOn,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status,_that.districtId,_that.upazilaId,_that.address,_that.coordinate,_that.startedOn,_that.closedOn,_that.createdAt,_that.updatedAt);case _:
   return orElse();
 
 }
@@ -205,10 +207,10 @@ return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String organizationId,  String code,  String name,  PathshalaStatus status,  PathshalaAddressModel address,  GeoCoordinateModel? coordinate,  DateTime? startedOn,  DateTime? closedOn,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String organizationId,  String code,  String name,  PathshalaStatus status,  String? districtId,  String? upazilaId,  PathshalaAddressModel address,  GeoCoordinateModel? coordinate,  DateTime? startedOn,  DateTime? closedOn,  DateTime createdAt,  DateTime updatedAt)  $default,) {final _that = this;
 switch (_that) {
 case _PathshalaModel():
-return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status,_that.address,_that.coordinate,_that.startedOn,_that.closedOn,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status,_that.districtId,_that.upazilaId,_that.address,_that.coordinate,_that.startedOn,_that.closedOn,_that.createdAt,_that.updatedAt);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -225,10 +227,10 @@ return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String organizationId,  String code,  String name,  PathshalaStatus status,  PathshalaAddressModel address,  GeoCoordinateModel? coordinate,  DateTime? startedOn,  DateTime? closedOn,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String organizationId,  String code,  String name,  PathshalaStatus status,  String? districtId,  String? upazilaId,  PathshalaAddressModel address,  GeoCoordinateModel? coordinate,  DateTime? startedOn,  DateTime? closedOn,  DateTime createdAt,  DateTime updatedAt)?  $default,) {final _that = this;
 switch (_that) {
 case _PathshalaModel() when $default != null:
-return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status,_that.address,_that.coordinate,_that.startedOn,_that.closedOn,_that.createdAt,_that.updatedAt);case _:
+return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status,_that.districtId,_that.upazilaId,_that.address,_that.coordinate,_that.startedOn,_that.closedOn,_that.createdAt,_that.updatedAt);case _:
   return null;
 
 }
@@ -240,7 +242,7 @@ return $default(_that.id,_that.organizationId,_that.code,_that.name,_that.status
 @JsonSerializable()
 
 class _PathshalaModel extends PathshalaModel {
-  const _PathshalaModel({required this.id, required this.organizationId, required this.code, required this.name, required this.status, required this.address, required this.coordinate, required this.startedOn, required this.closedOn, required this.createdAt, required this.updatedAt}): super._();
+  const _PathshalaModel({required this.id, required this.organizationId, required this.code, required this.name, required this.status, this.districtId, this.upazilaId, required this.address, required this.coordinate, required this.startedOn, required this.closedOn, required this.createdAt, required this.updatedAt}): super._();
   factory _PathshalaModel.fromJson(Map<String, dynamic> json) => _$PathshalaModelFromJson(json);
 
 @override final  String id;
@@ -248,6 +250,8 @@ class _PathshalaModel extends PathshalaModel {
 @override final  String code;
 @override final  String name;
 @override final  PathshalaStatus status;
+@override final  String? districtId;
+@override final  String? upazilaId;
 @override final  PathshalaAddressModel address;
 @override final  GeoCoordinateModel? coordinate;
 @override final  DateTime? startedOn;
@@ -268,16 +272,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PathshalaModel&&(identical(other.id, id) || other.id == id)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.address, address) || other.address == address)&&(identical(other.coordinate, coordinate) || other.coordinate == coordinate)&&(identical(other.startedOn, startedOn) || other.startedOn == startedOn)&&(identical(other.closedOn, closedOn) || other.closedOn == closedOn)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PathshalaModel&&(identical(other.id, id) || other.id == id)&&(identical(other.organizationId, organizationId) || other.organizationId == organizationId)&&(identical(other.code, code) || other.code == code)&&(identical(other.name, name) || other.name == name)&&(identical(other.status, status) || other.status == status)&&(identical(other.districtId, districtId) || other.districtId == districtId)&&(identical(other.upazilaId, upazilaId) || other.upazilaId == upazilaId)&&(identical(other.address, address) || other.address == address)&&(identical(other.coordinate, coordinate) || other.coordinate == coordinate)&&(identical(other.startedOn, startedOn) || other.startedOn == startedOn)&&(identical(other.closedOn, closedOn) || other.closedOn == closedOn)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,organizationId,code,name,status,address,coordinate,startedOn,closedOn,createdAt,updatedAt);
+int get hashCode => Object.hash(runtimeType,id,organizationId,code,name,status,districtId,upazilaId,address,coordinate,startedOn,closedOn,createdAt,updatedAt);
 
 @override
 String toString() {
-  return 'PathshalaModel(id: $id, organizationId: $organizationId, code: $code, name: $name, status: $status, address: $address, coordinate: $coordinate, startedOn: $startedOn, closedOn: $closedOn, createdAt: $createdAt, updatedAt: $updatedAt)';
+  return 'PathshalaModel(id: $id, organizationId: $organizationId, code: $code, name: $name, status: $status, districtId: $districtId, upazilaId: $upazilaId, address: $address, coordinate: $coordinate, startedOn: $startedOn, closedOn: $closedOn, createdAt: $createdAt, updatedAt: $updatedAt)';
 }
 
 
@@ -288,7 +292,7 @@ abstract mixin class _$PathshalaModelCopyWith<$Res> implements $PathshalaModelCo
   factory _$PathshalaModelCopyWith(_PathshalaModel value, $Res Function(_PathshalaModel) _then) = __$PathshalaModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String organizationId, String code, String name, PathshalaStatus status, PathshalaAddressModel address, GeoCoordinateModel? coordinate, DateTime? startedOn, DateTime? closedOn, DateTime createdAt, DateTime updatedAt
+ String id, String organizationId, String code, String name, PathshalaStatus status, String? districtId, String? upazilaId, PathshalaAddressModel address, GeoCoordinateModel? coordinate, DateTime? startedOn, DateTime? closedOn, DateTime createdAt, DateTime updatedAt
 });
 
 
@@ -305,14 +309,16 @@ class __$PathshalaModelCopyWithImpl<$Res>
 
 /// Create a copy of PathshalaModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? organizationId = null,Object? code = null,Object? name = null,Object? status = null,Object? address = null,Object? coordinate = freezed,Object? startedOn = freezed,Object? closedOn = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? organizationId = null,Object? code = null,Object? name = null,Object? status = null,Object? districtId = freezed,Object? upazilaId = freezed,Object? address = null,Object? coordinate = freezed,Object? startedOn = freezed,Object? closedOn = freezed,Object? createdAt = null,Object? updatedAt = null,}) {
   return _then(_PathshalaModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,organizationId: null == organizationId ? _self.organizationId : organizationId // ignore: cast_nullable_to_non_nullable
 as String,code: null == code ? _self.code : code // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
-as PathshalaStatus,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
+as PathshalaStatus,districtId: freezed == districtId ? _self.districtId : districtId // ignore: cast_nullable_to_non_nullable
+as String?,upazilaId: freezed == upazilaId ? _self.upazilaId : upazilaId // ignore: cast_nullable_to_non_nullable
+as String?,address: null == address ? _self.address : address // ignore: cast_nullable_to_non_nullable
 as PathshalaAddressModel,coordinate: freezed == coordinate ? _self.coordinate : coordinate // ignore: cast_nullable_to_non_nullable
 as GeoCoordinateModel?,startedOn: freezed == startedOn ? _self.startedOn : startedOn // ignore: cast_nullable_to_non_nullable
 as DateTime?,closedOn: freezed == closedOn ? _self.closedOn : closedOn // ignore: cast_nullable_to_non_nullable
@@ -350,7 +356,7 @@ $GeoCoordinateModelCopyWith<$Res>? get coordinate {
 /// @nodoc
 mixin _$PathshalaAddressModel {
 
- String get addressLine1; String? get addressLine2; String get city; String get region; String get country; String? get postalCode;
+ String get addressLine1; String? get addressLine2; String? get detailedAddress; String get city; String get region; String get country; String? get postalCode;
 /// Create a copy of PathshalaAddressModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -363,16 +369,16 @@ $PathshalaAddressModelCopyWith<PathshalaAddressModel> get copyWith => _$Pathshal
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is PathshalaAddressModel&&(identical(other.addressLine1, addressLine1) || other.addressLine1 == addressLine1)&&(identical(other.addressLine2, addressLine2) || other.addressLine2 == addressLine2)&&(identical(other.city, city) || other.city == city)&&(identical(other.region, region) || other.region == region)&&(identical(other.country, country) || other.country == country)&&(identical(other.postalCode, postalCode) || other.postalCode == postalCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PathshalaAddressModel&&(identical(other.addressLine1, addressLine1) || other.addressLine1 == addressLine1)&&(identical(other.addressLine2, addressLine2) || other.addressLine2 == addressLine2)&&(identical(other.detailedAddress, detailedAddress) || other.detailedAddress == detailedAddress)&&(identical(other.city, city) || other.city == city)&&(identical(other.region, region) || other.region == region)&&(identical(other.country, country) || other.country == country)&&(identical(other.postalCode, postalCode) || other.postalCode == postalCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,addressLine1,addressLine2,city,region,country,postalCode);
+int get hashCode => Object.hash(runtimeType,addressLine1,addressLine2,detailedAddress,city,region,country,postalCode);
 
 @override
 String toString() {
-  return 'PathshalaAddressModel(addressLine1: $addressLine1, addressLine2: $addressLine2, city: $city, region: $region, country: $country, postalCode: $postalCode)';
+  return 'PathshalaAddressModel(addressLine1: $addressLine1, addressLine2: $addressLine2, detailedAddress: $detailedAddress, city: $city, region: $region, country: $country, postalCode: $postalCode)';
 }
 
 
@@ -383,7 +389,7 @@ abstract mixin class $PathshalaAddressModelCopyWith<$Res>  {
   factory $PathshalaAddressModelCopyWith(PathshalaAddressModel value, $Res Function(PathshalaAddressModel) _then) = _$PathshalaAddressModelCopyWithImpl;
 @useResult
 $Res call({
- String addressLine1, String? addressLine2, String city, String region, String country, String? postalCode
+ String addressLine1, String? addressLine2, String? detailedAddress, String city, String region, String country, String? postalCode
 });
 
 
@@ -400,10 +406,11 @@ class _$PathshalaAddressModelCopyWithImpl<$Res>
 
 /// Create a copy of PathshalaAddressModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? addressLine1 = null,Object? addressLine2 = freezed,Object? city = null,Object? region = null,Object? country = null,Object? postalCode = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? addressLine1 = null,Object? addressLine2 = freezed,Object? detailedAddress = freezed,Object? city = null,Object? region = null,Object? country = null,Object? postalCode = freezed,}) {
   return _then(_self.copyWith(
 addressLine1: null == addressLine1 ? _self.addressLine1 : addressLine1 // ignore: cast_nullable_to_non_nullable
 as String,addressLine2: freezed == addressLine2 ? _self.addressLine2 : addressLine2 // ignore: cast_nullable_to_non_nullable
+as String?,detailedAddress: freezed == detailedAddress ? _self.detailedAddress : detailedAddress // ignore: cast_nullable_to_non_nullable
 as String?,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String,region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
 as String,country: null == country ? _self.country : country // ignore: cast_nullable_to_non_nullable
@@ -493,10 +500,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String addressLine1,  String? addressLine2,  String city,  String region,  String country,  String? postalCode)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String addressLine1,  String? addressLine2,  String? detailedAddress,  String city,  String region,  String country,  String? postalCode)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _PathshalaAddressModel() when $default != null:
-return $default(_that.addressLine1,_that.addressLine2,_that.city,_that.region,_that.country,_that.postalCode);case _:
+return $default(_that.addressLine1,_that.addressLine2,_that.detailedAddress,_that.city,_that.region,_that.country,_that.postalCode);case _:
   return orElse();
 
 }
@@ -514,10 +521,10 @@ return $default(_that.addressLine1,_that.addressLine2,_that.city,_that.region,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String addressLine1,  String? addressLine2,  String city,  String region,  String country,  String? postalCode)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String addressLine1,  String? addressLine2,  String? detailedAddress,  String city,  String region,  String country,  String? postalCode)  $default,) {final _that = this;
 switch (_that) {
 case _PathshalaAddressModel():
-return $default(_that.addressLine1,_that.addressLine2,_that.city,_that.region,_that.country,_that.postalCode);case _:
+return $default(_that.addressLine1,_that.addressLine2,_that.detailedAddress,_that.city,_that.region,_that.country,_that.postalCode);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -534,10 +541,10 @@ return $default(_that.addressLine1,_that.addressLine2,_that.city,_that.region,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String addressLine1,  String? addressLine2,  String city,  String region,  String country,  String? postalCode)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String addressLine1,  String? addressLine2,  String? detailedAddress,  String city,  String region,  String country,  String? postalCode)?  $default,) {final _that = this;
 switch (_that) {
 case _PathshalaAddressModel() when $default != null:
-return $default(_that.addressLine1,_that.addressLine2,_that.city,_that.region,_that.country,_that.postalCode);case _:
+return $default(_that.addressLine1,_that.addressLine2,_that.detailedAddress,_that.city,_that.region,_that.country,_that.postalCode);case _:
   return null;
 
 }
@@ -549,11 +556,12 @@ return $default(_that.addressLine1,_that.addressLine2,_that.city,_that.region,_t
 @JsonSerializable()
 
 class _PathshalaAddressModel extends PathshalaAddressModel {
-  const _PathshalaAddressModel({required this.addressLine1, required this.addressLine2, required this.city, required this.region, required this.country, required this.postalCode}): super._();
+  const _PathshalaAddressModel({required this.addressLine1, required this.addressLine2, this.detailedAddress, required this.city, required this.region, required this.country, required this.postalCode}): super._();
   factory _PathshalaAddressModel.fromJson(Map<String, dynamic> json) => _$PathshalaAddressModelFromJson(json);
 
 @override final  String addressLine1;
 @override final  String? addressLine2;
+@override final  String? detailedAddress;
 @override final  String city;
 @override final  String region;
 @override final  String country;
@@ -572,16 +580,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PathshalaAddressModel&&(identical(other.addressLine1, addressLine1) || other.addressLine1 == addressLine1)&&(identical(other.addressLine2, addressLine2) || other.addressLine2 == addressLine2)&&(identical(other.city, city) || other.city == city)&&(identical(other.region, region) || other.region == region)&&(identical(other.country, country) || other.country == country)&&(identical(other.postalCode, postalCode) || other.postalCode == postalCode));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PathshalaAddressModel&&(identical(other.addressLine1, addressLine1) || other.addressLine1 == addressLine1)&&(identical(other.addressLine2, addressLine2) || other.addressLine2 == addressLine2)&&(identical(other.detailedAddress, detailedAddress) || other.detailedAddress == detailedAddress)&&(identical(other.city, city) || other.city == city)&&(identical(other.region, region) || other.region == region)&&(identical(other.country, country) || other.country == country)&&(identical(other.postalCode, postalCode) || other.postalCode == postalCode));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,addressLine1,addressLine2,city,region,country,postalCode);
+int get hashCode => Object.hash(runtimeType,addressLine1,addressLine2,detailedAddress,city,region,country,postalCode);
 
 @override
 String toString() {
-  return 'PathshalaAddressModel(addressLine1: $addressLine1, addressLine2: $addressLine2, city: $city, region: $region, country: $country, postalCode: $postalCode)';
+  return 'PathshalaAddressModel(addressLine1: $addressLine1, addressLine2: $addressLine2, detailedAddress: $detailedAddress, city: $city, region: $region, country: $country, postalCode: $postalCode)';
 }
 
 
@@ -592,7 +600,7 @@ abstract mixin class _$PathshalaAddressModelCopyWith<$Res> implements $Pathshala
   factory _$PathshalaAddressModelCopyWith(_PathshalaAddressModel value, $Res Function(_PathshalaAddressModel) _then) = __$PathshalaAddressModelCopyWithImpl;
 @override @useResult
 $Res call({
- String addressLine1, String? addressLine2, String city, String region, String country, String? postalCode
+ String addressLine1, String? addressLine2, String? detailedAddress, String city, String region, String country, String? postalCode
 });
 
 
@@ -609,10 +617,11 @@ class __$PathshalaAddressModelCopyWithImpl<$Res>
 
 /// Create a copy of PathshalaAddressModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? addressLine1 = null,Object? addressLine2 = freezed,Object? city = null,Object? region = null,Object? country = null,Object? postalCode = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? addressLine1 = null,Object? addressLine2 = freezed,Object? detailedAddress = freezed,Object? city = null,Object? region = null,Object? country = null,Object? postalCode = freezed,}) {
   return _then(_PathshalaAddressModel(
 addressLine1: null == addressLine1 ? _self.addressLine1 : addressLine1 // ignore: cast_nullable_to_non_nullable
 as String,addressLine2: freezed == addressLine2 ? _self.addressLine2 : addressLine2 // ignore: cast_nullable_to_non_nullable
+as String?,detailedAddress: freezed == detailedAddress ? _self.detailedAddress : detailedAddress // ignore: cast_nullable_to_non_nullable
 as String?,city: null == city ? _self.city : city // ignore: cast_nullable_to_non_nullable
 as String,region: null == region ? _self.region : region // ignore: cast_nullable_to_non_nullable
 as String,country: null == country ? _self.country : country // ignore: cast_nullable_to_non_nullable

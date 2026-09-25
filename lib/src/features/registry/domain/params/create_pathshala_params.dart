@@ -2,6 +2,9 @@ final class CreatePathshalaParams {
   final String organizationId;
   final String code;
   final String name;
+  final String? districtId;
+  final String? upazilaId;
+  final String? detailedAddress;
   final String addressLine1;
   final String? addressLine2;
   final String city;
@@ -16,6 +19,9 @@ final class CreatePathshalaParams {
     required this.organizationId,
     required this.code,
     required this.name,
+    this.districtId,
+    this.upazilaId,
+    this.detailedAddress,
     required this.addressLine1,
     this.addressLine2,
     required this.city,

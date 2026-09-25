@@ -1,5 +1,8 @@
+import '../../../../core/constants/bangladesh_locations.dart';
 import '../../domain/entities/entities.dart';
 import '../../domain/params/params.dart';
+import '../../presentation/constants/bd_districts.dart';
+import '../../presentation/constants/bd_upazilas.dart';
 import '../models/models.dart';
 import 'registry_datasource.dart';
 
@@ -13,6 +16,8 @@ final class MockRegistryDatasource implements RegistryDatasource {
   final List<PathshalaModel> _pathshalas;
   final List<CommitteeModel> _committees;
   final List<CommitteeMembershipModel> _memberships;
+  final List<DistrictModel> _districts;
+  final List<UpazilaModel> _upazilas;
 
   MockRegistryDatasource({
     this.processingDelay = const Duration(milliseconds: 650),
@@ -22,7 +27,9 @@ final class MockRegistryDatasource implements RegistryDatasource {
        _relationships = _seedRelationships(),
        _pathshalas = _seedPathshalas(),
        _committees = _seedCommittees(),
-       _memberships = _seedMemberships();
+       _memberships = _seedMemberships(),
+       _districts = _seedDistricts(),
+       _upazilas = _seedUpazilas();
 
   @override
   Future<OrganizationModel> getOrganization(String organizationId) async {
@@ -185,6 +192,7 @@ final class MockRegistryDatasource implements RegistryDatasource {
     final addressModel = PathshalaAddressModel(
       addressLine1: params.addressLine1,
       addressLine2: params.addressLine2,
+      detailedAddress: params.detailedAddress ?? params.addressLine1,
       city: params.city,
       region: params.district,
       country: params.country,
@@ -203,6 +211,8 @@ final class MockRegistryDatasource implements RegistryDatasource {
       code: params.code,
       name: params.name,
       status: PathshalaStatus.active,
+      districtId: params.districtId,
+      upazilaId: params.upazilaId,
       address: addressModel,
       coordinate: coordModel,
       startedOn: params.startedOn ?? now,
@@ -227,9 +237,12 @@ final class MockRegistryDatasource implements RegistryDatasource {
 
     final updated = existing.copyWith(
       name: params.name,
+      districtId: params.districtId ?? existing.districtId,
+      upazilaId: params.upazilaId ?? existing.upazilaId,
       address: existing.address.copyWith(
         addressLine1: params.addressLine1,
         addressLine2: params.addressLine2,
+        detailedAddress: params.detailedAddress ?? existing.address.detailedAddress,
         city: params.city,
         region: params.district,
         country: params.country,
@@ -294,6 +307,92 @@ final class MockRegistryDatasource implements RegistryDatasource {
           return true;
         })
         .toList(growable: false);
+  }
+
+  @override
+  Future<List<DistrictModel>> listDistricts([ListDistrictsParams? params]) async {
+    await _simulateProcessing();
+    final division = params?.division?.trim().toLowerCase();
+    final status = params?.status?.trim().toLowerCase();
+    final query = params?.searchQuery?.trim().toLowerCase();
+
+    return _districts.where((district) {
+      if (division != null &&
+          division.isNotEmpty &&
+          district.division.toLowerCase() != division) {
+        return false;
+      }
+      if (status != null &&
+          status.isNotEmpty &&
+          district.status.toLowerCase() != status) {
+        return false;
+      }
+      if (query != null &&
+          query.isNotEmpty &&
+          !district.name.toLowerCase().contains(query)) {
+        return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  @override
+  Future<DistrictModel> createDistrict(CreateDistrictParams params) async {
+    await _simulateProcessing();
+    final id =
+        'dist-${params.name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}-${DateTime.now().millisecondsSinceEpoch}';
+    final district = DistrictModel(
+      id: id,
+      name: params.name.trim(),
+      division: params.division.trim(),
+      status: params.status,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    _districts.add(district);
+    return district;
+  }
+
+  @override
+  Future<List<UpazilaModel>> listUpazilas([ListUpazilasParams? params]) async {
+    await _simulateProcessing();
+    final districtId = params?.districtId;
+    final status = params?.status?.trim().toLowerCase();
+    final query = params?.searchQuery?.trim().toLowerCase();
+
+    return _upazilas.where((upazila) {
+      if (districtId != null && upazila.districtId != districtId) {
+        return false;
+      }
+      if (status != null &&
+          status.isNotEmpty &&
+          upazila.status.toLowerCase() != status) {
+        return false;
+      }
+      if (query != null &&
+          query.isNotEmpty &&
+          !upazila.name.toLowerCase().contains(query)) {
+        return false;
+      }
+      return true;
+    }).toList();
+  }
+
+  @override
+  Future<UpazilaModel> createUpazila(CreateUpazilaParams params) async {
+    await _simulateProcessing();
+    final id =
+        'upz-${params.name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}-${DateTime.now().millisecondsSinceEpoch}';
+    final upazila = UpazilaModel(
+      id: id,
+      districtId: params.districtId,
+      name: params.name.trim(),
+      status: params.status,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    _upazilas.add(upazila);
+    return upazila;
   }
 
   Future<void> _simulateProcessing() => Future.delayed(processingDelay);
@@ -453,9 +552,12 @@ List<PathshalaModel> _seedPathshalas() {
       code: 'DHK-001',
       name: 'Dhaka Central Gita Pathshala',
       status: PathshalaStatus.active,
+      districtId: 'dist-dhaka',
+      upazilaId: 'upz-dhanmondi',
       address: const PathshalaAddressModel(
         addressLine1: 'House 12, Road 4',
         addressLine2: 'Dhanmondi',
+        detailedAddress: 'House 12, Road 4, Dhanmondi, Dhaka',
         city: 'Dhaka',
         region: 'Dhaka',
         country: 'Bangladesh',
@@ -476,9 +578,12 @@ List<PathshalaModel> _seedPathshalas() {
       code: 'CTG-002',
       name: 'Chattogram North Gita Pathshala',
       status: PathshalaStatus.active,
+      districtId: 'dist-chattogram',
+      upazilaId: 'upz-panchlaish',
       address: const PathshalaAddressModel(
         addressLine1: 'Temple Complex Road',
         addressLine2: null,
+        detailedAddress: 'Temple Complex Road, Panchlaish, Chattogram',
         city: 'Chattogram',
         region: 'Chattogram',
         country: 'Bangladesh',
@@ -499,9 +604,12 @@ List<PathshalaModel> _seedPathshalas() {
       code: 'SYL-003',
       name: 'Sylhet East Gita Pathshala',
       status: PathshalaStatus.paused,
+      districtId: 'dist-sylhet',
+      upazilaId: 'upz-sylhet-sadar',
       address: const PathshalaAddressModel(
         addressLine1: 'Community Hall 2',
         addressLine2: 'Zindabazar',
+        detailedAddress: 'Community Hall 2, Zindabazar, Sylhet',
         city: 'Sylhet',
         region: 'Sylhet',
         country: 'Bangladesh',
@@ -579,3 +687,40 @@ List<CommitteeMembershipModel> _seedMemberships() {
     ),
   ];
 }
+
+List<DistrictModel> _seedDistricts() {
+  return bdDistricts.map((name) {
+    final division = bdDistrictToDivision[name] ?? 'Other';
+    return DistrictModel(
+      id: 'dist-${name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}',
+      name: name,
+      division: division,
+      status: 'active',
+      createdAt: DateTime(2026, 1, 1),
+      updatedAt: DateTime(2026, 1, 1),
+    );
+  }).toList();
+}
+
+List<UpazilaModel> _seedUpazilas() {
+  final list = <UpazilaModel>[];
+  for (final entry in bdUpazilas.entries) {
+    final districtName = entry.key;
+    final districtId =
+        'dist-${districtName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}';
+    for (final upzName in entry.value) {
+      list.add(
+        UpazilaModel(
+          id: 'upz-${districtName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}-${upzName.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}',
+          districtId: districtId,
+          name: upzName,
+          status: 'active',
+          createdAt: DateTime(2026, 1, 1),
+          updatedAt: DateTime(2026, 1, 1),
+        ),
+      );
+    }
+  }
+  return list;
+}
+

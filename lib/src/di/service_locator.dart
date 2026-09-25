@@ -1,6 +1,7 @@
 import 'package:geetha_pathshala_management_web/src/app/controller/pathshala_details_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_pathshala_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_person_controller.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/geographic_areas_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_pathshalas_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_people_controller.dart';
 import 'package:get_it/get_it.dart';
@@ -87,6 +88,10 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(() => ListCommittees(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => GetCommitteeById(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => ListCommitteeMemberships(sl<RegistryRepository>()));
+  sl.registerLazySingleton(() => ListDistricts(sl<RegistryRepository>()));
+  sl.registerLazySingleton(() => CreateDistrict(sl<RegistryRepository>()));
+  sl.registerLazySingleton(() => ListUpazilas(sl<RegistryRepository>()));
+  sl.registerLazySingleton(() => CreateUpazila(sl<RegistryRepository>()));
 
   // IAM Use Cases (Named)
   sl.registerLazySingleton(
@@ -149,9 +154,11 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
 
   // Registry controllers
   sl.registerFactory(
-    ()=> CreatePathshalaController(
+    () => CreatePathshalaController(
       createPathshala: sl<CreatePathshala>(),
       updatePathshala: sl<UpdatePathshala>(),
+      listDistricts: sl<ListDistricts>(),
+      listUpazilas: sl<ListUpazilas>(),
     ),
   );
   sl.registerFactory(
@@ -162,6 +169,14 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   );
   sl.registerFactory(
     () => ListPeopleController(searchPeople: sl<SearchPeople>()),
+  );
+  sl.registerFactory(
+    () => GeographicAreasController(
+      listDistricts: sl<ListDistricts>(),
+      createDistrict: sl<CreateDistrict>(),
+      listUpazilas: sl<ListUpazilas>(),
+      createUpazila: sl<CreateUpazila>(),
+    ),
   );
   sl.registerFactory(
     () => PathshalaDetailsController(

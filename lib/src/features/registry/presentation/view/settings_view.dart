@@ -4,11 +4,13 @@ import '../../../../core/theme/app_colors.dart';
 import '../widgets/custom_widgets/custom_button.dart';
 import '../widgets/custom_widgets/custom_form_field.dart';
 import '../widgets/custom_widgets/responsive_app_shell.dart';
+import '../widgets/geographic_areas_management_widget.dart';
 import 'registry_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
 
 const _settingsTabs = [
   'Organization Profile',
+  'Districts & Upazilas (ভৌগোলিক এলাকা)',
   'User Management',
   'General Settings',
   'Notification Settings',
@@ -158,6 +160,10 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Widget _buildTabContent(AppColors colors) {
+    if (_selectedSettingsTab == 1) {
+      return const GeographicAreasManagementWidget();
+    }
+
     if (_selectedSettingsTab != 0) {
       return Container(
         width: double.infinity,

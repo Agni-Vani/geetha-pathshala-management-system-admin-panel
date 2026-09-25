@@ -46,4 +46,16 @@ abstract interface class RegistryRepository {
   AsyncRequest<List<CommitteeMembership>> listCommitteeMemberships(
     ListCommitteeMembershipsParams params,
   );
+
+  /// Lists administrative districts, optionally filtered by division, status, or search query.
+  AsyncRequest<List<District>> listDistricts([ListDistrictsParams? params]);
+
+  /// Creates a new district record.
+  AsyncRequest<District> createDistrict(CreateDistrictParams params);
+
+  /// Lists administrative upazilas, optionally filtered by districtId, status, or search query.
+  AsyncRequest<List<Upazila>> listUpazilas([ListUpazilasParams? params]);
+
+  /// Creates a new upazila record under a district.
+  AsyncRequest<Upazila> createUpazila(CreateUpazilaParams params);
 }

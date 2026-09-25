@@ -8,6 +8,7 @@ const List<String> bdDistricts = [
   'Bogura',
   'Brahmanbaria',
   'Chandpur',
+  'Chapainawabganj',
   'Chattogram',
   'Chuadanga',
   'Cox\'s Bazar',

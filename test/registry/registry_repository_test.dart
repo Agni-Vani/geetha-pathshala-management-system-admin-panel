@@ -40,6 +40,9 @@ void main() {
           organizationId: 'org-gp-central',
           code: 'PATH-SYL-001',
           name: 'Sylhet Central Gita Pathshala',
+          districtId: 'dist-sylhet',
+          upazilaId: 'upz-sylhet-sadar',
+          detailedAddress: 'House 5, Zindabazar, Sylhet',
           addressLine1: 'Zindabazar',
           addressLine2: 'Temple Road',
           city: 'Sylhet',
@@ -52,6 +55,9 @@ void main() {
       expect(response, isA<SuccessRepoCall>());
       final success = response as SuccessRepoCall;
       expect(success.data.name, equals('Sylhet Central Gita Pathshala'));
+      expect(success.data.districtId, equals('dist-sylhet'));
+      expect(success.data.upazilaId, equals('upz-sylhet-sadar'));
+      expect(success.data.address.detailedAddress, equals('House 5, Zindabazar, Sylhet'));
       expect(success.data.address.addressLine1, equals('Zindabazar'));
       expect(success.data.address.addressLine2, equals('Temple Road'));
       expect(success.data.address.city, equals('Sylhet'));
@@ -75,6 +81,56 @@ void main() {
       expect(response, isA<SuccessRepoCall>());
       final success = response as SuccessRepoCall;
       expect(success.data.length, greaterThanOrEqualTo(1));
+    });
+
+    test('listDistricts returns seeded districts of Bangladesh', () async {
+      final response = await repository.listDistricts();
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.length, greaterThanOrEqualTo(64));
+    });
+
+    test('createDistrict successfully adds a new district', () async {
+      final response = await repository.createDistrict(
+        const CreateDistrictParams(
+          name: 'Test Zilla',
+          division: 'Dhaka',
+          status: 'active',
+        ),
+      );
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.name, equals('Test Zilla'));
+      expect(success.data.division, equals('Dhaka'));
+    });
+
+    test('listUpazilas returns upazilas for a district', () async {
+      final distResponse = await repository.listDistricts(
+        const ListDistrictsParams(searchQuery: 'Dhaka'),
+      );
+      final distSuccess = distResponse as SuccessRepoCall;
+      final dhaka = distSuccess.data.first;
+
+      final upzResponse = await repository.listUpazilas(
+        ListUpazilasParams(districtId: dhaka.id),
+      );
+      expect(upzResponse, isA<SuccessRepoCall>());
+      final upzSuccess = upzResponse as SuccessRepoCall;
+      expect(upzSuccess.data.length, greaterThanOrEqualTo(1));
+    });
+
+    test('createUpazila adds a new upazila under a district', () async {
+      final response = await repository.createUpazila(
+        const CreateUpazilaParams(
+          districtId: 'dist-dhaka',
+          name: 'New Test Upazila',
+          status: 'active',
+        ),
+      );
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.name, equals('New Test Upazila'));
+      expect(success.data.districtId, equals('dist-dhaka'));
     });
   });
 }
