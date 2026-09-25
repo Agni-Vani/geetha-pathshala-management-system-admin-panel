@@ -8,6 +8,12 @@ abstract interface class EducationRepository {
   AsyncRequest<List<EducationalGroup>> listEducationalGroups(
     ListGroupsParams params,
   );
+  AsyncRequest<List<StudentAdmission>> listStudentAdmissions(
+    ListStudentAdmissionsParams params,
+  );
+  AsyncRequest<List<TeacherAssignment>> listTeacherAssignments(
+    ListTeacherAssignmentsParams params,
+  );
   AsyncRequest<AttendanceSession> recordAttendance(
     RecordAttendanceParams params,
   );

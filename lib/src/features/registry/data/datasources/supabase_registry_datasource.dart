@@ -150,6 +150,24 @@ final class SupabaseRegistryDatasource implements RegistryDatasource {
   }
 
   @override
+  Future<PathshalaModel> updatePathshala(UpdatePathshalaParams params) async {
+    final data = await _invoke('updatePathshala', {
+      'pathshalaId': params.pathshalaId,
+      'name': params.name,
+      'addressLine1': params.addressLine1,
+      'addressLine2': params.addressLine2,
+      'city': params.city,
+      'region': params.district,
+      'country': params.country,
+      'postalCode': params.postalCode,
+      'latitude': params.latitude,
+      'longitude': params.longitude,
+      'startedOn': params.startedOn?.toIso8601String(),
+    });
+    return PathshalaModel.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
   Future<List<CommitteeModel>> listCommittees(
     ListCommitteesParams params,
   ) async {

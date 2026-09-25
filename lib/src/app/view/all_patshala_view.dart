@@ -1,11 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
+import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
+import 'package:geetha_pathshala_management_web/src/di/di.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/domain/registry_domain.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_pathshalas_controller.dart';
 
 import '../../core/theme/app_colors.dart';
-import '../../features/registry/presentation/widgets/custom_widgets/custom_button.dart';
+import '../../features/registry/presentation/widgets/custom_widgets/custom_empty_state.dart';
+import '../../features/registry/presentation/widgets/custom_widgets/custom_pathshala_card.dart';
 import '../../features/registry/presentation/widgets/custom_widgets/custom_search_filter_bar.dart';
-import '../../features/registry/presentation/widgets/custom_widgets/custom_sidebar.dart';
-import '../../features/registry/presentation/widgets/custom_widgets/custom_top_bar.dart';
+import '../../features/registry/presentation/widgets/custom_widgets/responsive_app_shell.dart';
+import '../../features/registry/presentation/view/registry_sidebar_navigation.dart';
 import '../../features/registry/presentation/view/add_new_patshala_view.dart';
+import 'patshala_details_view.dart';
+import '../../core/constants/app_sizes.dart';
+
+// TODO: replace with the signed-in user's real organization id once
+// an auth/session concept exists in the app.
+const _organizationId = 'org-gp-central';
+
+/// Narrowest a pathshala card may get before the grid drops a column.
+const _minCardWidth = 300.0;
+
+/// Below this card width the card stacks its two action buttons and so needs
+/// to be taller — see `_stackedActionsBreakpoint` in CustomPathshalaCard.
+const _stackedCardWidth = 276.0;
 
 class AllPatshalaView extends StatefulWidget {
   const AllPatshalaView({super.key});
@@ -15,107 +34,229 @@ class AllPatshalaView extends StatefulWidget {
 }
 
 class _AllPatshalaViewState extends State<AllPatshalaView> {
-  int _selectedIndex = 1;
+  final ListPathshalasController listPathshalasController = sl.get<ListPathshalasController>();
+  late final SnackbarNotifier snackbarNotifier;
+
+  final int _selectedIndex = 1;
+
+  /// Kept so a refresh after adding a Pathshala keeps the active search applied.
+  String? _searchQuery;
+
+  @override
+  void initState() {
+    super.initState();
+    snackbarNotifier = SnackbarNotifier(context: context);
+    _refreshList();
+  }
+
+  void _onSidebarItemSelected(int index) {
+    if (index == _selectedIndex) return;
+    RegistrySidebarNavigation.pushReplacement(context, index);
+  }
+
+  void _refreshList() {
+    listPathshalasController.load(
+      organizationId: _organizationId,
+      searchQuery: _searchQuery,
+      snackbarNotifier: snackbarNotifier,
+    );
+  }
+
+  void _onSearchChanged(String query) {
+    _searchQuery = query;
+    _refreshList();
+  }
+
+  void _openAddPathshala() {
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView()))
+        .then((_) => _refreshList());
+  }
+
+  String _locationOf(Pathshala pathshala) {
+    final address = pathshala.address;
+    final subLocality = address.addressLine2?.trim();
+    final secondary = (subLocality != null && subLocality.isNotEmpty) ? subLocality : address.region;
+    return '${address.city}, $secondary';
+  }
+
+  Widget _buildHeader(BuildContext context, AppColors colors, bool isNarrow) {
+    final titleBlock = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "পাঠশালা সমূহ",
+          style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: colors.primaryColor),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Manage and monitor all registered Gita Pathshalas across regions.",
+          style: TextStyle(color: Colors.black),
+        ),
+      ],
+    );
+
+    final addButton = InkWell(
+      onTap: _openAddPathshala,
+      borderRadius: AppSizes.rectangleButtonRadius,
+      child: Container(
+        height: 52,
+        width: isNarrow ? double.infinity : null,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        decoration: BoxDecoration(color: colors.primaryColor, borderRadius: AppSizes.rectangleButtonRadius),
+        child: Row(
+          mainAxisSize: isNarrow ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, size: 18, color: Colors.white),
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                'Add New Pathshala',
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (isNarrow) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [titleBlock, const SizedBox(height: 16), addButton],
+      );
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(child: titleBlock),
+        const SizedBox(width: 16),
+        addButton,
+      ],
+    );
+  }
+
+  Widget _buildGrid(AppColors colors) {
+    final status = listPathshalasController.processStatusNotifier.status;
+    final pathshalas = listPathshalasController.pathshalas;
+
+    if (status is ProcessLoading && pathshalas.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: Center(child: CircularProgressIndicator(color: colors.primaryColor)),
+      );
+    }
+
+    if (pathshalas.isEmpty) {
+      // A search that found nothing is a different problem from an empty
+      // registry, so only the latter invites the user to register one.
+      final isSearching = _searchQuery != null && _searchQuery!.trim().isNotEmpty;
+
+      return CustomEmptyState(
+        icon: isSearching ? Icons.search_off : Icons.temple_hindu_outlined,
+        title: isSearching ? 'No matching Pathshala found' : 'No Pathshala registered yet',
+        message: isSearching
+            ? 'No Pathshala matches "${_searchQuery!.trim()}". Try a different name or code.'
+            : 'No Gita Pathshala has been registered. Add the first one to get started.',
+        actionLabel: isSearching ? null : 'Add New Pathshala',
+        onAction: isSearching ? null : _openAddPathshala,
+      );
+    }
+
+    // A column is only added while every card can still be at least
+    // [_minCardWidth] wide — below that the contents get squeezed and overflow.
+    return LayoutBuilder(builder: (context, constraints) {
+      const spacing = 24.0;
+      final columns = ((constraints.maxWidth + spacing) / (_minCardWidth + spacing)).floor().clamp(1, 4);
+      final cardWidth = (constraints.maxWidth - spacing * (columns - 1)) / columns;
+
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: columns,
+          crossAxisSpacing: spacing,
+          mainAxisSpacing: spacing,
+          // Sized to the card's content. Anything taller leaves dead space
+          // between the location row and the buttons, because the card's
+          // Spacer pins the actions to the bottom edge.
+          mainAxisExtent: cardWidth < _stackedCardWidth ? 300 : 262,
+        ),
+        itemBuilder: (context, index) {
+          final pathshala = pathshalas[index];
+          return CustomPathshalaCard(
+            name: pathshala.name,
+            code: pathshala.code,
+            location: _locationOf(pathshala),
+            isActive: pathshala.isOperational,
+            onView: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => PatshalaDetailsView(pathshala: pathshala)),
+              );
+            },
+            onEdit: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => AddNewPatshalaView(existingPathshala: pathshala)))
+                  .then((_) => _refreshList());
+            },
+          );
+        },
+        itemCount: pathshalas.length,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
 
-    return Scaffold(
-      backgroundColor: colors.tileColor,
-      body: Row(
+    return ResponsiveAppShell(
+      selectedIndex: _selectedIndex,
+      onItemSelected: _onSidebarItemSelected,
+      onLogout: () => Navigator.of(context).maybePop(),
+      topBarTitle: 'Overview',
+      onTopBarBack: () => Navigator.of(context).maybePop(),
+      body: Column(
         children: [
-          CustomSidebar(
-            selectedIndex: _selectedIndex,
-            onItemSelected: (index) => setState(() => _selectedIndex = index),
-            onLogout: () => Navigator.of(context).maybePop(),
-          ),
           Expanded(
-            child: Column(
-              children: [
-                CustomTopBar(title: 'Overview', onBack: () => Navigator.of(context).maybePop()),
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: SizedBox(
-                    height: 100,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "পাঠশালা সমূহ",
-                              style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: colors.primaryColor),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              "Manage and monitor all registered Gita Pathshalas across regions.",
-                              style: TextStyle(color: Colors.black),
-                            ),
-                          ],
+            child: SingleChildScrollView(
+              padding: AppSizes.pagePadding(context),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isNarrow = constraints.maxWidth < 640;
+
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildHeader(context, colors, isNarrow),
+                      SizedBox(height: AppSizes.sectionGap(context)),
+                      CustomSearchFilterBar(onSearchChanged: _onSearchChanged),
+                      const SizedBox(height: 10),
+                      AnimatedBuilder(
+                        animation: Listenable.merge(
+                          [listPathshalasController, listPathshalasController.processStatusNotifier],
                         ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (context) => AddNewPatshalaView()));
-                          },
-                          child: Container(
-                            height: 52,
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            decoration: BoxDecoration(color: colors.primaryColor, borderRadius: BorderRadius.circular(8)),
-                            child: Row(
-                              children: [
-                                Icon(Icons.add, size: 18, color: Colors.white),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Add New Pathshala',
-                                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 24.0), child: CustomSearchFilterBar()),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(24.0),
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        crossAxisSpacing: 24,
-                        mainAxisSpacing: 24,
-                        childAspectRatio: 1.5,
+                        builder: (context, _) => _buildGrid(colors),
                       ),
-                      itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(color: colors.backgroundColor, borderRadius: BorderRadius.circular(8)),
-                          child: Center(
-                            child: Text(
-                              'Pathshala ${index + 1}',
-                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: colors.primaryColor),
-                            ),
-                          ),
-                        );
-                      },
-                      itemCount: 6,
-                    ),
-                  ),
-                ),
-                Container(
-                  color: colors.tileColor,
-                  height: 40,
-                  child: Center(
-                    child: Text(
-                      '© 2024 Geetha Pathshala Management. All rights reserved.',
-                      style: TextStyle(fontSize: 12, color: colors.hintColor),
-                    ),
-                  ),
-                ),
-              ],
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+          Container(
+            color: colors.tileColor,
+            height: 40,
+            child: Center(
+              child: Text(
+                '© 2024 Geetha Pathshala Management. All rights reserved.',
+                style: TextStyle(fontSize: 12, color: colors.hintColor),
+              ),
             ),
           ),
         ],

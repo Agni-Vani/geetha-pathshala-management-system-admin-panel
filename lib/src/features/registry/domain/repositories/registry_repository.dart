@@ -33,6 +33,9 @@ abstract interface class RegistryRepository {
   /// Registers a new local Pathshala record.
   AsyncRequest<Pathshala> createPathshala(CreatePathshalaParams params);
 
+  /// Updates an existing local Pathshala record.
+  AsyncRequest<Pathshala> updatePathshala(UpdatePathshalaParams params);
+
   /// Lists governance committees within organization or Pathshala scope.
   AsyncRequest<List<Committee>> listCommittees(ListCommitteesParams params);
 

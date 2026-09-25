@@ -49,23 +49,23 @@ class AppColors {
     textColor: const Color(0xFF172526),
     invertTextColor: Colors.white,
     grey: const Color(0xFF7B8C8D),
-    backgroundColor: _surfaceColor,
-    tileColor: _secondaryContainerColor,
+    backgroundColor: _surfaceColor.withValues(alpha: 0.9),
+    tileColor: _secondaryContainerColor.withValues(alpha: 0.78),
     softGrey: const Color(0xFFEFF5F4),
     iconColor: _iconBaseColor,
     buttonContentColor: Colors.white,
     activeButtonContentColor: Colors.white,
-    inActiveButtonColor: _surfaceColor,
+    inActiveButtonColor: _surfaceColor.withValues(alpha: 0.88),
     inActiveButtonContentColor: const Color.fromARGB(255, 111, 112, 112),
-    drawerColor: _surfaceColor,
+    drawerColor: _surfaceColor.withValues(alpha: 0.84),
     borderColor: const Color(0xFFBBCAC9),
-    popupBackgroundColor: _surfaceColor,
+    popupBackgroundColor: _surfaceColor.withValues(alpha: 0.94),
     popupContentColor: const Color(0xFF172526),
     dividerColor: const Color(0xFFE0E9E8),
-    tabBarColor: _surfaceColor,
+    tabBarColor: _surfaceColor.withValues(alpha: 0.9),
     shadowColor: const Color(0x2400282A),
     errorColor: _errorColor,
-    bottomNavigationBarColor: _bottomNavColor,
+    bottomNavigationBarColor: _bottomNavColor.withValues(alpha: 0.9),
     unselectedLabelColor: _unselectedLabelColor,
     hintColor: _hintBaseColor,
     labelColor: _hintBaseColor,
@@ -76,23 +76,23 @@ class AppColors {
     textColor: const Color(0xFFEAF5F4),
     invertTextColor: const Color(0xFF071212),
     grey: const Color(0xFF8CA09F),
-    backgroundColor: _darkSurfaceColor,
-    tileColor: _darkSecondaryContainerColor,
+    backgroundColor: _darkSurfaceColor.withValues(alpha: 0.86),
+    tileColor: _darkSecondaryContainerColor.withValues(alpha: 0.74),
     softGrey: const Color(0xFF1B2929),
     iconColor: _darkIconBaseColor,
     buttonContentColor: const Color(0xFF042021),
     activeButtonContentColor: const Color(0xFF042021),
-    inActiveButtonColor: const Color(0xFF122121),
+    inActiveButtonColor: const Color(0xFF122121).withValues(alpha: 0.84),
     inActiveButtonContentColor: const Color(0xFFB9D0CF),
-    drawerColor: _darkSurfaceColor,
+    drawerColor: _darkSurfaceColor.withValues(alpha: 0.82),
     borderColor: const Color(0xFF435656),
-    popupBackgroundColor: const Color(0xFF122121),
+    popupBackgroundColor: const Color(0xFF122121).withValues(alpha: 0.92),
     popupContentColor: const Color(0xFFEAF5F4),
     dividerColor: const Color(0xFF1B2929),
-    tabBarColor: _darkSurfaceColor,
+    tabBarColor: _darkSurfaceColor.withValues(alpha: 0.86),
     shadowColor: const Color(0x66000000),
     errorColor: const Color(0xFFFFB4AB),
-    bottomNavigationBarColor: _darkBottomNavColor,
+    bottomNavigationBarColor: _darkBottomNavColor.withValues(alpha: 0.86),
     unselectedLabelColor: const Color(0xFF9EAFAE),
     hintColor: const Color(0xFF9EAFAE),
     labelColor: const Color(0xFF9EAFAE),
@@ -147,4 +147,35 @@ class AppColors {
   Color get fillColor => backgroundColor;
   Color get focusedBorderColor => primaryColor;
   Color get unselectedTileColor => _unselectedTileColor;
+
+  /// Deep maroon used for sidebar navigation and the Om badge — the app's
+  /// second brand colour alongside the orange [primaryColor].
+  Color get maroonColor =>
+      _isDark ? const Color(0xFFD99B85) : const Color(0xFF6E2C1E);
+
+  /// Foreground on a solid [maroonColor] fill — the dark theme's maroon is a
+  /// light clay, where white would wash out.
+  Color get onMaroonColor =>
+      _isDark ? const Color(0xFF3A1409) : Colors.white;
+
+  /// Warm parchment fill for registry cards — a touch creamier than
+  /// [backgroundColor] so a card reads as paper laid on the page.
+  Color get cardSurfaceColor =>
+      _isDark ? const Color(0xFF13201F) : const Color(0xFFFFFCF6);
+
+  /// Gold used for card borders and the corner flourishes.
+  Color get ornamentColor =>
+      _isDark ? const Color(0xFF6B5836) : const Color(0xFFE6CDA4);
+
+  /// Soft peach behind avatars and small icon tiles.
+  Color get softAccentColor =>
+      _isDark ? const Color(0xFF3A2A16) : const Color(0xFFFBE6CC);
+
+  /// Opaque surface for dialogs and pop-ups.
+  ///
+  /// [backgroundColor] is deliberately translucent so panels blend with the
+  /// illustrated app background — but a dialog sits above a dark scrim, where
+  /// that translucency reads as dirty grey. Dialogs use this instead.
+  Color get dialogBackgroundColor =>
+      _isDark ? const Color(0xFF0E1C1C) : const Color(0xFFFFFCF7);
 }

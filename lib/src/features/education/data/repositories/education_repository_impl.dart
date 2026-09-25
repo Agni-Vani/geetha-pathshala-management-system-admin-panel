@@ -31,6 +31,20 @@ final class EducationRepositoryImpl
   }
 
   @override
+  AsyncRequest<List<StudentAdmission>> listStudentAdmissions(
+    ListStudentAdmissionsParams params,
+  ) {
+    return _request(() => datasource.listStudentAdmissions(params));
+  }
+
+  @override
+  AsyncRequest<List<TeacherAssignment>> listTeacherAssignments(
+    ListTeacherAssignmentsParams params,
+  ) {
+    return _request(() => datasource.listTeacherAssignments(params));
+  }
+
+  @override
   AsyncRequest<AttendanceSession> recordAttendance(
     RecordAttendanceParams params,
   ) {

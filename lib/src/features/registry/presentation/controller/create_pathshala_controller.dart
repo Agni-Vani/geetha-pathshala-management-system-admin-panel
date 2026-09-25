@@ -4,16 +4,19 @@ import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifie
 import 'package:geetha_pathshala_management_web/src/core/utils/utils.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/domain/registry_domain.dart';
 
-/// Controller for the Create Pathshala form.
+/// Controller for the Create / Edit Pathshala form.
 ///
 /// Owns all form state (text controllers, selections, dates) so that the UI
 /// only needs to bind to these fields and forward user interactions — it never
 /// builds params or runs validation itself.
 class CreatePathshalaController extends ChangeNotifier {
-  final CreatePathshala _createPathshala;
+  final CreatePathshala createPathshala;
+  final UpdatePathshala updatePathshala;
 
-  CreatePathshalaController({required CreatePathshala createPathshala})
-      : _createPathshala = createPathshala;
+  CreatePathshalaController({
+    required this.createPathshala,
+    required this.updatePathshala,
+  });
 
   // ── Process state ──────────────────────────────────────────────────────────
 
@@ -30,6 +33,11 @@ class CreatePathshalaController extends ChangeNotifier {
 
   // ── Form state ─────────────────────────────────────────────────────────────
 
+  String? _existingPathshalaId;
+  String? _existingAddressLine2;
+
+  bool get isEditing => _existingPathshalaId != null;
+
   DateTime? _establishedOn;
   DateTime? get establishedOn => _establishedOn;
 
@@ -41,6 +49,19 @@ class CreatePathshalaController extends ChangeNotifier {
 
   String? _selectedUpazila;
   String? get selectedUpazila => _selectedUpazila;
+
+  // ── Initialization for edit mode ───────────────────────────────────────────
+
+  void initializeForEdit(Pathshala pathshala) {
+    _existingPathshalaId = pathshala.id;
+    nameController.text = pathshala.name;
+    addressController.text = pathshala.address.addressLine1;
+    _existingAddressLine2 = pathshala.address.addressLine2;
+    _selectedDistrict = pathshala.address.region;
+    _selectedUpazila = pathshala.address.city;
+    _establishedOn = pathshala.startedOn;
+    _isActive = pathshala.isOperational;
+  }
 
   // ── Event handlers (called by the UI) ─────────────────────────────────────
 
@@ -78,18 +99,38 @@ class CreatePathshalaController extends ChangeNotifier {
     if (_selectedUpazila == null) {
       return 'Please select an upazila.';
     }
-    if (mobileController.text.trim().isEmpty) {
+    if (!isEditing && mobileController.text.trim().isEmpty) {
       return 'Mobile number is required.';
     }
     return null;
   }
 
-  // ── Submit ─────────────────────────────────────────────────────────────────
+  // ── Submit / Create / Update ───────────────────────────────────────────────
 
   Future<void> submit({SnackbarNotifier? snackbarNotifier}) async {
     final error = validate();
     if (error != null) {
       snackbarNotifier?.notifyError(message: error);
+      return;
+    }
+
+    if (isEditing) {
+      final params = UpdatePathshalaParams(
+        pathshalaId: _existingPathshalaId!,
+        name: nameController.text.trim(),
+        addressLine1: addressController.text.trim(),
+        addressLine2: _existingAddressLine2,
+        city: _selectedUpazila!,
+        district: _selectedDistrict!,
+        startedOn: _establishedOn,
+      );
+
+      await handleFutureRequest(
+        request: () => updatePathshala.call(params),
+        processStatusNotifier: processStatusNotifier,
+        errorSnackbarNotifier: snackbarNotifier,
+        successSnackbarNotifier: snackbarNotifier,
+      );
       return;
     }
 
@@ -106,7 +147,31 @@ class CreatePathshalaController extends ChangeNotifier {
     );
 
     await handleFutureRequest(
-      request: () => _createPathshala.call(params),
+      request: () => createPathshala.call(params),
+      processStatusNotifier: processStatusNotifier,
+      errorSnackbarNotifier: snackbarNotifier,
+      successSnackbarNotifier: snackbarNotifier,
+    );
+  }
+
+  Future<void> create({
+    required CreatePathshalaParams params,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    await handleFutureRequest(
+      request: () => createPathshala.call(params),
+      processStatusNotifier: processStatusNotifier,
+      errorSnackbarNotifier: snackbarNotifier,
+      successSnackbarNotifier: snackbarNotifier,
+    );
+  }
+
+  Future<void> update({
+    required UpdatePathshalaParams params,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    await handleFutureRequest(
+      request: () => updatePathshala.call(params),
       processStatusNotifier: processStatusNotifier,
       errorSnackbarNotifier: snackbarNotifier,
       successSnackbarNotifier: snackbarNotifier,

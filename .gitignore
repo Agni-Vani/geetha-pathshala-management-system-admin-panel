@@ -45,7 +45,10 @@ app.*.map.json
 # Agentic guidelines (local only)
 agentic_development_guideline.md
 
+# Widget Preview related
+.widget_preview/
+
 branch_structure.json
 temp_auto_push.bat
 temp_interactive_push.bat
-.gitignore
+

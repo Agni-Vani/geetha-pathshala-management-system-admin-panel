@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_field_decoration.dart';
 
 class CustomDateField extends StatelessWidget {
   final String label;
@@ -29,6 +30,10 @@ class CustomDateField extends StatelessWidget {
       initialDate: value ?? DateTime.now(),
       firstDate: DateTime(1950),
       lastDate: DateTime.now(),
+      helpText: label.toUpperCase(),
+      // Dates here are usually years back (a date of birth, most of all), so
+      // the year list is a far shorter path than paging through months.
+      initialDatePickerMode: value == null ? DatePickerMode.year : DatePickerMode.day,
     );
     if (picked != null) onChanged(picked);
   }
@@ -62,23 +67,10 @@ class CustomDateField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
           onTap: () => _pickDate(context),
           child: InputDecorator(
-            decoration: InputDecoration(
-              hintText: 'mm/dd/yyyy',
-              hintStyle: TextStyle(color: colors.hintColor, fontSize: 13),
-              suffixIcon:
-                  Icon(Icons.calendar_today_outlined, size: 16, color: colors.hintColor),
-              filled: true,
-              fillColor: colors.tileColor,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: colors.borderColor),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: colors.borderColor),
-              ),
+            decoration: AppFieldDecoration.build(
+              context,
+              hint: 'mm/dd/yyyy',
+              suffix: Icons.calendar_today_outlined,
             ),
             child: Text(
               _formatted,

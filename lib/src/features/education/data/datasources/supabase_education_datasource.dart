@@ -66,6 +66,44 @@ final class SupabaseEducationDatasource implements EducationDatasource {
   }
 
   @override
+  Future<List<StudentAdmissionModel>> listStudentAdmissions(
+    ListStudentAdmissionsParams params,
+  ) async {
+    final data = await _invoke('listStudentAdmissions', {
+      'pathshalaId': params.pathshalaId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
+        .map(
+          (json) =>
+              StudentAdmissionModel.fromJson(json as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  @override
+  Future<List<TeacherAssignmentModel>> listTeacherAssignments(
+    ListTeacherAssignmentsParams params,
+  ) async {
+    final data = await _invoke('listTeacherAssignments', {
+      'pathshalaId': params.pathshalaId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
+        .map(
+          (json) =>
+              TeacherAssignmentModel.fromJson(json as Map<String, dynamic>),
+        )
+        .toList();
+  }
+
+  @override
   Future<AttendanceSessionModel> recordAttendance(
     RecordAttendanceParams params,
   ) async {

@@ -7,6 +7,12 @@ abstract class EducationDatasource {
   Future<List<EducationalGroupModel>> listEducationalGroups(
     ListGroupsParams params,
   );
+  Future<List<StudentAdmissionModel>> listStudentAdmissions(
+    ListStudentAdmissionsParams params,
+  );
+  Future<List<TeacherAssignmentModel>> listTeacherAssignments(
+    ListTeacherAssignmentsParams params,
+  );
   Future<AttendanceSessionModel> recordAttendance(
     RecordAttendanceParams params,
   );

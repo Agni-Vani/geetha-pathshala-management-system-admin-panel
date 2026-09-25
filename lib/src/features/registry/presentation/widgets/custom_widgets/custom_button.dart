@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/constants/app_sizes.dart';
 
 class CustomButton extends StatelessWidget {
   final String label;
@@ -15,14 +16,18 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
-
     final child = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (icon != null) ...[Icon(icon, size: 18), const SizedBox(width: 8)],
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.black),
+        Flexible(
+          child: Text(
+            label,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 16),
+          ),
         ),
       ],
     );
@@ -34,7 +39,7 @@ class CustomButton extends StatelessWidget {
           foregroundColor: colors.textColor,
           side: BorderSide(color: colors.enabledBorderColor),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
         ),
         child: child,
       );
@@ -47,7 +52,7 @@ class CustomButton extends StatelessWidget {
         foregroundColor: colors.buttonContentColor,
         elevation: 0,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
       ),
       child: child,
     );

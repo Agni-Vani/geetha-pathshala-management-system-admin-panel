@@ -1,4 +1,8 @@
+import 'package:geetha_pathshala_management_web/src/app/controller/pathshala_details_controller.dart';
 import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_pathshala_controller.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/create_person_controller.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_pathshalas_controller.dart';
+import 'package:geetha_pathshala_management_web/src/features/registry/presentation/controller/list_people_controller.dart';
 import 'package:get_it/get_it.dart';
 
 import '../features/communication/data/communication_data.dart';
@@ -79,8 +83,10 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(() => ListPathshalas(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => GetPathshalaById(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => CreatePathshala(sl<RegistryRepository>()));
+  sl.registerLazySingleton(() => UpdatePathshala(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => ListCommittees(sl<RegistryRepository>()));
   sl.registerLazySingleton(() => GetCommitteeById(sl<RegistryRepository>()));
+  sl.registerLazySingleton(() => ListCommitteeMemberships(sl<RegistryRepository>()));
 
   // IAM Use Cases (Named)
   sl.registerLazySingleton(
@@ -122,6 +128,12 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(
     () => AssignTeacher(repository: sl<EducationRepository>()),
   );
+  sl.registerLazySingleton(
+    () => ListStudentAdmissions(repository: sl<EducationRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ListTeacherAssignments(repository: sl<EducationRepository>()),
+  );
 
   // Communication Use Cases (Named)
   sl.registerLazySingleton(
@@ -137,6 +149,28 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
 
   // Registry controllers
   sl.registerFactory(
-    ()=> CreatePathshalaController(createPathshala: sl<CreatePathshala>()),
+    ()=> CreatePathshalaController(
+      createPathshala: sl<CreatePathshala>(),
+      updatePathshala: sl<UpdatePathshala>(),
+    ),
+  );
+  sl.registerFactory(
+    () => CreatePersonController(createPerson: sl<CreatePerson>()),
+  );
+  sl.registerFactory(
+    () => ListPathshalasController(listPathshalas: sl<ListPathshalas>()),
+  );
+  sl.registerFactory(
+    () => ListPeopleController(searchPeople: sl<SearchPeople>()),
+  );
+  sl.registerFactory(
+    () => PathshalaDetailsController(
+      listCommittees: sl<ListCommittees>(),
+      listCommitteeMemberships: sl<ListCommitteeMemberships>(),
+      getPersonById: sl<GetPersonById>(),
+      getNotices: sl<GetNotices>(),
+      listStudentAdmissions: sl<ListStudentAdmissions>(),
+      listTeacherAssignments: sl<ListTeacherAssignments>(),
+    ),
   );
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
+import '../../../../../core/theme/app_field_decoration.dart';
 
 class CustomFormField extends StatelessWidget {
   final String label;
@@ -14,6 +15,7 @@ class CustomFormField extends StatelessWidget {
   final List<String> items;
   final String? value;
   final ValueChanged<String?>? onChanged;
+  final ValueChanged<String>? onTextChanged;
 
   const CustomFormField({
     super.key,
@@ -24,6 +26,7 @@ class CustomFormField extends StatelessWidget {
     this.isRequired = false,
     this.controller,
     this.keyboardType,
+    this.onTextChanged,
   })  : isDropdown = false,
         items = const [],
         value = null,
@@ -41,33 +44,16 @@ class CustomFormField extends StatelessWidget {
         maxLines = 1,
         isDropdown = true,
         controller = null,
-        keyboardType = null;
+        keyboardType = null,
+        onTextChanged = null;
 
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
-    final decoration = InputDecoration(
-      hintText: hint,
-      hintStyle: TextStyle(color: colors.hintColor, fontSize: 13),
-      prefixIcon: prefixIcon != null
-          ? Icon(prefixIcon, size: 18, color: colors.hintColor)
-          : null,
-      filled: true,
-      fillColor: colors.tileColor,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colors.borderColor),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: colors.primaryColor),
-      ),
+    final decoration = AppFieldDecoration.build(
+      context,
+      hint: hint,
+      prefix: prefixIcon,
     );
 
     return Column(
@@ -93,6 +79,7 @@ class CustomFormField extends StatelessWidget {
         const SizedBox(height: 6),
         if (isDropdown)
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: value,
             items: items
                 .map((item) =>
@@ -108,6 +95,7 @@ class CustomFormField extends StatelessWidget {
             controller: controller,
             maxLines: maxLines,
             keyboardType: keyboardType,
+            onChanged: onTextChanged,
             style: TextStyle(fontSize: 13, color: colors.textColor),
             decoration: decoration,
           ),
