@@ -26,35 +26,43 @@ class CustomButton extends StatelessWidget {
             maxLines: 1,
             softWrap: false,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.white, fontSize: 16),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: isOutlined ? colors.textColor : colors.buttonContentColor,
+              fontSize: 14,
+            ),
           ),
         ),
       ],
     );
 
     if (isOutlined) {
-      return OutlinedButton(
-        onPressed: onPressed,
-        style: OutlinedButton.styleFrom(
-          foregroundColor: colors.textColor,
-          side: BorderSide(color: colors.enabledBorderColor),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
+      return IntrinsicWidth(
+        child: OutlinedButton(
+          onPressed: onPressed,
+          style: OutlinedButton.styleFrom(
+            foregroundColor: colors.textColor,
+            side: BorderSide(color: colors.enabledBorderColor),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
+          ),
+          child: child,
         ),
-        child: child,
       );
     }
 
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: colors.primaryColor,
-        foregroundColor: colors.buttonContentColor,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-        shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
+    return IntrinsicWidth(
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colors.primaryColor,
+          foregroundColor: colors.buttonContentColor,
+          elevation: 0,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
+        ),
+        child: child,
       ),
-      child: child,
     );
   }
 }

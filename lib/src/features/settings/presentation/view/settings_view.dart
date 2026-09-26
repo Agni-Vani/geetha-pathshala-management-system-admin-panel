@@ -25,7 +25,7 @@ class SettingsView extends StatefulWidget {
 }
 
 class _SettingsViewState extends State<SettingsView> {
-  int _selectedIndex = 9;
+  int _selectedIndex = 10;
   int _selectedSettingsTab = 0;
 
   final _nameController = TextEditingController(

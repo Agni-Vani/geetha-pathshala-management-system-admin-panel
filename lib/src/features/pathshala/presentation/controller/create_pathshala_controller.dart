@@ -5,8 +5,6 @@ import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifie
 import 'package:geetha_pathshala_management_web/src/core/utils/utils.dart';
 import '../../domain/pathshala_domain.dart';
 import '../../../areas/domain/areas_domain.dart';
-import '../../../areas/presentation/constants/bd_districts.dart';
-import '../../../areas/presentation/constants/bd_upazilas.dart';
 
 /// Controller for the Create / Edit Pathshala form.
 ///
@@ -64,7 +62,7 @@ class CreatePathshalaController extends ChangeNotifier {
   String? _selectedUpazilaId;
   String? get selectedUpazilaId => _selectedUpazilaId;
 
-  List<String> _districts = List.of(bdDistricts);
+  List<String> _districts = const [];
   List<String> get availableDistricts => _districts;
 
   List<String> _upazilas = const [];
@@ -80,11 +78,15 @@ class CreatePathshalaController extends ChangeNotifier {
         res.data != null &&
         res.data!.isNotEmpty) {
       _districtEntities = res.data!;
-      final names = res.data!.map((d) => d.name).toSet();
-      names.addAll(bdDistricts);
-      final sorted = names.toList()..sort();
-      _districts = sorted;
+      _districts = res.data!.map((d) => d.name).toList()..sort();
       notifyListeners();
+    }
+  }
+
+  Future<void> refreshDistricts() async {
+    await _initDistricts();
+    if (_selectedDistrict != null) {
+      _updateUpazilasForDistrict(_selectedDistrict);
     }
   }
 
@@ -132,26 +134,22 @@ class CreatePathshalaController extends ChangeNotifier {
   }
 
   Future<void> _updateUpazilasForDistrict(String? district) async {
-    if (district == null || district.isEmpty) {
+    if (district == null || district.isEmpty || _selectedDistrictId == null || listUpazilas == null) {
       _upazilas = const [];
       _upazilaEntities = const [];
       notifyListeners();
       return;
     }
-    final initial = Set<String>.from(bdUpazilas[district] ?? const []);
-    if (listUpazilas != null) {
-      final res = await listUpazilas!.call(ListUpazilasParams());
-      if (res is SuccessRepoCall<List<Upazila>> && res.data != null) {
-        _upazilaEntities = res.data!;
-        final distKey =
-            'dist-${district.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}';
-        final matching = res.data!
-            .where((u) => u.districtId == _selectedDistrictId || u.districtId.startsWith(distKey))
-            .toList();
-        initial.addAll(matching.map((u) => u.name));
-      }
+    final res = await listUpazilas!.call(
+      ListUpazilasParams(districtId: _selectedDistrictId),
+    );
+    if (res is SuccessRepoCall<List<Upazila>> && res.data != null) {
+      _upazilaEntities = res.data!;
+      _upazilas = res.data!.map((u) => u.name).toList()..sort();
+    } else {
+      _upazilaEntities = const [];
+      _upazilas = const [];
     }
-    _upazilas = initial.toList()..sort();
     notifyListeners();
   }
 

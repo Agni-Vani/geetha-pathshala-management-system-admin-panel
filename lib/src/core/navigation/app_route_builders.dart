@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import '../../features/areas/presentation/view/areas_view.dart';
 import '../../features/authentication/presentation/view/login_view.dart';
 import '../../features/dashboard/presentation/view/dashboard_view.dart';
 import '../../features/attendance/presentation/view/attendance_view.dart';
@@ -17,6 +18,7 @@ abstract final class AppRouteBuilders {
     AppRouteNames.login: (_) => const LoginView(),
     AppRouteNames.dashboard: (_) => const DashboardView(),
     AppRouteNames.pathshalas: (_) => const AllPatshalaView(),
+    AppRouteNames.areas: (_) => const AreasView(),
     AppRouteNames.peopleRegistry: (_) => const AllPeopleView(),
     AppRouteNames.students: (_) => const StudentsView(),
     AppRouteNames.teachers: (_) => const TeachersView(),

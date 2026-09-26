@@ -87,7 +87,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme().lightTheme,
-        initialRoute: RegistryRouteNames.pathshalas,
+        initialRoute: AppRouteNames.pathshalas,
         routes: routes,
       ),
     );
@@ -112,7 +112,7 @@ void main() {
   // Pushed, so it has no route name of its own.
   for (final width in _widths.entries) {
     testWidgets('add-person form lays out at ${width.key}', (tester) async {
-      await pumpRoute(tester, RegistryRouteNames.peopleRegistry, width.value);
+      await pumpRoute(tester, AppRouteNames.peopleRegistry, width.value);
       drainOverflows(tester);
 
       await tester.tap(find.text('Add New Person').first, warnIfMissed: false);

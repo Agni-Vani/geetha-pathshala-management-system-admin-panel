@@ -24,6 +24,14 @@ class GeographicAreasController extends ChangeNotifier {
   List<District> _allDistricts = [];
   List<District> get districts => _filteredDistricts();
 
+  List<String> get divisions {
+    final set = _allDistricts
+        .map((d) => d.division)
+        .where((div) => div.isNotEmpty)
+        .toSet();
+    return set.toList()..sort();
+  }
+
   District? _selectedDistrict;
   District? get selectedDistrict => _selectedDistrict;
 

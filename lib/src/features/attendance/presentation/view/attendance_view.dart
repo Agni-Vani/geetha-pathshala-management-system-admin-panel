@@ -19,7 +19,7 @@ class AttendanceView extends StatefulWidget {
 class _AttendanceViewState extends State<AttendanceView> {
   final ScrollController _tableScrollController = ScrollController();
   late final AttendanceController _controller;
-  int _selectedIndex = 5;
+  int _selectedIndex = 6;
 
   @override
   void initState() {

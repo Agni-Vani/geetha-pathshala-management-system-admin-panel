@@ -32,7 +32,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
   final ListPeopleController listPeopleController = sl.get<ListPeopleController>();
   late final SnackbarNotifier snackbarNotifier;
 
-  final int _selectedIndex = 2;
+  final int _selectedIndex = 3;
 
   /// Kept so a refresh after adding a person keeps the active search applied.
   String? _searchQuery;

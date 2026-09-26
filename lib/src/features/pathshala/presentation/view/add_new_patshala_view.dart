@@ -7,7 +7,6 @@ import '../../domain/pathshala_domain.dart';
 import '../controller/create_pathshala_controller.dart';
 
 import '../../../../core/theme/app_colors.dart';
-import '../../../areas/presentation/constants/bd_upazilas.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_autocomplete_field.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_date_field.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_form_field.dart';
@@ -15,6 +14,7 @@ import '../../../../core/shared/widget/custom_widgets/custom_section_divider.dar
 import '../../../../core/shared/widget/custom_widgets/custom_section_header.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_toggle_field.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
+import '../../../../core/navigation/app_route_names.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 
 class AddNewPatshalaView extends StatefulWidget {
@@ -281,9 +281,39 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                                   const SizedBox(height: 24),
                                   const CustomSectionDivider(),
                                   const SizedBox(height: 24),
-                                  const CustomSectionHeader(
-                                    icon: Icons.location_on_outlined,
-                                    title: 'Location Details',
+                                  Wrap(
+                                    alignment: WrapAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    spacing: 8,
+                                    runSpacing: 4,
+                                    children: [
+                                      const CustomSectionHeader(
+                                        icon: Icons.location_on_outlined,
+                                        title: 'Location Details',
+                                      ),
+                                      TextButton.icon(
+                                        onPressed: () async {
+                                          await Navigator.of(context).pushNamed(
+                                            AppRouteNames.areas,
+                                          );
+                                          _controller.refreshDistricts();
+                                        },
+                                        icon: Icon(
+                                          Icons.add_location_alt_outlined,
+                                          size: 16,
+                                          color: colors.primaryColor,
+                                        ),
+                                        label: Text(
+                                          '+ নতুন এলাকা / জেলা যোগ করুন',
+                                          style: TextStyle(
+                                            color: colors.primaryColor,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                   const SizedBox(height: 12),
                                   Divider(color: colors.dividerColor),
@@ -307,11 +337,7 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                                       isRequired: true,
                                       enabled:
                                           _controller.selectedDistrict != null,
-                                      options: _controller.availableUpazilas.isNotEmpty
-                                          ? _controller.availableUpazilas
-                                          : (bdUpazilas[
-                                                  _controller.selectedDistrict] ??
-                                              const []),
+                                      options: _controller.availableUpazilas,
                                       value: _controller.selectedUpazila,
                                       onChanged: _controller.onUpazilaChanged,
                                     ),

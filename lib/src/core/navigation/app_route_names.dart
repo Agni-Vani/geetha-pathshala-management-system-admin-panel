@@ -2,6 +2,7 @@ abstract final class AppRouteNames {
   static const login = '/login';
   static const dashboard = '/dashboard';
   static const pathshalas = '/pathshalas';
+  static const areas = '/areas';
   static const peopleRegistry = '/people-registry';
   static const students = '/students';
   static const teachers = '/teachers';
@@ -11,5 +12,3 @@ abstract final class AppRouteNames {
   static const reports = '/reports';
   static const settings = '/settings';
 }
-
-typedef RegistryRouteNames = AppRouteNames;

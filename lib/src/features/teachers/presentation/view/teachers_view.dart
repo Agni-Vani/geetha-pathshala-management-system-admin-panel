@@ -22,7 +22,7 @@ class TeachersView extends StatefulWidget {
 class _TeachersViewState extends State<TeachersView> {
   final ScrollController _tableScrollController = ScrollController();
   late final TeachersController _controller;
-  int _selectedIndex = 4;
+  int _selectedIndex = 5;
 
   @override
   void initState() {

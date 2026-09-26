@@ -23,7 +23,7 @@ class AddPersonRegistryView extends StatefulWidget {
 class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
   static const _genders = ['Male', 'Female', 'Other'];
 
-  final int _selectedIndex = 2;
+  final int _selectedIndex = 3;
   CreatePersonController createPersonController = sl
       .get<CreatePersonController>();
   late final SnackbarNotifier snackbarNotifier;

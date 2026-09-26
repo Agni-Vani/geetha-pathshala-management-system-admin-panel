@@ -1,9 +1,8 @@
-import '../../../../core/constants/bangladesh_locations.dart';
 import '../../domain/params/params.dart';
 import '../models/models.dart';
 import 'areas_datasource.dart';
-import '../../presentation/constants/bd_districts.dart';
-import '../../presentation/constants/bd_upazilas.dart';
+import 'mock_data/bd_areas_mock_data.dart';
+
 
 final class MockAreasDatasource implements AreasDatasource {
   final List<DistrictModel> _districts;

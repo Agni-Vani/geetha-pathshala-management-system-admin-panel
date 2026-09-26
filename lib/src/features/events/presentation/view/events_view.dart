@@ -19,7 +19,7 @@ class EventsView extends StatefulWidget {
 
 class _EventsViewState extends State<EventsView> {
   late final EventsController _controller;
-  int _selectedIndex = 7;
+  int _selectedIndex = 8;
 
   @override
   void initState() {

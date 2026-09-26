@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../core/constants/bangladesh_locations.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_field_decoration.dart';
@@ -41,7 +40,10 @@ class _GeographicAreasManagementWidgetState
 
   void _showAddDistrictDialog() {
     final nameCtrl = TextEditingController();
-    String selectedDivision = bdDivisions.first;
+    final divisionCtrl = TextEditingController(
+      text: _controller.divisions.firstOrNull ?? '',
+    );
+    String selectedDivision = _controller.divisions.firstOrNull ?? '';
 
     showDialog(
       context: context,
@@ -74,25 +76,41 @@ class _GeographicAreasManagementWidgetState
                       ),
                     ),
                     const SizedBox(height: 6),
-                    DropdownButtonFormField<String>(
-                      initialValue: selectedDivision,
-                      items: bdDivisions.map((div) {
-                        return DropdownMenuItem(
-                          value: div,
-                          child: Text(div, style: TextStyle(color: colors.textColor)),
-                        );
-                      }).toList(),
-                      onChanged: (val) {
-                        if (val != null) {
-                          setDialogState(() => selectedDivision = val);
-                        }
-                      },
-                      decoration: AppFieldDecoration.build(
-                        ctx,
-                        hint: 'বিভাগ নির্বাচন করুন',
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    if (_controller.divisions.isNotEmpty)
+                      DropdownButtonFormField<String>(
+                        initialValue: selectedDivision.isNotEmpty
+                            ? selectedDivision
+                            : _controller.divisions.first,
+                        items: _controller.divisions.map((div) {
+                          return DropdownMenuItem(
+                            value: div,
+                            child: Text(div, style: TextStyle(color: colors.textColor)),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setDialogState(() {
+                              selectedDivision = val;
+                              divisionCtrl.text = val;
+                            });
+                          }
+                        },
+                        decoration: AppFieldDecoration.build(
+                          ctx,
+                          hint: 'বিভাগ নির্বাচন করুন',
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                      )
+                    else
+                      TextField(
+                        controller: divisionCtrl,
+                        decoration: AppFieldDecoration.build(
+                          ctx,
+                          hint: 'বিভাগের নাম লিখুন',
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        ),
+                        onChanged: (val) => selectedDivision = val.trim(),
                       ),
-                    ),
                     const SizedBox(height: 16),
                     Text(
                       'জেলার নাম (District Name)',
@@ -126,11 +144,14 @@ class _GeographicAreasManagementWidgetState
                   ),
                   onPressed: () async {
                     final name = nameCtrl.text.trim();
-                    if (name.isEmpty) return;
+                    final div = selectedDivision.trim().isNotEmpty
+                        ? selectedDivision.trim()
+                        : divisionCtrl.text.trim();
+                    if (name.isEmpty || div.isEmpty) return;
                     Navigator.of(ctx).pop();
                     await _controller.addNewDistrict(
                       name: name,
-                      division: selectedDivision,
+                      division: div,
                       snackbarNotifier: _snackbarNotifier,
                     );
                   },
@@ -289,23 +310,24 @@ class _GeographicAreasManagementWidgetState
               // Header & Actions
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final isWide = constraints.maxWidth >= 700;
+                  final isWide = constraints.maxWidth >= 850;
                   final headerText = Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
+                      Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: 8,
+                        runSpacing: 6,
                         children: [
                           Icon(Icons.map_outlined, color: colors.primaryColor, size: 22),
-                          const SizedBox(width: 8),
                           Text(
-                            'ভৌগোলিক এলাকা (Districts & Upazilas)',
+                            'ভৌগোলিক এলাকা',
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               color: colors.textColor,
                             ),
                           ),
-                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                             decoration: BoxDecoration(
@@ -352,7 +374,11 @@ class _GeographicAreasManagementWidgetState
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [headerText, buttons],
+                      children: [
+                        Expanded(child: headerText),
+                        const SizedBox(width: 16),
+                        buttons,
+                      ],
                     );
                   }
                   return Column(
@@ -396,7 +422,7 @@ class _GeographicAreasManagementWidgetState
                           child: Text('সকল বিভাগ (All Divisions)',
                               style: TextStyle(fontSize: 13, color: colors.textColor)),
                         ),
-                        ...bdDivisions.map((div) => DropdownMenuItem<String?>(
+                        ..._controller.divisions.map((div) => DropdownMenuItem<String?>(
                               value: div,
                               child: Text(div,
                                   style: TextStyle(fontSize: 13, color: colors.textColor)),
@@ -491,7 +517,9 @@ class _GeographicAreasManagementWidgetState
                       borderRadius: BorderRadius.circular(8),
                     ),
                     padding: const EdgeInsets.all(16),
-                    constraints: const BoxConstraints(minHeight: 300, maxHeight: 520),
+                    constraints: isCompact
+                        ? const BoxConstraints(minHeight: 250)
+                        : const BoxConstraints(minHeight: 300, maxHeight: 520),
                     child: selectedDistrict == null
                         ? Center(
                             child: Text(
@@ -499,108 +527,114 @@ class _GeographicAreasManagementWidgetState
                               style: TextStyle(color: colors.hintColor),
                             ),
                           )
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '${selectedDistrict.name} জেলার উপজেলাসমূহ',
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: colors.textColor,
-                                        ),
-                                      ),
-                                      Text(
-                                        'বিভাগ: ${selectedDistrict.division} • মোট উপজেলা: ${_controller.upazilas.length}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: colors.hintColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  ElevatedButton.icon(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: colors.primaryColor,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 14, vertical: 8),
-                                    ),
-                                    onPressed: () => _showAddUpazilaDialog(
-                                        preselectedDistrictId: selectedDistrict.id),
-                                    icon: const Icon(Icons.add, size: 16),
-                                    label: const Text('উপজেলা যোগ করুন',
-                                        style: TextStyle(fontSize: 12)),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              TextField(
-                                controller: _upazilaSearchCtrl,
-                                onChanged: (q) =>
-                                    setState(() => _upazilaQuery = q.trim().toLowerCase()),
-                                decoration: AppFieldDecoration.build(
-                                  context,
-                                  hint: '${selectedDistrict.name} এর উপজেলা খুঁজুন...',
-                                  prefix: Icons.search,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 8),
-                                ),
-                              ),
-                              const SizedBox(height: 12),
-                              Expanded(
-                                child: _controller.isLoadingUpazilas
-                                    ? const Center(
-                                        child: CircularProgressIndicator(),
-                                      )
-                                    : upazilas.isEmpty
-                                        ? Center(
-                                            child: Text(
-                                              'কোন উপজেলা যোগ করা হয়নি। নতুন উপজেলা যোগ করুন।',
-                                              style: TextStyle(
-                                                  color: colors.hintColor,
-                                                  fontSize: 13),
-                                            ),
-                                          )
-                                        : SingleChildScrollView(
-                                            child: Wrap(
-                                              spacing: 8,
-                                              runSpacing: 8,
-                                              children: upazilas.map((upz) {
-                                                return Chip(
-                                                  avatar: Icon(
-                                                    Icons.place_outlined,
-                                                    size: 16,
-                                                    color: colors.primaryColor,
-                                                  ),
-                                                  label: Text(
-                                                    upz.name,
-                                                    style: TextStyle(
-                                                      fontSize: 13,
-                                                      color: colors.textColor,
-                                                      fontWeight: FontWeight.w500,
-                                                    ),
-                                                  ),
-                                                  backgroundColor:
-                                                      colors.backgroundColor,
-                                                  side: BorderSide(
-                                                      color: colors.dividerColor),
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                          horizontal: 6,
-                                                          vertical: 2),
-                                                );
-                                              }).toList(),
-                                            ),
+                        : SingleChildScrollView(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Wrap(
+                                  alignment: WrapAlignment.spaceBetween,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  spacing: 12,
+                                  runSpacing: 8,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          '${selectedDistrict.name} জেলার উপজেলাসমূহ',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: colors.textColor,
                                           ),
-                              ),
-                            ],
+                                        ),
+                                        Text(
+                                          'বিভাগ: ${selectedDistrict.division} • মোট উপজেলা: ${_controller.upazilas.length}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: colors.hintColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    ElevatedButton.icon(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: colors.primaryColor,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 14, vertical: 8),
+                                      ),
+                                      onPressed: () => _showAddUpazilaDialog(
+                                          preselectedDistrictId: selectedDistrict.id),
+                                      icon: const Icon(Icons.add, size: 16),
+                                      label: const Text('উপজেলা যোগ করুন',
+                                          style: TextStyle(fontSize: 12)),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                TextField(
+                                  controller: _upazilaSearchCtrl,
+                                  onChanged: (q) =>
+                                      setState(() => _upazilaQuery = q.trim().toLowerCase()),
+                                  decoration: AppFieldDecoration.build(
+                                    context,
+                                    hint: '${selectedDistrict.name} এর উপজেলা খুঁজুন...',
+                                    prefix: Icons.search,
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 8),
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                if (_controller.isLoadingUpazilas)
+                                  const Padding(
+                                    padding: EdgeInsets.all(24.0),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                else if (upazilas.isEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(24.0),
+                                    child: Center(
+                                      child: Text(
+                                        'কোন উপজেলা যোগ করা হয়নি। নতুন উপজেলা যোগ করুন।',
+                                        style: TextStyle(
+                                            color: colors.hintColor,
+                                            fontSize: 13),
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Wrap(
+                                    spacing: 8,
+                                    runSpacing: 8,
+                                    children: upazilas.map((upz) {
+                                      return Chip(
+                                        avatar: Icon(
+                                          Icons.place_outlined,
+                                          size: 16,
+                                          color: colors.primaryColor,
+                                        ),
+                                        label: Text(
+                                          upz.name,
+                                          style: TextStyle(
+                                            fontSize: 13,
+                                            color: colors.textColor,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        backgroundColor:
+                                            colors.backgroundColor,
+                                        side: BorderSide(
+                                            color: colors.dividerColor),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 6, vertical: 2),
+                                      );
+                                    }).toList(),
+                                  ),
+                              ],
+                            ),
                           ),
                   );
 

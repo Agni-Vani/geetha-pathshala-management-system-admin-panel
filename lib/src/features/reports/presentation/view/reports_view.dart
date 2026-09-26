@@ -50,7 +50,7 @@ class ReportsView extends StatefulWidget {
 }
 
 class _ReportsViewState extends State<ReportsView> {
-  int _selectedIndex = 8;
+  int _selectedIndex = 9;
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
