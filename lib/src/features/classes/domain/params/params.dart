@@ -7,3 +7,9 @@ final class ListGroupsParams {
     this.academicYearId,
   });
 }
+
+final class ListClassSchedulesParams {
+  final String? pathshalaId;
+
+  const ListClassSchedulesParams({this.pathshalaId});
+}

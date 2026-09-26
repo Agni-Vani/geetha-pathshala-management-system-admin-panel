@@ -10,4 +10,5 @@ abstract interface class TeachersRepository {
   AsyncRequest<List<TeacherAssignment>> listTeacherAssignments(
     ListTeacherAssignmentsParams params,
   );
+  AsyncRequest<List<Teacher>> listTeachers(ListTeachersParams params);
 }

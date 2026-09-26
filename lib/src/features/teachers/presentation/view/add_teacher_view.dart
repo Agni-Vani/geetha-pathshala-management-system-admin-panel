@@ -8,28 +8,9 @@ import '../../../../core/shared/widget/custom_widgets/custom_section_header.dart
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../data/models/teacher_model.dart';
+import '../../domain/entities/teacher.dart';
 
-class TeacherOption {
-  final String name;
-  final String? subject;
-  final String? degree;
-  final DateTime? dateOfBirth;
-  final String? gender;
-  final String? address;
-  final String? phone;
-  final String? email;
-
-  const TeacherOption({
-    required this.name,
-    this.subject,
-    this.degree,
-    this.dateOfBirth,
-    this.gender,
-    this.address,
-    this.phone,
-    this.email,
-  });
-}
 
 class AddTeacherView extends StatefulWidget {
   const AddTeacherView({super.key});
@@ -81,15 +62,18 @@ class _AddTeacherViewState extends State<AddTeacherView> {
       return;
     }
 
-    Navigator.of(context).pop(
-      TeacherOption(
+    Navigator.of(context).pop<Teacher>(
+      TeacherModel(
+        id: 'teacher-${DateTime.now().millisecondsSinceEpoch}',
         name: name,
-        subject: _subjectController.text.trim().isEmpty ? null : _subjectController.text.trim(),
+        subject: _subjectController.text.trim().isEmpty ? 'সাধারণ' : _subjectController.text.trim(),
+        phone: _phoneController.text.trim().isEmpty ? 'N/A' : _phoneController.text.trim(),
+        pathshala: 'General',
+        isActive: true,
         degree: _degreeController.text.trim().isEmpty ? null : _degreeController.text.trim(),
         dateOfBirth: _dateOfBirth,
         gender: _gender,
         address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
         email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
       ),
     );

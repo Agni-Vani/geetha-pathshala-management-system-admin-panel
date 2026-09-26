@@ -25,3 +25,13 @@ final class RecordAttendanceParams {
     required this.entries,
   });
 }
+
+final class GetAttendanceOverviewParams {
+  final String? pathshalaId;
+  final DateTime? date;
+
+  const GetAttendanceOverviewParams({
+    this.pathshalaId,
+    this.date,
+  });
+}

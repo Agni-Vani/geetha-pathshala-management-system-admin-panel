@@ -25,6 +25,13 @@ final class AttendanceRepositoryImpl
     return _request(() => datasource.getSessionAttendance(sessionId));
   }
 
+  @override
+  AsyncRequest<AttendanceOverview> getAttendanceOverview(
+    GetAttendanceOverviewParams params,
+  ) {
+    return _request(() => datasource.getAttendanceOverview(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {

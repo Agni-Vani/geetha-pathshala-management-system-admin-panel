@@ -6,4 +6,7 @@ abstract class AttendanceDatasource {
     RecordAttendanceParams params,
   );
   Future<List<AttendanceRecordModel>> getSessionAttendance(String sessionId);
+  Future<AttendanceOverviewModel> getAttendanceOverview(
+    GetAttendanceOverviewParams params,
+  );
 }

@@ -6,4 +6,7 @@ abstract class ClassesDatasource {
     ListGroupsParams params,
   );
   Future<List<AcademicYearModel>> listAcademicYears(String organizationId);
+  Future<List<ClassScheduleModel>> listClassSchedules(
+    ListClassSchedulesParams params,
+  );
 }

@@ -7,4 +7,5 @@ abstract interface class StudentsDatasource {
   Future<List<StudentAdmissionModel>> listStudentAdmissions(
     ListStudentAdmissionsParams params,
   );
+  Future<List<StudentModel>> listStudents(ListStudentsParams params);
 }

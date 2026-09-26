@@ -61,4 +61,15 @@ final class SupabaseAttendanceDatasource implements AttendanceDatasource {
         )
         .toList();
   }
+
+  @override
+  Future<AttendanceOverviewModel> getAttendanceOverview(
+    GetAttendanceOverviewParams params,
+  ) async {
+    final data = await _invoke('getAttendanceOverview', {
+      'pathshalaId': params.pathshalaId,
+      'date': params.date?.toIso8601String(),
+    });
+    return AttendanceOverviewModel.fromJson(data as Map<String, dynamic>);
+  }
 }

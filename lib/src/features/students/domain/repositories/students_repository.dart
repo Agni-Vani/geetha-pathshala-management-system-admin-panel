@@ -8,4 +8,5 @@ abstract interface class StudentsRepository {
   AsyncRequest<List<StudentAdmission>> listStudentAdmissions(
     ListStudentAdmissionsParams params,
   );
+  AsyncRequest<List<Student>> listStudents(ListStudentsParams params);
 }

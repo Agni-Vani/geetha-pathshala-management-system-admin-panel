@@ -1,63 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_status_badge.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../di/service_locator.dart';
+import '../../domain/teachers_domain.dart';
+import '../controller/teachers_controller.dart';
 import 'add_teacher_view.dart';
-import '../../../../core/navigation/app_sidebar_navigation.dart';
-import '../../../../core/constants/app_sizes.dart';
-
-class _TeacherRow {
-  final String name;
-  final String subject;
-  final String pathshala;
-  final bool isActive;
-
-  const _TeacherRow({
-    required this.name,
-    required this.subject,
-    required this.pathshala,
-    required this.isActive,
-  });
-}
-
-// TODO: static design-stage data — swap for a real ListTeachers usecase
-// once the education feature exposes one (currently only TeacherProfile
-// creation/assignment mutations exist).
-const _demoTeachers = [
-  _TeacherRow(
-    name: 'রমেশ শাস্ত্রী',
-    subject: 'সংস্কৃত',
-    pathshala: 'Dhaka Central Gita Pathshala',
-    isActive: true,
-  ),
-  _TeacherRow(
-    name: 'সরস্বতী দেবী',
-    subject: 'ভগবদ্গীতা',
-    pathshala: 'Chattogram North Gita Pathshala',
-    isActive: true,
-  ),
-  _TeacherRow(
-    name: 'মহেশ শর্মা',
-    subject: 'হিন্দি',
-    pathshala: 'Sylhet East Gita Pathshala',
-    isActive: true,
-  ),
-  _TeacherRow(
-    name: 'অঞ্জলি ভার্মা',
-    subject: 'গণিত',
-    pathshala: 'Dhaka Central Gita Pathshala',
-    isActive: true,
-  ),
-  _TeacherRow(
-    name: 'বিক্রম যোশী',
-    subject: 'সান্ধ্যকালীন ক্লাস',
-    pathshala: 'Chattogram North Gita Pathshala',
-    isActive: false,
-  ),
-];
 
 class TeachersView extends StatefulWidget {
   const TeachersView({super.key});
@@ -68,27 +21,22 @@ class TeachersView extends StatefulWidget {
 
 class _TeachersViewState extends State<TeachersView> {
   final ScrollController _tableScrollController = ScrollController();
-
-  final List<_TeacherRow> _teachers = List.of(_demoTeachers);
-
+  late final TeachersController _controller;
   int _selectedIndex = 4;
 
+  @override
+  void initState() {
+    super.initState();
+    _controller = sl<TeachersController>();
+    _controller.load();
+  }
+
   Future<void> _addNewTeacher() async {
-    final teacher = await Navigator.of(context).push<TeacherOption>(
+    final teacher = await Navigator.of(context).push<Teacher>(
       MaterialPageRoute(builder: (_) => const AddTeacherView()),
     );
     if (teacher == null) return;
-
-    setState(() {
-      _teachers.add(
-        _TeacherRow(
-          name: teacher.name,
-          subject: teacher.subject ?? '—',
-          pathshala: '—',
-          isActive: true,
-        ),
-      );
-    });
+    _controller.load();
   }
 
   void _onSidebarItemSelected(int index) {
@@ -113,44 +61,58 @@ class _TeachersViewState extends State<TeachersView> {
       onLogout: () => Navigator.of(context).maybePop(),
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: AppSizes.pagePadding(context),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 640;
+      body: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final teachers = _controller.teachers;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(colors, isNarrow),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      CustomSearchFilterBar(
-                        searchHint: 'Search teachers...',
-                        districtHint: 'All Subjects',
-                        branchHint: 'All Pathshalas',
-                      ),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      _buildTable(colors),
-                    ],
-                  );
-                },
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: AppSizes.pagePadding(context),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 640;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(colors, isNarrow),
+                          SizedBox(height: AppSizes.sectionGap(context)),
+                          CustomSearchFilterBar(
+                            searchHint: 'Search teachers...',
+                            districtHint: 'All Subjects',
+                            branchHint: 'All Pathshalas',
+                            onSearchChanged: (query) {
+                              _controller.load(
+                                search: query,
+                                subject: _controller.selectedSubject,
+                                pathshalaId: _controller.selectedPathshala,
+                              );
+                            },
+                          ),
+                          SizedBox(height: AppSizes.sectionGap(context)),
+                          _buildTable(colors, teachers),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
-          Container(
-            color: colors.tileColor,
-            height: 40,
-            child: Center(
-              child: Text(
-                '© 2024 Geetha Pathshala Management. All rights reserved.',
-                style: TextStyle(fontSize: 12, color: colors.hintColor),
+              Container(
+                color: colors.tileColor,
+                height: 40,
+                child: Center(
+                  child: Text(
+                    '© 2024 Geetha Pathshala Management. All rights reserved.',
+                    style: TextStyle(fontSize: 12, color: colors.hintColor),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -191,9 +153,6 @@ class _TeachersViewState extends State<TeachersView> {
       );
     }
 
-    // CustomButton needs a bounded width here — a bare Row child otherwise
-    // gets an unbounded main-axis width, crashing Material's tap-target
-    // padding. IntrinsicWidth bounds it to its natural content size.
     return Row(
       children: [
         Expanded(child: titleBlock),
@@ -203,7 +162,7 @@ class _TeachersViewState extends State<TeachersView> {
     );
   }
 
-  Widget _buildTable(AppColors colors) {
+  Widget _buildTable(AppColors colors, List<Teacher> teachers) {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
@@ -238,7 +197,7 @@ class _TeachersViewState extends State<TeachersView> {
                   DataColumn(label: Text('কার্যক্রম')),
                 ],
                 rows: [
-                  for (final teacher in _teachers)
+                  for (final teacher in teachers)
                     DataRow(
                       cells: [
                         DataCell(

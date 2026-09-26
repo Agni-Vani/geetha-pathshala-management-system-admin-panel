@@ -1,66 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/assets.dart';
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
-import '../../../../core/navigation/app_sidebar_navigation.dart';
-import '../../../../core/constants/app_sizes.dart';
-
-class _EventItem {
-  final String title;
-  final String description;
-  final String date;
-  final String time;
-  final String scope;
-  final IconData icon;
-
-  const _EventItem({
-    required this.title,
-    required this.description,
-    required this.date,
-    required this.time,
-    required this.scope,
-    required this.icon,
-  });
-}
-
-// TODO: static design-stage data — no events entity/usecase exists yet
-// in the domain layer; wire this up once one is added.
-const _demoEvents = [
-  _EventItem(
-    title: 'জন্মাষ্টমী',
-    description: 'শ্রীকৃষ্ণের জন্মোৎসব উদযাপন।',
-    date: '২৬ আগস্ট, ২০২৪',
-    time: 'সকাল ১০:০০',
-    scope: 'All Pathshalas',
-    icon: Icons.auto_awesome_outlined,
-  ),
-  _EventItem(
-    title: 'গীতা জয়ন্তী',
-    description: 'ভগবদ্গীতা অবতরণের স্মরণে অনুষ্ঠান।',
-    date: '১১ ডিসেম্বর, ২০২৪',
-    time: 'সকাল ১০:০০',
-    scope: 'All Pathshalas',
-    icon: Icons.menu_book_outlined,
-  ),
-  _EventItem(
-    title: 'বার্ষিক দিবস',
-    description: 'সাংস্কৃতিক অনুষ্ঠানসহ বার্ষিক উৎসব।',
-    date: '২৬ জানুয়ারি, ২০২৫',
-    time: 'সকাল ১০:০০',
-    scope: 'Main Pathshala',
-    icon: Icons.celebration_outlined,
-  ),
-  _EventItem(
-    title: 'সরস্বতী পূজা',
-    description: 'দেবী সরস্বতীর পূজা অর্চনা।',
-    date: '২ ফেব্রুয়ারি, ২০২৫',
-    time: 'সকাল ১০:০০',
-    scope: 'All Pathshalas',
-    icon: Icons.local_florist_outlined,
-  ),
-];
+import '../../../../core/theme/app_colors.dart';
+import '../../../../di/service_locator.dart';
+import '../../domain/events_domain.dart';
+import '../controller/events_controller.dart';
 
 class EventsView extends StatefulWidget {
   const EventsView({super.key});
@@ -70,12 +18,45 @@ class EventsView extends StatefulWidget {
 }
 
 class _EventsViewState extends State<EventsView> {
+  late final EventsController _controller;
   int _selectedIndex = 7;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = sl<EventsController>();
+    _controller.load();
+  }
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
     setState(() => _selectedIndex = index);
     RegistrySidebarNavigation.pushReplacement(context, index);
+  }
+
+  IconData _resolveIcon(String? iconName) {
+    switch (iconName) {
+      case 'auto_awesome_outlined':
+        return Icons.auto_awesome_outlined;
+      case 'menu_book_outlined':
+        return Icons.menu_book_outlined;
+      case 'celebration_outlined':
+        return Icons.celebration_outlined;
+      case 'local_florist_outlined':
+        return Icons.local_florist_outlined;
+      default:
+        return Icons.event_outlined;
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final months = [
+      'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
+      'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
+    ];
+    final bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    String bn(int num) => num.toString().split('').map((c) => bnDigits[int.parse(c)]).join();
+    return '${bn(date.day)} ${months[date.month - 1]}, ${bn(date.year)}';
   }
 
   @override
@@ -88,55 +69,62 @@ class _EventsViewState extends State<EventsView> {
       onLogout: () => Navigator.of(context).maybePop(),
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: AppSizes.pagePadding(context),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 640;
-                  final crossAxisCount = constraints.maxWidth < 640
-                      ? 1
-                      : constraints.maxWidth < 1000
-                      ? 2
-                      : 3;
+      body: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final events = _controller.events;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(colors, isNarrow),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 20,
-                          mainAxisExtent: 250,
-                        ),
-                        itemCount: _demoEvents.length,
-                        itemBuilder: (context, index) =>
-                            _buildEventCard(colors, _demoEvents[index]),
-                      ),
-                    ],
-                  );
-                },
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: AppSizes.pagePadding(context),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 640;
+                      final crossAxisCount = constraints.maxWidth < 640
+                          ? 1
+                          : constraints.maxWidth < 1000
+                          ? 2
+                          : 3;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(colors, isNarrow),
+                          SizedBox(height: AppSizes.sectionGap(context)),
+                          GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
+                              crossAxisSpacing: 20,
+                              mainAxisSpacing: 20,
+                              mainAxisExtent: 250,
+                            ),
+                            itemCount: events.length,
+                            itemBuilder: (context, index) =>
+                                _buildEventCard(colors, events[index]),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
-          Container(
-            color: colors.tileColor,
-            height: 40,
-            child: Center(
-              child: Text(
-                '© 2024 Geetha Pathshala Management. All rights reserved.',
-                style: TextStyle(fontSize: 12, color: colors.hintColor),
+              Container(
+                color: colors.tileColor,
+                height: 40,
+                child: Center(
+                  child: Text(
+                    '© 2024 Geetha Pathshala Management. All rights reserved.',
+                    style: TextStyle(fontSize: 12, color: colors.hintColor),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -177,9 +165,6 @@ class _EventsViewState extends State<EventsView> {
       );
     }
 
-    // CustomButton needs a bounded width here — a bare Row child otherwise
-    // gets an unbounded main-axis width, crashing Material's tap-target
-    // padding. IntrinsicWidth bounds it to its natural content size.
     return Row(
       children: [
         Expanded(child: titleBlock),
@@ -207,8 +192,9 @@ class _EventsViewState extends State<EventsView> {
     );
   }
 
-  Widget _buildEventCard(AppColors colors, _EventItem event) {
+  Widget _buildEventCard(AppColors colors, Event event) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final iconData = _resolveIcon(event.iconName);
 
     return Container(
       padding: const EdgeInsets.all(18),
@@ -216,8 +202,6 @@ class _EventsViewState extends State<EventsView> {
       decoration: BoxDecoration(
         color: colors.backgroundColor,
         borderRadius: BorderRadius.circular(12),
-        // Peacock-feather watermark anchored to the card's right edge; kept
-        // faint so the event text stays the focus.
         image: DecorationImage(
           image: const AssetImage(Assets.peacockFeatherImage),
           fit: BoxFit.contain,
@@ -240,7 +224,7 @@ class _EventsViewState extends State<EventsView> {
               CircleAvatar(
                 radius: 20,
                 backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
-                child: Icon(event.icon, color: colors.primaryColor, size: 20),
+                child: Icon(iconData, color: colors.primaryColor, size: 20),
               ),
               const SizedBox(height: 12),
               Text(
@@ -266,7 +250,7 @@ class _EventsViewState extends State<EventsView> {
                 runSpacing: 4,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  _metaChip(colors, Icons.calendar_today_outlined, event.date),
+                  _metaChip(colors, Icons.calendar_today_outlined, _formatDate(event.eventDate)),
                   _metaChip(colors, Icons.schedule_outlined, event.time),
                 ],
               ),

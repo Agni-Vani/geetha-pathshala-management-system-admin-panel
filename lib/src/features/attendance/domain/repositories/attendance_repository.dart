@@ -7,4 +7,7 @@ abstract interface class AttendanceRepository {
     RecordAttendanceParams params,
   );
   AsyncRequest<List<AttendanceRecord>> getSessionAttendance(String sessionId);
+  AsyncRequest<AttendanceOverview> getAttendanceOverview(
+    GetAttendanceOverviewParams params,
+  );
 }

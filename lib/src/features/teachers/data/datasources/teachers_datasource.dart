@@ -9,4 +9,5 @@ abstract class TeachersDatasource {
   Future<List<TeacherAssignmentModel>> listTeacherAssignments(
     ListTeacherAssignmentsParams params,
   );
+  Future<List<TeacherModel>> listTeachers(ListTeachersParams params);
 }

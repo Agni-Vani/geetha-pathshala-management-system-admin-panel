@@ -38,5 +38,16 @@ void main() {
       final recordsSuccess = recordsResponse as SuccessRepoCall;
       expect(recordsSuccess.data.length, equals(1));
     });
+
+    test('getAttendanceOverview returns seeded summary and rows', () async {
+      final response = await repository.getAttendanceOverview(
+        const GetAttendanceOverviewParams(),
+      );
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.summaryStats.length, equals(4));
+      expect(success.data.attendanceRows.length, equals(5));
+      expect(success.data.attendanceRows.first.name, equals('অনন্যা শর্মা'));
+    });
   });
 }

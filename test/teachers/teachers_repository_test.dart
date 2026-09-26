@@ -58,5 +58,13 @@ void main() {
       final success = response as SuccessRepoCall;
       expect(success.data.length, equals(1));
     });
+
+    test('listTeachers returns seeded teachers', () async {
+      final response = await repository.listTeachers(const ListTeachersParams());
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.length, equals(7));
+      expect(success.data.first.name, equals('রমেশ শাস্ত্রী'));
+    });
   });
 }

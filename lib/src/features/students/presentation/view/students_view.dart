@@ -1,67 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_status_badge.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
-import '../../../../core/navigation/app_sidebar_navigation.dart';
-import '../../../../core/constants/app_sizes.dart';
-
-class _StudentRow {
-  final String name;
-  final String studentClass;
-  final String pathshala;
-  final bool isActive;
-
-  const _StudentRow({
-    required this.name,
-    required this.studentClass,
-    required this.pathshala,
-    required this.isActive,
-  });
-}
-
-// TODO: static design-stage data — swap for a real ListStudents usecase
-// once the education feature exposes one.
-const _demoStudents = [
-  _StudentRow(
-    name: 'অনন্যা শর্মা',
-    studentClass: 'শ্রেণি ৫',
-    pathshala: 'Chattogram North Gita Pathshala',
-    isActive: true,
-  ),
-  _StudentRow(
-    name: 'বিবান পাটেল',
-    studentClass: 'শ্রেণি ৬',
-    pathshala: 'Dhaka Central Gita Pathshala',
-    isActive: true,
-  ),
-  _StudentRow(
-    name: 'ইশিকা ভার্মা',
-    studentClass: 'শ্রেণি ৪',
-    pathshala: 'Sylhet East Gita Pathshala',
-    isActive: true,
-  ),
-  _StudentRow(
-    name: 'কৃষ্ণ তিওয়ারি',
-    studentClass: 'শ্রেণি ৭',
-    pathshala: 'Chattogram North Gita Pathshala',
-    isActive: true,
-  ),
-  _StudentRow(
-    name: 'মায়রা জোশী',
-    studentClass: 'শ্রেণি ৩',
-    pathshala: 'Dhaka Central Gita Pathshala',
-    isActive: false,
-  ),
-  _StudentRow(
-    name: 'অর্জুন সিং',
-    studentClass: 'শ্রেণি ৫',
-    pathshala: 'Sylhet East Gita Pathshala',
-    isActive: true,
-  ),
-];
+import '../../../../core/theme/app_colors.dart';
+import '../../../../di/service_locator.dart';
+import '../../domain/students_domain.dart';
+import '../controller/students_controller.dart';
 
 class StudentsView extends StatefulWidget {
   const StudentsView({super.key});
@@ -72,8 +20,15 @@ class StudentsView extends StatefulWidget {
 
 class _StudentsViewState extends State<StudentsView> {
   final ScrollController _tableScrollController = ScrollController();
-
+  late final StudentsController _controller;
   int _selectedIndex = 3;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = sl<StudentsController>();
+    _controller.load();
+  }
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
@@ -97,44 +52,58 @@ class _StudentsViewState extends State<StudentsView> {
       onLogout: () => Navigator.of(context).maybePop(),
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: AppSizes.pagePadding(context),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 640;
+      body: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final students = _controller.students;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(colors, isNarrow),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      CustomSearchFilterBar(
-                        searchHint: 'Search students...',
-                        districtHint: 'All Classes',
-                        branchHint: 'All Pathshalas',
-                      ),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      _buildTable(colors, isNarrow),
-                    ],
-                  );
-                },
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: AppSizes.pagePadding(context),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 640;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(colors, isNarrow),
+                          SizedBox(height: AppSizes.sectionGap(context)),
+                          CustomSearchFilterBar(
+                            searchHint: 'Search students...',
+                            districtHint: 'All Classes',
+                            branchHint: 'All Pathshalas',
+                            onSearchChanged: (query) {
+                              _controller.load(
+                                search: query,
+                                studentClass: _controller.selectedClass,
+                                pathshalaId: _controller.selectedPathshala,
+                              );
+                            },
+                          ),
+                          SizedBox(height: AppSizes.sectionGap(context)),
+                          _buildTable(colors, students, isNarrow),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
-          Container(
-            color: colors.tileColor,
-            height: 40,
-            child: Center(
-              child: Text(
-                '© 2024 Geetha Pathshala Management. All rights reserved.',
-                style: TextStyle(fontSize: 12, color: colors.hintColor),
+              Container(
+                color: colors.tileColor,
+                height: 40,
+                child: Center(
+                  child: Text(
+                    '© 2024 Geetha Pathshala Management. All rights reserved.',
+                    style: TextStyle(fontSize: 12, color: colors.hintColor),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -175,10 +144,6 @@ class _StudentsViewState extends State<StudentsView> {
       );
     }
 
-    // CustomButton (ElevatedButton/OutlinedButton) needs a bounded width
-    // here — as a bare Row child it gets an unbounded main-axis width from
-    // Row's non-flex-child layout, which crashes Material's tap-target
-    // padding. IntrinsicWidth bounds it to its natural content size.
     return Row(
       children: [
         Expanded(child: titleBlock),
@@ -188,7 +153,7 @@ class _StudentsViewState extends State<StudentsView> {
     );
   }
 
-  Widget _buildTable(AppColors colors, bool isNarrow) {
+  Widget _buildTable(AppColors colors, List<Student> students, bool isNarrow) {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
@@ -223,7 +188,7 @@ class _StudentsViewState extends State<StudentsView> {
                   DataColumn(label: Text('কার্যক্রম')),
                 ],
                 rows: [
-                  for (final student in _demoStudents)
+                  for (final student in students)
                     DataRow(
                       cells: [
                         DataCell(

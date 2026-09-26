@@ -36,5 +36,13 @@ void main() {
       final success = response as SuccessRepoCall;
       expect(success.data.length, greaterThanOrEqualTo(1));
     });
+
+    test('listStudents returns seeded students', () async {
+      final response = await repository.listStudents(const ListStudentsParams());
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.length, equals(6));
+      expect(success.data.first.name, equals('অনন্যা শর্মা'));
+    });
   });
 }

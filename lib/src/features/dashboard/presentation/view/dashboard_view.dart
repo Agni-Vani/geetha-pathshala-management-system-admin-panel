@@ -1,40 +1,18 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
-import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
-
-class _OverviewStat {
-  final IconData icon;
-  final String value;
-  final String label;
-  final String delta;
-  final Color tint;
-
-  const _OverviewStat({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.delta,
-    required this.tint,
-  });
-}
-
-// TODO: static design-stage data — wire to real aggregate usecases
-// (ListPathshalas, education/attendance counts) once available.
-const _overviewStats = [
-  _OverviewStat(icon: Icons.account_balance_outlined, value: '২৪', label: 'Total Pathshalas', delta: '+২ এই মাসে', tint: Color(0xFF1565C0)),
-  _OverviewStat(icon: Icons.people_alt_outlined, value: '১,২৪৮', label: 'Total Students', delta: '+১৫৬ এই মাসে', tint: Color(0xFF1E7B34)),
-  _OverviewStat(icon: Icons.badge_outlined, value: '৮৬', label: 'Total Teachers', delta: '+৮ এই মাসে', tint: Color(0xFFAD6800)),
-  _OverviewStat(icon: Icons.how_to_reg_outlined, value: '৯২.৫%', label: 'Attendance Today', delta: '+২.৩% গতকাল থেকে', tint: Color(0xFFBA1A1A)),
-];
-
-const _weeklyAttendance = [70, 76, 82, 88, 79, 91, 85];
-const _weeklyLabels = ['সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি', 'রবি'];
+import '../../../../core/navigation/app_sidebar_navigation.dart';
+import '../../../../core/shared/reactive_notifier/process_notifier.dart';
+import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../di/service_locator.dart';
+import '../../domain/entities/dashboard_overview.dart';
+import '../controller/dashboard_controller.dart';
 
 class DashboardView extends StatefulWidget {
-  const DashboardView({super.key});
+  final DashboardController? controller;
+
+  const DashboardView({super.key, this.controller});
 
   @override
   State<DashboardView> createState() => _DashboardViewState();
@@ -42,11 +20,34 @@ class DashboardView extends StatefulWidget {
 
 class _DashboardViewState extends State<DashboardView> {
   int _selectedIndex = 0;
+  late final DashboardController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? sl<DashboardController>();
+    _controller.load();
+  }
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
     setState(() => _selectedIndex = index);
     RegistrySidebarNavigation.pushReplacement(context, index);
+  }
+
+  IconData _resolveIcon(String key) {
+    switch (key) {
+      case 'account_balance':
+        return Icons.account_balance_outlined;
+      case 'people':
+        return Icons.people_alt_outlined;
+      case 'badge':
+        return Icons.badge_outlined;
+      case 'how_to_reg':
+        return Icons.how_to_reg_outlined;
+      default:
+        return Icons.analytics_outlined;
+    }
   }
 
   @override
@@ -59,85 +60,106 @@ class _DashboardViewState extends State<DashboardView> {
       onLogout: () => Navigator.of(context).maybePop(),
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: AppSizes.pagePadding(context),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 640;
-                  final isStacked = constraints.maxWidth < 900;
+      body: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final overview = _controller.overview;
+          final isLoading = _controller.processStatusNotifier.status is ProcessLoading;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('ড্যাশবোর্ড', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colors.primaryColor)),
-                      const SizedBox(height: 4),
-                      Text(
-                        'স্বাগতম, Admin! আপনার পাঠশালা সিস্টেমে এখন যা ঘটছে তার সারসংক্ষেপ।',
-                        style: TextStyle(color: colors.hintColor),
-                      ),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      _buildStatsGrid(colors, isNarrow),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      isStacked
-                          ? Column(
-                              children: [
-                                _buildAttendanceCard(colors),
-                                const SizedBox(height: 20),
-                                _buildGenderCard(colors),
-                              ],
-                            )
-                          : IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Expanded(flex: 2, child: _buildAttendanceCard(colors)),
-                                  const SizedBox(width: 20),
-                                  Expanded(child: _buildGenderCard(colors)),
-                                ],
-                              ),
-                            ),
-                      const SizedBox(height: 20),
-                      isStacked
-                          ? Column(
-                              children: [
-                                _buildNoticesCard(colors),
-                                const SizedBox(height: 20),
-                                _buildEventsCard(colors),
-                              ],
-                            )
-                          : Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(child: _buildNoticesCard(colors)),
-                                const SizedBox(width: 20),
-                                Expanded(child: _buildEventsCard(colors)),
-                              ],
-                            ),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ),
-          Container(
-            color: colors.tileColor,
-            height: 40,
-            child: Center(
+          if (isLoading && overview == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (overview == null) {
+            return Center(
               child: Text(
-                '© 2024 Geetha Pathshala Management. All rights reserved.',
-                style: TextStyle(fontSize: 12, color: colors.hintColor),
+                'তথ্য লোড করা যায়নি',
+                style: TextStyle(color: colors.hintColor),
               ),
-            ),
-          ),
-        ],
+            );
+          }
+
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: AppSizes.pagePadding(context),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 640;
+                      final isStacked = constraints.maxWidth < 900;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('ড্যাশবোর্ড', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colors.primaryColor)),
+                          const SizedBox(height: 4),
+                          Text(
+                            'স্বাগতম, Admin! আপনার পাঠশালা সিস্টেমে এখন যা ঘটছে তার সারসংক্ষেপ।',
+                            style: TextStyle(color: colors.hintColor),
+                          ),
+                          SizedBox(height: AppSizes.sectionGap(context)),
+                          _buildStatsGrid(colors, isNarrow, overview.stats),
+                          SizedBox(height: AppSizes.sectionGap(context)),
+                          isStacked
+                              ? Column(
+                                  children: [
+                                    _buildAttendanceCard(colors, overview.weeklyAttendance),
+                                    const SizedBox(height: 20),
+                                    _buildGenderCard(colors, overview.genderDistribution),
+                                  ],
+                                )
+                              : IntrinsicHeight(
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      Expanded(flex: 2, child: _buildAttendanceCard(colors, overview.weeklyAttendance)),
+                                      const SizedBox(width: 20),
+                                      Expanded(child: _buildGenderCard(colors, overview.genderDistribution)),
+                                    ],
+                                  ),
+                                ),
+                          const SizedBox(height: 20),
+                          isStacked
+                              ? Column(
+                                  children: [
+                                    _buildNoticesCard(colors, overview.recentNotices),
+                                    const SizedBox(height: 20),
+                                    _buildEventsCard(colors, overview.upcomingEvents),
+                                  ],
+                                )
+                              : Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(child: _buildNoticesCard(colors, overview.recentNotices)),
+                                    const SizedBox(width: 20),
+                                    Expanded(child: _buildEventsCard(colors, overview.upcomingEvents)),
+                                  ],
+                                ),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+              Container(
+                color: colors.tileColor,
+                height: 40,
+                child: Center(
+                  child: Text(
+                    '© 2024 Geetha Pathshala Management. All rights reserved.',
+                    style: TextStyle(fontSize: 12, color: colors.hintColor),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _buildStatsGrid(AppColors colors, bool isNarrow) {
+  Widget _buildStatsGrid(AppColors colors, bool isNarrow, List<DashboardStat> stats) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -147,9 +169,10 @@ class _DashboardViewState extends State<DashboardView> {
         mainAxisSpacing: 20,
         mainAxisExtent: 124,
       ),
-      itemCount: _overviewStats.length,
+      itemCount: stats.length,
       itemBuilder: (context, index) {
-        final stat = _overviewStats[index];
+        final stat = stats[index];
+        final tintColor = Color(stat.tintHex);
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -164,8 +187,8 @@ class _DashboardViewState extends State<DashboardView> {
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: stat.tint.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
-                    child: Icon(stat.icon, size: 18, color: stat.tint),
+                    decoration: BoxDecoration(color: tintColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(8)),
+                    child: Icon(_resolveIcon(stat.iconKey), size: 18, color: tintColor),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -175,7 +198,7 @@ class _DashboardViewState extends State<DashboardView> {
               ),
               const Spacer(),
               Text(stat.value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: colors.textColor)),
-              Text(stat.delta, style: TextStyle(fontSize: 11, color: stat.tint, fontWeight: FontWeight.w600)),
+              Text(stat.delta, style: TextStyle(fontSize: 11, color: tintColor, fontWeight: FontWeight.w600)),
             ],
           ),
         );
@@ -183,8 +206,11 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Widget _buildAttendanceCard(AppColors colors) {
-    final maxValue = _weeklyAttendance.reduce((a, b) => a > b ? a : b);
+  Widget _buildAttendanceCard(AppColors colors, List<WeeklyAttendancePoint> weeklyAttendance) {
+    if (weeklyAttendance.isEmpty) return const SizedBox.shrink();
+
+    final maxValue = weeklyAttendance.map((e) => e.value).reduce((a, b) => a > b ? a : b);
+    final effectiveMax = maxValue == 0 ? 1 : maxValue;
 
     return Container(
       width: double.infinity,
@@ -217,7 +243,7 @@ class _DashboardViewState extends State<DashboardView> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                for (var i = 0; i < _weeklyAttendance.length; i++)
+                for (final point in weeklyAttendance)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -225,14 +251,14 @@ class _DashboardViewState extends State<DashboardView> {
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Container(
-                            height: 100 * (_weeklyAttendance[i] / maxValue),
+                            height: 100 * (point.value / effectiveMax),
                             decoration: BoxDecoration(
                               color: colors.primaryColor.withValues(alpha: 0.85),
                               borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Text(_weeklyLabels[i], style: TextStyle(fontSize: 11, color: colors.hintColor)),
+                          Text(point.label, style: TextStyle(fontSize: 11, color: colors.hintColor)),
                         ],
                       ),
                     ),
@@ -245,7 +271,7 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Widget _buildGenderCard(AppColors colors) {
+  Widget _buildGenderCard(AppColors colors, GenderDistribution gender) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -267,13 +293,13 @@ class _DashboardViewState extends State<DashboardView> {
                   width: 130,
                   height: 130,
                   child: CircularProgressIndicator(
-                    value: 0.62,
+                    value: gender.malePercentage,
                     strokeWidth: 14,
                     backgroundColor: const Color(0xFFF48FB1),
                     valueColor: AlwaysStoppedAnimation(colors.primaryColor),
                   ),
                 ),
-                Text('১,২৪৮', style: TextStyle(fontWeight: FontWeight.bold, color: colors.textColor)),
+                Text(gender.totalStudents, style: TextStyle(fontWeight: FontWeight.bold, color: colors.textColor)),
               ],
             ),
           ),
@@ -283,8 +309,8 @@ class _DashboardViewState extends State<DashboardView> {
             spacing: 16,
             runSpacing: 6,
             children: [
-              _legendDot(colors.primaryColor, 'ছেলে ৬২%'),
-              _legendDot(const Color(0xFFF48FB1), 'মেয়ে ৩৮%'),
+              _legendDot(colors.primaryColor, 'ছেলে ${(gender.malePercentage * 100).round()}%'),
+              _legendDot(const Color(0xFFF48FB1), 'মেয়ে ${(gender.femalePercentage * 100).round()}%'),
             ],
           ),
         ],
@@ -303,27 +329,30 @@ class _DashboardViewState extends State<DashboardView> {
     );
   }
 
-  Widget _buildNoticesCard(AppColors colors) {
-    const items = [
-      ('জন্মাষ্টমী উদযাপন', '২০ আগস্ট, ২০২৪'),
-      ('শিক্ষার্থীদের জন্য প্রবন্ধ প্রতিযোগিতা', '১৮ আগস্ট, ২০২৪'),
-      ('অভিভাবক-শিক্ষক সভা', '১৫ আগস্ট, ২০২৪'),
-    ];
-
-    return _buildListCard(colors, title: 'Recent Notices', icon: Icons.campaign_outlined, items: items);
+  Widget _buildNoticesCard(AppColors colors, List<DashboardRecentItem> notices) {
+    return _buildListCard(
+      colors,
+      title: 'Recent Notices',
+      icon: Icons.campaign_outlined,
+      items: notices,
+    );
   }
 
-  Widget _buildEventsCard(AppColors colors) {
-    const items = [
-      ('জন্মাষ্টমী', '২৬ আগস্ট, ২০২৪'),
-      ('গীতা জয়ন্তী', '১১ ডিসেম্বর, ২০২৪'),
-      ('বার্ষিক দিবস', '২৬ জানুয়ারি, ২০২৫'),
-    ];
-
-    return _buildListCard(colors, title: 'Upcoming Events', icon: Icons.calendar_month_outlined, items: items);
+  Widget _buildEventsCard(AppColors colors, List<DashboardRecentItem> events) {
+    return _buildListCard(
+      colors,
+      title: 'Upcoming Events',
+      icon: Icons.calendar_month_outlined,
+      items: events,
+    );
   }
 
-  Widget _buildListCard(AppColors colors, {required String title, required IconData icon, required List<(String, String)> items}) {
+  Widget _buildListCard(
+    AppColors colors, {
+    required String title,
+    required IconData icon,
+    required List<DashboardRecentItem> items,
+  }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -343,12 +372,12 @@ class _DashboardViewState extends State<DashboardView> {
                 Icon(icon, size: 16, color: colors.primaryColor),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Text(item.$1, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: colors.textColor)),
+                  child: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 13, color: colors.textColor)),
                 ),
                 const SizedBox(width: 8),
                 Flexible(
                   child: Text(
-                    item.$2,
+                    item.date,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(fontSize: 11, color: colors.hintColor),

@@ -29,5 +29,15 @@ void main() {
       final success = response as SuccessRepoCall;
       expect(success.data.length, greaterThanOrEqualTo(1));
     });
+
+    test('listClassSchedules returns seeded schedules', () async {
+      final response = await repository.listClassSchedules(
+        const ListClassSchedulesParams(pathshalaId: 'pathshala-dhaka-central'),
+      );
+      expect(response, isA<SuccessRepoCall>());
+      final success = response as SuccessRepoCall;
+      expect(success.data.length, greaterThanOrEqualTo(1));
+      expect(success.data.first.subject, isNotEmpty);
+    });
   });
 }

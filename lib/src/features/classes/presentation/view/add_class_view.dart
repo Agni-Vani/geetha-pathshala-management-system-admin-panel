@@ -13,22 +13,19 @@ import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart'
 import '../../../teachers/presentation/view/add_teacher_view.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
-
-// TODO: no list-teachers usecase is wired into the presentation layer yet
-// (education domain only exposes createTeacherProfile/assignTeacher) — this
-// stays local, design-stage data until that's connected.
-const _baseTeachers = [
-  TeacherOption(name: 'অনির্বাণ সেন', subject: 'শ্রীমদ্ভগবদ্গীতা'),
-  TeacherOption(name: 'ইশিতা পাল', subject: 'সংস্কৃত'),
-  TeacherOption(name: 'রমেশ শাস্ত্রী', subject: 'সংস্কৃত'),
-  TeacherOption(name: 'সরস্বতী দেবী', subject: 'ভগবদ্গীতা'),
-  TeacherOption(name: 'মহেশ শর্মা', subject: 'হিন্দি'),
-];
+import '../../../../di/service_locator.dart';
+import '../../../teachers/domain/teachers_domain.dart';
+import '../controller/add_class_controller.dart';
 
 class AddClassView extends StatefulWidget {
   final Pathshala pathshala;
+  final AddClassController? controller;
 
-  const AddClassView({super.key, required this.pathshala});
+  const AddClassView({
+    super.key,
+    required this.pathshala,
+    this.controller,
+  });
 
   @override
   State<AddClassView> createState() => _AddClassViewState();
@@ -37,13 +34,12 @@ class AddClassView extends StatefulWidget {
 class _AddClassViewState extends State<AddClassView> {
   final int _selectedIndex = 1;
   late final SnackbarNotifier snackbarNotifier;
+  late final AddClassController _controller;
 
   final _subjectController = TextEditingController();
   final _roomController = TextEditingController();
 
   final _formScrollController = ScrollController();
-
-  final List<TeacherOption> _teacherOptions = List.of(_baseTeachers);
 
   DateTime? _classDate;
   TimeOfDay? _startTime;
@@ -54,6 +50,8 @@ class _AddClassViewState extends State<AddClassView> {
   void initState() {
     super.initState();
     snackbarNotifier = SnackbarNotifier(context: context);
+    _controller = widget.controller ?? sl<AddClassController>();
+    _controller.loadTeachers(snackbarNotifier: snackbarNotifier);
   }
 
   @override
@@ -89,12 +87,13 @@ class _AddClassViewState extends State<AddClassView> {
   }
 
   Future<void> _addNewTeacher(StateSetter setSheetState) async {
-    final teacher = await Navigator.of(context).push<TeacherOption>(
+    final teacher = await Navigator.of(context).push<Teacher>(
       MaterialPageRoute(builder: (_) => const AddTeacherView()),
     );
     if (teacher == null) return;
 
-    setSheetState(() => _teacherOptions.add(teacher));
+    _controller.addTeacher(teacher);
+    setSheetState(() {});
   }
 
   Future<void> _openTeacherPicker() async {
@@ -110,7 +109,7 @@ class _AddClassViewState extends State<AddClassView> {
         return StatefulBuilder(
           builder: (context, setSheetState) {
             final colors = AppColors.context(context);
-            final filtered = _teacherOptions
+            final filtered = _controller.teachers
                 .where((teacher) => teacher.name.toLowerCase().contains(query.toLowerCase()))
                 .toList();
 
@@ -176,9 +175,9 @@ class _AddClassViewState extends State<AddClassView> {
                                     child: Icon(Icons.badge_outlined, size: 16, color: colors.primaryColor),
                                   ),
                                   title: Text(teacher.name, style: TextStyle(color: colors.textColor)),
-                                  subtitle: teacher.subject == null
+                                  subtitle: teacher.subject.isEmpty
                                       ? null
-                                      : Text(teacher.subject!, style: TextStyle(fontSize: 12, color: colors.hintColor)),
+                                      : Text(teacher.subject, style: TextStyle(fontSize: 12, color: colors.hintColor)),
                                   onTap: () => Navigator.of(sheetContext).pop(teacher.name),
                                 );
                               },

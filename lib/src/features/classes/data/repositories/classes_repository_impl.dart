@@ -25,6 +25,13 @@ final class ClassesRepositoryImpl
     return _request(() => datasource.listAcademicYears(organizationId));
   }
 
+  @override
+  AsyncRequest<List<ClassSchedule>> listClassSchedules(
+    ListClassSchedulesParams params,
+  ) {
+    return _request(() => datasource.listClassSchedules(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {

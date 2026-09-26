@@ -7,4 +7,7 @@ abstract interface class ClassesRepository {
     ListGroupsParams params,
   );
   AsyncRequest<List<AcademicYear>> listAcademicYears(String organizationId);
+  AsyncRequest<List<ClassSchedule>> listClassSchedules(
+    ListClassSchedulesParams params,
+  );
 }

@@ -65,4 +65,20 @@ final class SupabaseTeachersDatasource implements TeachersDatasource {
         )
         .toList();
   }
+
+  @override
+  Future<List<TeacherModel>> listTeachers(ListTeachersParams params) async {
+    final data = await _invoke('listTeachers', {
+      'pathshalaId': params.pathshalaId,
+      'subject': params.subject,
+      'search': params.search,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
+        .map((json) => TeacherModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
 }

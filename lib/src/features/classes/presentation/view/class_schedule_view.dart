@@ -1,38 +1,25 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../pathshala/domain/pathshala_domain.dart';
+import '../../../../core/navigation/app_sidebar_navigation.dart';
+import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
-import '../../../../core/navigation/app_sidebar_navigation.dart';
-
-class _ScheduleRow {
-  final String subject;
-  final String day;
-  final String time;
-  final String teacher;
-
-  const _ScheduleRow({
-    required this.subject,
-    required this.day,
-    required this.time,
-    required this.teacher,
-  });
-}
-
-// TODO: static design-stage data — no class-schedule entity/usecase exists
-// yet in the domain layer; wire this up once one is added.
-const _demoSchedule = [
-  _ScheduleRow(subject: 'শ্রীমদ্ভগবদ্গীতা', day: 'শনিবার', time: 'সকাল ১০:০০ - ১১:৩০', teacher: 'অনির্বাণ সেন'),
-  _ScheduleRow(subject: 'সংস্কৃত', day: 'শনিবার', time: 'সকাল ১১:৩০ - ১২:৩০', teacher: 'ইশিতা পাল'),
-  _ScheduleRow(subject: 'ভজন ও কীর্তন', day: 'রবিবার', time: 'বিকাল ৪:০০ - ৫:০০', teacher: 'অনির্বাণ সেন'),
-];
+import '../../../../core/theme/app_colors.dart';
+import '../../../../di/service_locator.dart';
+import '../../../pathshala/domain/pathshala_domain.dart';
+import '../../domain/entities/class_schedule.dart';
+import '../controller/class_schedule_controller.dart';
 
 class ClassScheduleView extends StatefulWidget {
   final Pathshala pathshala;
+  final ClassScheduleController? controller;
 
-  const ClassScheduleView({super.key, required this.pathshala});
+  const ClassScheduleView({
+    super.key,
+    required this.pathshala,
+    this.controller,
+  });
 
   @override
   State<ClassScheduleView> createState() => _ClassScheduleViewState();
@@ -40,8 +27,16 @@ class ClassScheduleView extends StatefulWidget {
 
 class _ClassScheduleViewState extends State<ClassScheduleView> {
   final ScrollController _tableScrollController = ScrollController();
+  late final ClassScheduleController _controller;
 
   final int _selectedIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller ?? sl<ClassScheduleController>();
+    _controller.load(pathshalaId: widget.pathshala.id);
+  }
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;
@@ -64,40 +59,58 @@ class _ClassScheduleViewState extends State<ClassScheduleView> {
       onLogout: () => Navigator.of(context).maybePop(),
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: AppSizes.pagePadding(context),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 640;
+      body: ListenableBuilder(
+        listenable: _controller,
+        builder: (context, _) {
+          final schedules = _controller.schedules;
+          final isLoading = _controller.processStatusNotifier.status is ProcessLoading;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildBreadcrumb(colors),
-                      const SizedBox(height: 20),
-                      _buildHeader(colors, isNarrow),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      _demoSchedule.isEmpty ? _buildEmptyState() : _buildTable(colors),
-                    ],
-                  );
-                },
+          return Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: AppSizes.pagePadding(context),
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final isNarrow = constraints.maxWidth < 640;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildBreadcrumb(colors),
+                          const SizedBox(height: 20),
+                          _buildHeader(colors, isNarrow),
+                          SizedBox(height: AppSizes.sectionGap(context)),
+                          if (isLoading)
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(48.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          else if (schedules.isEmpty)
+                            _buildEmptyState()
+                          else
+                            _buildTable(colors, schedules),
+                        ],
+                      );
+                    },
+                  ),
+                ),
               ),
-            ),
-          ),
-          Container(
-            color: colors.tileColor,
-            height: 40,
-            child: Center(
-              child: Text(
-                '© 2024 Geetha Pathshala Management. All rights reserved.',
-                style: TextStyle(fontSize: 12, color: colors.hintColor),
+              Container(
+                color: colors.tileColor,
+                height: 40,
+                child: Center(
+                  child: Text(
+                    '© 2024 Geetha Pathshala Management. All rights reserved.',
+                    style: TextStyle(fontSize: 12, color: colors.hintColor),
+                  ),
+                ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        },
       ),
     );
   }
@@ -153,7 +166,7 @@ class _ClassScheduleViewState extends State<ClassScheduleView> {
     );
   }
 
-  Widget _buildTable(AppColors colors) {
+  Widget _buildTable(AppColors colors, List<ClassSchedule> schedules) {
     return Container(
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
@@ -181,7 +194,7 @@ class _ClassScheduleViewState extends State<ClassScheduleView> {
                   DataColumn(label: Text('শিক্ষক')),
                 ],
                 rows: [
-                  for (final row in _demoSchedule)
+                  for (final row in schedules)
                     DataRow(
                       cells: [
                         DataCell(

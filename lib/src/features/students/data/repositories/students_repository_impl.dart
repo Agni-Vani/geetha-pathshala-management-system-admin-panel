@@ -30,6 +30,11 @@ final class StudentsRepositoryImpl
     return _request(() => datasource.listStudentAdmissions(params));
   }
 
+  @override
+  AsyncRequest<List<Student>> listStudents(ListStudentsParams params) {
+    return _request(() => datasource.listStudents(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {

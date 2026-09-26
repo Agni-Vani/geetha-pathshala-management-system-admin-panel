@@ -5,12 +5,22 @@ import '../features/areas/domain/areas_domain.dart';
 import '../features/areas/presentation/controller/geographic_areas_controller.dart';
 import '../features/attendance/data/attendance_data.dart';
 import '../features/attendance/domain/attendance_domain.dart';
+import '../features/attendance/presentation/controller/attendance_controller.dart';
 import '../features/authentication/data/authentication_data.dart';
 import '../features/authentication/domain/authentication_domain.dart';
 import '../features/classes/data/classes_data.dart';
 import '../features/classes/domain/classes_domain.dart';
+import '../features/classes/presentation/controller/add_class_controller.dart';
+import '../features/classes/presentation/controller/class_schedule_controller.dart';
+import '../features/dashboard/data/dashboard_data.dart';
+import '../features/dashboard/domain/dashboard_domain.dart';
+import '../features/dashboard/presentation/controller/dashboard_controller.dart';
+import '../features/events/data/events_data.dart';
+import '../features/events/domain/events_domain.dart';
+import '../features/events/presentation/controller/events_controller.dart';
 import '../features/notices/data/notices_data.dart';
 import '../features/notices/domain/notices_domain.dart';
+import '../features/notices/presentation/controller/notices_controller.dart';
 import '../features/pathshala/data/pathshala_data.dart';
 import '../features/pathshala/domain/pathshala_domain.dart';
 import '../features/pathshala/presentation/controller/create_pathshala_controller.dart';
@@ -22,8 +32,10 @@ import '../features/person/presentation/controller/create_person_controller.dart
 import '../features/person/presentation/controller/list_people_controller.dart';
 import '../features/students/data/students_data.dart';
 import '../features/students/domain/students_domain.dart';
+import '../features/students/presentation/controller/students_controller.dart';
 import '../features/teachers/data/teachers_data.dart';
 import '../features/teachers/domain/teachers_domain.dart';
+import '../features/teachers/presentation/controller/teachers_controller.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -64,6 +76,12 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     sl.registerLazySingleton<NoticesDatasource>(
       () => MockNoticesDatasource(processingDelay: Duration.zero),
     );
+    sl.registerLazySingleton<EventsDatasource>(
+      () => MockEventsDatasource(processingDelay: Duration.zero),
+    );
+    sl.registerLazySingleton<DashboardDatasource>(
+      () => MockDashboardDatasource(processingDelay: Duration.zero),
+    );
   } else {
     sl.registerLazySingleton<AreasDatasource>(
       () => SupabaseAreasDatasource(),
@@ -91,6 +109,12 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     );
     sl.registerLazySingleton<NoticesDatasource>(
       () => SupabaseNoticesDatasource(),
+    );
+    sl.registerLazySingleton<EventsDatasource>(
+      () => SupabaseEventsDatasource(),
+    );
+    sl.registerLazySingleton<DashboardDatasource>(
+      () => SupabaseDashboardDatasource(),
     );
   }
 
@@ -124,6 +148,16 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton<NoticesRepository>(
     () => NoticesRepositoryImpl(
       datasource: sl<NoticesDatasource>(),
+    ),
+  );
+  sl.registerLazySingleton<EventsRepository>(
+    () => EventsRepositoryImpl(
+      datasource: sl<EventsDatasource>(),
+    ),
+  );
+  sl.registerLazySingleton<DashboardRepository>(
+    () => DashboardRepositoryImpl(
+      datasource: sl<DashboardDatasource>(),
     ),
   );
 
@@ -187,6 +221,9 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(
     () => ListStudentAdmissions(repository: sl<StudentsRepository>()),
   );
+  sl.registerLazySingleton(
+    () => ListStudents(repository: sl<StudentsRepository>()),
+  );
 
   // Teachers Use Cases
   sl.registerLazySingleton(
@@ -198,6 +235,9 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(
     () => ListTeacherAssignments(repository: sl<TeachersRepository>()),
   );
+  sl.registerLazySingleton(
+    () => ListTeachers(repository: sl<TeachersRepository>()),
+  );
 
   // Attendance Use Cases
   sl.registerLazySingleton(
@@ -206,6 +246,9 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(
     () => GetSessionAttendance(repository: sl<AttendanceRepository>()),
   );
+  sl.registerLazySingleton(
+    () => GetAttendanceOverview(repository: sl<AttendanceRepository>()),
+  );
 
   // Classes Use Cases
   sl.registerLazySingleton(
@@ -213,6 +256,9 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   );
   sl.registerLazySingleton(
     () => ListAcademicYears(repository: sl<ClassesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ListClassSchedules(repository: sl<ClassesRepository>()),
   );
 
   // Notices Use Cases
@@ -224,6 +270,16 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   );
   sl.registerLazySingleton(
     () => RecordReadReceipt(repository: sl<NoticesRepository>()),
+  );
+
+  // Events Use Cases
+  sl.registerLazySingleton(
+    () => ListEvents(repository: sl<EventsRepository>()),
+  );
+
+  // Dashboard Use Cases
+  sl.registerLazySingleton(
+    () => GetDashboardOverview(repository: sl<DashboardRepository>()),
   );
 
   // ==========================================================================
@@ -263,5 +319,29 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
       listStudentAdmissions: sl<ListStudentAdmissions>(),
       listTeacherAssignments: sl<ListTeacherAssignments>(),
     ),
+  );
+  sl.registerFactory(
+    () => EventsController(listEvents: sl<ListEvents>()),
+  );
+  sl.registerFactory(
+    () => DashboardController(getDashboardOverview: sl<GetDashboardOverview>()),
+  );
+  sl.registerFactory(
+    () => NoticesController(getNotices: sl<GetNotices>()),
+  );
+  sl.registerFactory(
+    () => StudentsController(listStudents: sl<ListStudents>()),
+  );
+  sl.registerFactory(
+    () => TeachersController(listTeachers: sl<ListTeachers>()),
+  );
+  sl.registerFactory(
+    () => AttendanceController(getAttendanceOverview: sl<GetAttendanceOverview>()),
+  );
+  sl.registerFactory(
+    () => ClassScheduleController(listClassSchedules: sl<ListClassSchedules>()),
+  );
+  sl.registerFactory(
+    () => AddClassController(listTeachers: sl<ListTeachers>()),
   );
 }

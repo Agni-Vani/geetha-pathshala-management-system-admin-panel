@@ -56,4 +56,20 @@ final class SupabaseClassesDatasource implements ClassesDatasource {
         .map((json) => AcademicYearModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
+
+  @override
+  Future<List<ClassScheduleModel>> listClassSchedules(
+    ListClassSchedulesParams params,
+  ) async {
+    final data = await _invoke('listClassSchedules', {
+      'pathshalaId': params.pathshalaId,
+    });
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
+        .map((json) => ClassScheduleModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
 }

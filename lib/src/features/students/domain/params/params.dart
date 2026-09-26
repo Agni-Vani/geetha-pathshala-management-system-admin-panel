@@ -31,3 +31,15 @@ final class ListStudentAdmissionsParams {
 
   const ListStudentAdmissionsParams({required this.pathshalaId});
 }
+
+final class ListStudentsParams {
+  final String? pathshalaId;
+  final String? studentClass;
+  final String? search;
+
+  const ListStudentsParams({
+    this.pathshalaId,
+    this.studentClass,
+    this.search,
+  });
+}
