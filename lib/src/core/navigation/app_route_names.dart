@@ -1,4 +1,5 @@
 abstract final class AppRouteNames {
+  static const login = '/login';
   static const dashboard = '/dashboard';
   static const pathshalas = '/pathshalas';
   static const peopleRegistry = '/people-registry';

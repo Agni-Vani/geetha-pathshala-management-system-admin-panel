@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../di/service_locator.dart';
+import '../../features/authentication/presentation/controller/auth_controller.dart';
 import 'app_route_names.dart';
 
 abstract final class AppSidebarNavigation {
@@ -39,6 +41,16 @@ abstract final class AppSidebarNavigation {
 
   static void pushReplacement(BuildContext context, int index) {
     navigateToIndex(context, index);
+  }
+
+  static Future<void> logout(BuildContext context) async {
+    await sl<AuthController>().logout();
+    if (context.mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRouteNames.login,
+        (route) => false,
+      );
+    }
   }
 }
 

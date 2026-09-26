@@ -61,7 +61,6 @@ class _SettingsViewState extends State<SettingsView> {
     return ResponsiveAppShell(
       selectedIndex: _selectedIndex,
       onItemSelected: _onSidebarItemSelected,
-      onLogout: () => Navigator.of(context).maybePop(),
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
       body: Column(

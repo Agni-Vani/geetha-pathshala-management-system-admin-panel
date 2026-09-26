@@ -160,6 +160,15 @@ final class MockIamDatasource implements IamDatasource {
   static List<UserAccountModel> _seedUserAccounts() {
     return [
       UserAccountModel(
+        id: 'u0000000-0000-0000-0000-000000000001',
+        personId: '00000000-0000-0000-0000-000000000100',
+        authUserId: 'a0000000-0000-0000-0000-000000000001',
+        email: 'arrow360degree@gmail.com',
+        status: AccountStatus.active,
+        createdAt: DateTime(2026, 6, 30),
+        updatedAt: DateTime(2026, 6, 30),
+      ),
+      UserAccountModel(
         id: 'usr-admin-anirban',
         personId: 'person-anirban-sen',
         authUserId: 'auth-anirban-001',
@@ -238,6 +247,18 @@ final class MockIamDatasource implements IamDatasource {
 
   static List<UserRoleModel> _seedUserRoles() {
     return [
+      UserRoleModel(
+        id: 'ur-first-admin-superadmin',
+        userAccountId: 'u0000000-0000-0000-0000-000000000001',
+        roleId: 'role-superadmin',
+        roleCode: 'SUPERADMIN',
+        scopeOrganizationId: '00000000-0000-0000-0000-000000000001',
+        scopePathshalaId: null,
+        effectiveFrom: DateTime(2026, 6, 30),
+        effectiveTo: null,
+        grantedByUserId: 'system',
+        status: UserRoleStatus.active,
+      ),
       UserRoleModel(
         id: 'ur-anirban-superadmin',
         userAccountId: 'usr-admin-anirban',

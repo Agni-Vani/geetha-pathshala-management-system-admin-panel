@@ -65,7 +65,6 @@ class _ReportsViewState extends State<ReportsView> {
     return ResponsiveAppShell(
       selectedIndex: _selectedIndex,
       onItemSelected: _onSidebarItemSelected,
-      onLogout: () => Navigator.of(context).maybePop(),
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
       body: Column(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../navigation/app_sidebar_navigation.dart';
 import '../../../shared/widget/app_background.dart';
 import '../../../theme/app_colors.dart';
 import 'custom_sidebar.dart';
@@ -62,7 +63,7 @@ class ResponsiveAppShell extends StatelessWidget {
         final sidebar = CustomSidebar(
           selectedIndex: selectedIndex,
           onItemSelected: handleItemSelected,
-          onLogout: onLogout,
+          onLogout: onLogout ?? () => AppSidebarNavigation.logout(context),
           isCollapsed: isTablet,
         );
 

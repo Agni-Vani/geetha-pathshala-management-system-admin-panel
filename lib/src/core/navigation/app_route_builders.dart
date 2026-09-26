@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-
+import 'package:flutter/widgets.dart';
+import '../../features/authentication/presentation/view/login_view.dart';
 import '../../features/dashboard/presentation/view/dashboard_view.dart';
 import '../../features/attendance/presentation/view/attendance_view.dart';
 import '../../features/students/presentation/view/students_view.dart';
@@ -14,6 +14,7 @@ import 'app_route_names.dart';
 
 abstract final class AppRouteBuilders {
   static Map<String, WidgetBuilder> get routes => {
+    AppRouteNames.login: (_) => const LoginView(),
     AppRouteNames.dashboard: (_) => const DashboardView(),
     AppRouteNames.pathshalas: (_) => const AllPatshalaView(),
     AppRouteNames.peopleRegistry: (_) => const AllPeopleView(),

@@ -8,6 +8,7 @@ import '../features/attendance/domain/attendance_domain.dart';
 import '../features/attendance/presentation/controller/attendance_controller.dart';
 import '../features/authentication/data/authentication_data.dart';
 import '../features/authentication/domain/authentication_domain.dart';
+import '../features/authentication/presentation/controller/auth_controller.dart';
 import '../features/classes/data/classes_data.dart';
 import '../features/classes/domain/classes_domain.dart';
 import '../features/classes/presentation/controller/add_class_controller.dart';
@@ -285,6 +286,14 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   // ==========================================================================
   // 4. CONTROLLERS
   // ==========================================================================
+  sl.registerLazySingleton(
+    () => AuthController(
+      loginWithEmail: sl<LoginWithEmail>(),
+      logoutUseCase: sl<Logout>(),
+      getCurrentUserAccount: sl<GetCurrentUserAccount>(),
+      listUserRoles: sl<ListUserRoles>(),
+    ),
+  );
   sl.registerFactory(
     () => GeographicAreasController(
       listDistricts: sl<ListDistricts>(),

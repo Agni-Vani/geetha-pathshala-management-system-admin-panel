@@ -1,24 +1,45 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/navigation/app_route_names.dart';
 import '../../../../core/shared/widget/app_background.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/navigation/app_route_names.dart';
+import '../../../../di/service_locator.dart';
+import '../controller/auth_controller.dart';
 
 class SplashView extends StatefulWidget {
-  const SplashView({super.key});
+  final AuthController? controller;
+
+  const SplashView({super.key, this.controller});
 
   @override
   State<SplashView> createState() => _SplashViewState();
 }
 
 class _SplashViewState extends State<SplashView> {
+  late final AuthController _authController;
+
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(RegistryRouteNames.pathshalas);
-    });
+    _authController = widget.controller ?? sl<AuthController>();
+    _checkSessionAndNavigate();
+  }
+
+  Future<void> _checkSessionAndNavigate() async {
+    // Keep minimum splash duration for smooth brand animation
+    final results = await Future.wait([
+      _authController.checkInitialSession(),
+      Future.delayed(const Duration(milliseconds: 1200)),
+    ]);
+
+    if (!mounted) return;
+
+    final isAuthenticated = results[0] as bool;
+    if (isAuthenticated) {
+      Navigator.of(context).pushReplacementNamed(AppRouteNames.dashboard);
+    } else {
+      Navigator.of(context).pushReplacementNamed(AppRouteNames.login);
+    }
   }
 
   @override

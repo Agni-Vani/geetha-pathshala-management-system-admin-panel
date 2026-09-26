@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../constants/assets.dart';
 import '../../../theme/app_colors.dart';
 import '../../../constants/app_sizes.dart';
+import '../../../../di/service_locator.dart';
+import '../../../../features/authentication/presentation/controller/auth_controller.dart';
 
 class SidebarMenuItem {
   final IconData icon;
@@ -114,37 +116,122 @@ class CustomSidebar extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.fromLTRB(isCollapsed ? 8 : 12, 8, isCollapsed ? 8 : 12, 24),
-                child: Tooltip(
-                  message: isCollapsed ? 'Logout' : '',
-                  child: InkWell(
-                    onTap: onLogout,
-                    borderRadius: AppSizes.rectangleButtonRadius,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 14, horizontal: isCollapsed ? 0 : 16),
-                      decoration: BoxDecoration(
-                        color: colors.primaryColor.withValues(alpha: 0.12),
-                        borderRadius: AppSizes.rectangleButtonRadius,
-                        border: Border.all(color: colors.primaryColor.withValues(alpha: 0.16)),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
-                        children: [
-                          Icon(Icons.logout_rounded, color: colors.primaryColor),
-                          if (!isCollapsed) ...[
-                            const SizedBox(width: 12),
-                            Flexible(
-                              child: Text(
-                                'Logout',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(color: colors.primaryColor, fontWeight: FontWeight.w700),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (sl.isRegistered<AuthController>()) ...[
+                      ListenableBuilder(
+                        listenable: sl<AuthController>(),
+                        builder: (context, _) {
+                          final auth = sl<AuthController>();
+                          final email = auth.currentUser?.email ?? '';
+                          if (email.isEmpty) return const SizedBox.shrink();
+                          if (isCollapsed) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Tooltip(
+                                message: '$email (${auth.userRoleDisplay})',
+                                child: CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: colors.primaryColor.withValues(alpha: 0.15),
+                                  child: Text(
+                                    email[0].toUpperCase(),
+                                    style: TextStyle(
+                                      color: colors.primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ),
                               ),
+                            );
+                          }
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: colors.tileColor,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: colors.borderColor),
                             ),
-                          ],
-                        ],
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: colors.primaryColor.withValues(alpha: 0.15),
+                                  child: Text(
+                                    email[0].toUpperCase(),
+                                    style: TextStyle(
+                                      color: colors.primaryColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        email,
+                                        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        auth.userRoleDisplay,
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          color: colors.primaryColor,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                    Tooltip(
+                      message: isCollapsed ? 'Logout' : '',
+                      child: InkWell(
+                        onTap: onLogout,
+                        borderRadius: AppSizes.rectangleButtonRadius,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 14, horizontal: isCollapsed ? 0 : 16),
+                          decoration: BoxDecoration(
+                            color: colors.primaryColor.withValues(alpha: 0.12),
+                            borderRadius: AppSizes.rectangleButtonRadius,
+                            border: Border.all(color: colors.primaryColor.withValues(alpha: 0.16)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
+                            children: [
+                              Icon(Icons.logout_rounded, color: colors.primaryColor),
+                              if (!isCollapsed) ...[
+                                const SizedBox(width: 12),
+                                Flexible(
+                                  child: Text(
+                                    'Logout',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(color: colors.primaryColor, fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ],
