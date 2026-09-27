@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geetha_pathshala_management_web/src/core/theme/app_theme.dart';
 import 'package:geetha_pathshala_management_web/src/di/service_locator.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/view/registry_route_builders.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/view/registry_route_names.dart';
-import 'package:geetha_pathshala_management_web/src/features/registry/presentation/widgets/custom_widgets/custom_top_bar.dart';
+import 'package:geetha_pathshala_management_web/src/core/navigation/app_route_builders.dart';
+import 'package:geetha_pathshala_management_web/src/core/navigation/app_route_names.dart';
+import 'package:geetha_pathshala_management_web/src/core/shared/widget/custom_widgets/custom_top_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Pumps every screen at the widths the app has to survive and fails on any
@@ -87,7 +87,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme().lightTheme,
-        initialRoute: RegistryRouteNames.pathshalas,
+        initialRoute: AppRouteNames.pathshalas,
         routes: routes,
       ),
     );
@@ -112,7 +112,7 @@ void main() {
   // Pushed, so it has no route name of its own.
   for (final width in _widths.entries) {
     testWidgets('add-person form lays out at ${width.key}', (tester) async {
-      await pumpRoute(tester, RegistryRouteNames.peopleRegistry, width.value);
+      await pumpRoute(tester, AppRouteNames.peopleRegistry, width.value);
       drainOverflows(tester);
 
       await tester.tap(find.text('Add New Person').first, warnIfMissed: false);
