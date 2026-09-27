@@ -8,7 +8,7 @@ import '../../../../core/shared/widget/custom_widgets/custom_status_badge.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
-import '../../domain/teachers_domain.dart';
+import '../../domain/person_domain.dart';
 import '../controller/teachers_controller.dart';
 import 'add_teacher_view.dart';
 

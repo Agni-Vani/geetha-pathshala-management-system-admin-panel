@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/utils/utils.dart';
-import '../../../teachers/domain/teachers_domain.dart';
+import '../../../person/domain/person_domain.dart';
 
 class AddClassController extends ChangeNotifier {
   final ListTeachers listTeachers;

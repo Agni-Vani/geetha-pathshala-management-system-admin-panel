@@ -5,8 +5,6 @@ import 'package:geetha_pathshala_management_web/src/core/utils/utils.dart';
 import '../../domain/pathshala_domain.dart';
 import '../../../person/domain/person_domain.dart';
 import '../../../notices/domain/notices_domain.dart';
-import '../../../students/domain/students_domain.dart';
-import '../../../teachers/domain/teachers_domain.dart';
 
 /// A resolved committee member: the raw [membership] paired with the
 /// [person] it points to, so views don't need a second lookup.

@@ -31,12 +31,8 @@ import '../features/person/data/person_data.dart';
 import '../features/person/domain/person_domain.dart';
 import '../features/person/presentation/controller/create_person_controller.dart';
 import '../features/person/presentation/controller/list_people_controller.dart';
-import '../features/students/data/students_data.dart';
-import '../features/students/domain/students_domain.dart';
-import '../features/students/presentation/controller/students_controller.dart';
-import '../features/teachers/data/teachers_data.dart';
-import '../features/teachers/domain/teachers_domain.dart';
-import '../features/teachers/presentation/controller/teachers_controller.dart';
+import '../features/person/presentation/controller/students_controller.dart';
+import '../features/person/presentation/controller/teachers_controller.dart';
 
 final GetIt sl = GetIt.instance;
 

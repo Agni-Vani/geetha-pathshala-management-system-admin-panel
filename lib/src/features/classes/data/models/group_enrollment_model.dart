@@ -6,8 +6,7 @@ part 'group_enrollment_model.freezed.dart';
 part 'group_enrollment_model.g.dart';
 
 @freezed
-abstract class GroupEnrollmentModel extends GroupEnrollment
-    with _$GroupEnrollmentModel {
+abstract class GroupEnrollmentModel extends GroupEnrollment with _$GroupEnrollmentModel {
   const GroupEnrollmentModel._() : super();
 
   const factory GroupEnrollmentModel({
@@ -19,6 +18,5 @@ abstract class GroupEnrollmentModel extends GroupEnrollment
     required DateTime enrolledAt,
   }) = _GroupEnrollmentModel;
 
-  factory GroupEnrollmentModel.fromJson(Map<String, dynamic> json) =>
-      _$GroupEnrollmentModelFromJson(json);
+  factory GroupEnrollmentModel.fromJson(Map<String, dynamic> json) => _$GroupEnrollmentModelFromJson(json);
 }
