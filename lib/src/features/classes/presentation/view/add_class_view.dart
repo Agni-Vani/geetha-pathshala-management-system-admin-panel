@@ -10,11 +10,11 @@ import '../../../../core/shared/widget/custom_widgets/custom_section_divider.dar
 import '../../../../core/shared/widget/custom_widgets/custom_section_header.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_time_field.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
-import '../../../teachers/presentation/view/add_teacher_view.dart';
+import '../../../person/presentation/view/add_teacher_view.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../di/service_locator.dart';
-import '../../../teachers/domain/teachers_domain.dart';
+import '../../../person/domain/person_domain.dart';
 import '../controller/add_class_controller.dart';
 
 class AddClassView extends StatefulWidget {

@@ -1,8 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:geetha_pathshala_management_web/src/core/async_handlers/response.dart';
-import 'package:geetha_pathshala_management_web/src/features/teachers/data/datasources/mock_teachers_datasource.dart';
-import 'package:geetha_pathshala_management_web/src/features/teachers/data/repositories/teachers_repository_impl.dart';
-import 'package:geetha_pathshala_management_web/src/features/teachers/domain/params/params.dart';
+import 'package:geetha_pathshala_management_web/src/features/person/data/person_data.dart';
+import 'package:geetha_pathshala_management_web/src/features/person/domain/person_domain.dart';
 
 void main() {
   group('TeachersRepositoryImpl Tests', () {

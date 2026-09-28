@@ -3,45 +3,45 @@ import 'package:flutter/material.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/utils/utils.dart';
-import '../../domain/teachers_domain.dart';
+import '../../domain/person_domain.dart';
 
-class TeachersController extends ChangeNotifier {
-  final ListTeachers listTeachers;
+class StudentsController extends ChangeNotifier {
+  final ListStudents listStudents;
 
-  TeachersController({required this.listTeachers});
+  StudentsController({required this.listStudents});
 
   final ProcessStatusNotifier processStatusNotifier =
       ProcessStatusNotifier(initialStatus: ProcessEnabled());
 
-  List<Teacher> _teachers = [];
-  List<Teacher> get teachers => _teachers;
+  List<Student> _students = [];
+  List<Student> get students => _students;
+
+  String? _selectedClass;
+  String? get selectedClass => _selectedClass;
 
   String? _selectedPathshala;
   String? get selectedPathshala => _selectedPathshala;
-
-  String? _selectedSubject;
-  String? get selectedSubject => _selectedSubject;
 
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
 
   Future<void> load({
     String? pathshalaId,
-    String? subject,
+    String? studentClass,
     String? search,
     SnackbarNotifier? snackbarNotifier,
   }) async {
     _selectedPathshala = pathshalaId;
-    _selectedSubject = subject;
+    _selectedClass = studentClass;
     _searchQuery = search ?? '';
     processStatusNotifier.setLoading();
     notifyListeners();
 
     final result = await handleFutureRequest(
-      request: () => listTeachers.call(
-        ListTeachersParams(
+      request: () => listStudents.call(
+        ListStudentsParams(
           pathshalaId: pathshalaId,
-          subject: subject,
+          studentClass: studentClass,
           search: search,
         ),
       ),
@@ -51,7 +51,7 @@ class TeachersController extends ChangeNotifier {
     );
 
     if (result != null) {
-      _teachers = result;
+      _students = result;
       processStatusNotifier.setEnabled();
     } else {
       processStatusNotifier.setError();
