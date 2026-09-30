@@ -1,0 +1,4 @@
+export 'create_person_params.dart';
+export 'search_people_params.dart';
+export 'student_params.dart';
+export 'teacher_params.dart';

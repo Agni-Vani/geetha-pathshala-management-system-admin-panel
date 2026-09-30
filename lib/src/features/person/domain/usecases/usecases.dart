@@ -1,0 +1,13 @@
+export 'create_person.dart';
+export 'get_person_by_id.dart';
+export 'get_person_contacts.dart';
+export 'get_person_relationships.dart';
+export 'search_people.dart';
+export 'admit_student.dart';
+export 'list_student_admissions.dart';
+export 'list_students.dart';
+export 'transfer_student.dart';
+export 'assign_teacher.dart';
+export 'create_teacher_profile.dart';
+export 'list_teacher_assignments.dart';
+export 'list_teachers.dart';

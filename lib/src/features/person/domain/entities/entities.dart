@@ -1,0 +1,12 @@
+export 'person.dart';
+export 'person_contact.dart';
+export 'person_relationship.dart';
+export 'person_enums.dart';
+export 'student.dart';
+export 'student_admission.dart';
+export 'student_enums.dart';
+export 'student_transfer.dart';
+export 'teacher.dart';
+export 'teacher_assignment.dart';
+export 'teacher_enums.dart';
+export 'teacher_profile.dart';
