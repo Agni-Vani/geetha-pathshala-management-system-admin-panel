@@ -38,6 +38,77 @@ class _GeographicAreasManagementWidgetState
     super.dispose();
   }
 
+  void _showAddDivisionDialog() {
+    final nameCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final colors = AppColors.context(ctx);
+        return AlertDialog(
+          backgroundColor: colors.backgroundColor,
+          title: Text(
+            'নতুন বিভাগ যোগ করুন (Add Division)',
+            style: TextStyle(
+              color: colors.textColor,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'বিভাগের নাম (Division Name)',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.textColor,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nameCtrl,
+                  autofocus: true,
+                  decoration: AppFieldDecoration.build(
+                    ctx,
+                    hint: 'যেমন: Dhaka, Chattogram, Rangpur',
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text('বাতিল', style: TextStyle(color: colors.hintColor)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colors.primaryColor,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                final name = nameCtrl.text.trim();
+                if (name.isEmpty) return;
+                Navigator.of(ctx).pop();
+                await _controller.addNewDivision(
+                  name: name,
+                  snackbarNotifier: _snackbarNotifier,
+                );
+              },
+              child: const Text('সংরক্ষণ করুন'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _showAddDistrictDialog() {
     final nameCtrl = TextEditingController();
     final divisionCtrl = TextEditingController(
@@ -76,7 +147,7 @@ class _GeographicAreasManagementWidgetState
                       ),
                     ),
                     const SizedBox(height: 6),
-                    if (_controller.divisions.isNotEmpty)
+                    if (_controller.divisions.isNotEmpty) ...[
                       DropdownButtonFormField<String>(
                         initialValue: selectedDivision.isNotEmpty
                             ? selectedDivision
@@ -100,8 +171,31 @@ class _GeographicAreasManagementWidgetState
                           hint: 'বিভাগ নির্বাচন করুন',
                           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         ),
-                      )
-                    else
+                      ),
+                      const SizedBox(height: 4),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton.icon(
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            visualDensity: VisualDensity.compact,
+                          ),
+                          onPressed: () {
+                            Navigator.of(ctx).pop();
+                            _showAddDivisionDialog();
+                          },
+                          icon: Icon(Icons.add, size: 14, color: colors.primaryColor),
+                          label: Text(
+                            '+ নতুন বিভাগ তৈরি করুন',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: colors.primaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ] else
                       TextField(
                         controller: divisionCtrl,
                         decoration: AppFieldDecoration.build(
@@ -335,7 +429,7 @@ class _GeographicAreasManagementWidgetState
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              '${_controller.districts.length} Districts',
+                              '${_controller.divisions.length} Divisions • ${_controller.districts.length} Districts',
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
@@ -347,7 +441,7 @@ class _GeographicAreasManagementWidgetState
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'সমগ্র বাংলাদেশের জেলা ও উপজেলাসমূহ পরিচালনা করুন।',
+                        'সমগ্র বাংলাদেশের বিভাগ, জেলা ও উপজেলাসমূহ পরিচালনা করুন।',
                         style: TextStyle(fontSize: 13, color: colors.hintColor),
                       ),
                     ],
@@ -357,6 +451,11 @@ class _GeographicAreasManagementWidgetState
                     spacing: 12,
                     runSpacing: 8,
                     children: [
+                      CustomButton.outlined(
+                        label: '+ নতুন বিভাগ',
+                        icon: Icons.domain_outlined,
+                        onPressed: _showAddDivisionDialog,
+                      ),
                       CustomButton.outlined(
                         label: '+ নতুন জেলা',
                         icon: Icons.add_location_alt_outlined,
@@ -469,41 +568,44 @@ class _GeographicAreasManagementWidgetState
                               final isSelected =
                                   selectedDistrict?.id == district.id;
 
-                              return ListTile(
-                                dense: true,
-                                selected: isSelected,
-                                selectedTileColor:
-                                    colors.primaryColor.withValues(alpha: 0.12),
-                                leading: Icon(
-                                  Icons.location_city_outlined,
-                                  color: isSelected
-                                      ? colors.primaryColor
-                                      : colors.hintColor,
-                                  size: 20,
-                                ),
-                                title: Text(
-                                  district.name,
-                                  style: TextStyle(
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.w500,
+                              return Material(
+                                color: Colors.transparent,
+                                child: ListTile(
+                                  dense: true,
+                                  selected: isSelected,
+                                  selectedTileColor:
+                                      colors.primaryColor.withValues(alpha: 0.12),
+                                  leading: Icon(
+                                    Icons.location_city_outlined,
                                     color: isSelected
                                         ? colors.primaryColor
-                                        : colors.textColor,
+                                        : colors.hintColor,
+                                    size: 20,
                                   ),
-                                ),
-                                subtitle: Text(
-                                  'Division: ${district.division}',
-                                  style: TextStyle(
-                                      fontSize: 11, color: colors.hintColor),
-                                ),
-                                trailing: isSelected
-                                    ? Icon(Icons.arrow_forward_ios,
-                                        size: 14, color: colors.primaryColor)
-                                    : null,
-                                onTap: () => _controller.selectDistrict(
-                                  district,
-                                  snackbarNotifier: _snackbarNotifier,
+                                  title: Text(
+                                    district.name,
+                                    style: TextStyle(
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.w500,
+                                      color: isSelected
+                                          ? colors.primaryColor
+                                          : colors.textColor,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    'Division: ${district.division}',
+                                    style: TextStyle(
+                                        fontSize: 11, color: colors.hintColor),
+                                  ),
+                                  trailing: isSelected
+                                      ? Icon(Icons.arrow_forward_ios,
+                                          size: 14, color: colors.primaryColor)
+                                      : null,
+                                  onTap: () => _controller.selectDistrict(
+                                    district,
+                                    snackbarNotifier: _snackbarNotifier,
+                                  ),
                                 ),
                               );
                             },

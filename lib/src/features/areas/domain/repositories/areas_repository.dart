@@ -3,6 +3,8 @@ import '../entities/entities.dart';
 import '../params/params.dart';
 
 abstract class AreasRepository {
+  AsyncRequest<List<Division>> listDivisions([ListDivisionsParams? params]);
+  AsyncRequest<Division> createDivision(CreateDivisionParams params);
   AsyncRequest<List<District>> listDistricts([ListDistrictsParams? params]);
   AsyncRequest<District> createDistrict(CreateDistrictParams params);
   AsyncRequest<List<Upazila>> listUpazilas([ListUpazilasParams? params]);

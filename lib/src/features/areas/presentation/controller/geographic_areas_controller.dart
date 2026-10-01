@@ -4,14 +4,18 @@ import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/utils/utils.dart';
 import '../../domain/areas_domain.dart';
 
-/// Controller for managing administrative Districts and Upazilas in the registry.
+/// Controller for managing administrative Divisions, Districts, and Upazilas in the registry.
 class GeographicAreasController extends ChangeNotifier {
+  final ListDivisions listDivisions;
+  final CreateDivision createDivision;
   final ListDistricts listDistricts;
   final CreateDistrict createDistrict;
   final ListUpazilas listUpazilas;
   final CreateUpazila createUpazila;
 
   GeographicAreasController({
+    required this.listDivisions,
+    required this.createDivision,
     required this.listDistricts,
     required this.createDistrict,
     required this.listUpazilas,
@@ -21,14 +25,17 @@ class GeographicAreasController extends ChangeNotifier {
   final ProcessStatusNotifier processStatusNotifier =
       ProcessStatusNotifier(initialStatus: ProcessEnabled());
 
+  List<Division> _allDivisions = [];
+  List<Division> get allDivisions => _allDivisions;
+
   List<District> _allDistricts = [];
   List<District> get districts => _filteredDistricts();
 
   List<String> get divisions {
-    final set = _allDistricts
-        .map((d) => d.division)
-        .where((div) => div.isNotEmpty)
-        .toSet();
+    final set = {
+      ..._allDivisions.map((d) => d.name),
+      ..._allDistricts.map((d) => d.division).where((div) => div.isNotEmpty),
+    };
     return set.toList()..sort();
   }
 
@@ -47,11 +54,21 @@ class GeographicAreasController extends ChangeNotifier {
   bool _isLoadingUpazilas = false;
   bool get isLoadingUpazilas => _isLoadingUpazilas;
 
-  /// Loads all districts from the repository.
+  /// Loads divisions and districts from the repository.
   Future<void> load({SnackbarNotifier? snackbarNotifier}) async {
     processStatusNotifier.setLoading();
     notifyListeners();
 
+    // 1. Load divisions
+    final divResult = await handleFutureRequest(
+      request: () => listDivisions.call(),
+      errorSnackbarNotifier: snackbarNotifier,
+    );
+    if (divResult != null) {
+      _allDivisions = divResult;
+    }
+
+    // 2. Load districts
     final result = await handleFutureRequest(
       request: () => listDistricts.call(
         ListDistrictsParams(division: _selectedDivisionFilter),
@@ -113,6 +130,36 @@ class GeographicAreasController extends ChangeNotifier {
       _upazilas = result;
     }
     notifyListeners();
+  }
+
+  /// Adds a new division and refreshes the division list.
+  Future<bool> addNewDivision({
+    required String name,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    processStatusNotifier.setLoading();
+    notifyListeners();
+
+    final result = await handleFutureRequest(
+      request: () => createDivision.call(
+        CreateDivisionParams(
+          name: name.trim(),
+          status: 'active',
+        ),
+      ),
+      errorSnackbarNotifier: snackbarNotifier,
+      processStatusNotifier: processStatusNotifier,
+    );
+
+    processStatusNotifier.setEnabled();
+    if (result != null) {
+      snackbarNotifier?.notifySuccess(message: 'বিভাগ সফলভাবে তৈরি হয়েছে।');
+      _allDivisions.add(result);
+      notifyListeners();
+      return true;
+    }
+    notifyListeners();
+    return false;
   }
 
   /// Adds a new district and refreshes the district list.

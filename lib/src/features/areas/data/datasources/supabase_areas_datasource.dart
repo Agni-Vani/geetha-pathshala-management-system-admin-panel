@@ -22,6 +22,28 @@ final class SupabaseAreasDatasource implements AreasDatasource {
   }
 
   @override
+  Future<List<DivisionModel>> listDivisions({ListDivisionsParams? params}) async {
+    final data = await _invoke('listDivisions', {
+      'status': params?.status,
+    });
+    final list = (data is Map && data['data'] is List)
+        ? data['data'] as List
+        : (data is List ? data : <dynamic>[]);
+    return list
+        .map((json) => DivisionModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  @override
+  Future<DivisionModel> createDivision(CreateDivisionParams params) async {
+    final data = await _invoke('createDivision', {
+      'name': params.name,
+      'status': params.status,
+    });
+    return DivisionModel.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
   Future<List<DistrictModel>> listDistricts({ListDistrictsParams? params}) async {
     final data = await _invoke('listDistricts', {
       'division': params?.division,

@@ -5,19 +5,49 @@ import 'mock_data/bd_areas_mock_data.dart';
 
 
 final class MockAreasDatasource implements AreasDatasource {
+  final List<DivisionModel> _divisions;
   final List<DistrictModel> _districts;
   final List<UpazilaModel> _upazilas;
 
   final Duration processingDelay;
 
   MockAreasDatasource({this.processingDelay = const Duration(milliseconds: 10)})
-      : _districts = _seedDistricts(),
+      : _divisions = _seedDivisions(),
+        _districts = _seedDistricts(),
         _upazilas = _seedUpazilas();
 
   Future<void> _simulateProcessing() async {
     if (processingDelay > Duration.zero) {
       await Future.delayed(processingDelay);
     }
+  }
+
+  @override
+  Future<List<DivisionModel>> listDivisions({ListDivisionsParams? params}) async {
+    await _simulateProcessing();
+    var list = List<DivisionModel>.from(_divisions);
+    if (params?.status != null && params!.status!.isNotEmpty) {
+      list = list
+          .where((d) => d.status.toLowerCase() == params.status!.toLowerCase())
+          .toList();
+    }
+    return list;
+  }
+
+  @override
+  Future<DivisionModel> createDivision(CreateDivisionParams params) async {
+    await _simulateProcessing();
+    final now = DateTime.now();
+    final key = 'div-${params.name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}';
+    final division = DivisionModel(
+      id: key,
+      name: params.name,
+      status: params.status,
+      createdAt: now,
+      updatedAt: now,
+    );
+    _divisions.add(division);
+    return division;
   }
 
   @override
@@ -85,6 +115,30 @@ final class MockAreasDatasource implements AreasDatasource {
     _upazilas.add(upazila);
     return upazila;
   }
+}
+
+List<DivisionModel> _seedDivisions() {
+  final now = DateTime(2026, 1, 1);
+  const canonical = [
+    'Barishal',
+    'Chattogram',
+    'Dhaka',
+    'Khulna',
+    'Mymensingh',
+    'Rajshahi',
+    'Rangpur',
+    'Sylhet',
+  ];
+  return canonical.map((name) {
+    final id = 'div-${name.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '-')}';
+    return DivisionModel(
+      id: id,
+      name: name,
+      status: 'active',
+      createdAt: now,
+      updatedAt: now,
+    );
+  }).toList();
 }
 
 List<DistrictModel> _seedDistricts() {

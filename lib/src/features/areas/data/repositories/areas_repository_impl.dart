@@ -12,6 +12,16 @@ final class AreasRepositoryImpl with ErrorHandler implements AreasRepository {
   const AreasRepositoryImpl(this.datasource);
 
   @override
+  AsyncRequest<List<Division>> listDivisions([ListDivisionsParams? params]) {
+    return _request(() => datasource.listDivisions(params: params));
+  }
+
+  @override
+  AsyncRequest<Division> createDivision(CreateDivisionParams params) {
+    return _request(() => datasource.createDivision(params));
+  }
+
+  @override
   AsyncRequest<List<District>> listDistricts([ListDistrictsParams? params]) {
     return _request(() => datasource.listDistricts(params: params));
   }

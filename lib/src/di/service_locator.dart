@@ -163,6 +163,8 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   // ==========================================================================
 
   // Areas Use Cases
+  sl.registerLazySingleton(() => ListDivisions(sl<AreasRepository>()));
+  sl.registerLazySingleton(() => CreateDivision(sl<AreasRepository>()));
   sl.registerLazySingleton(() => ListDistricts(sl<AreasRepository>()));
   sl.registerLazySingleton(() => CreateDistrict(sl<AreasRepository>()));
   sl.registerLazySingleton(() => ListUpazilas(sl<AreasRepository>()));
@@ -296,6 +298,8 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   );
   sl.registerFactory(
     () => GeographicAreasController(
+      listDivisions: sl<ListDivisions>(),
+      createDivision: sl<CreateDivision>(),
       listDistricts: sl<ListDistricts>(),
       createDistrict: sl<CreateDistrict>(),
       listUpazilas: sl<ListUpazilas>(),
