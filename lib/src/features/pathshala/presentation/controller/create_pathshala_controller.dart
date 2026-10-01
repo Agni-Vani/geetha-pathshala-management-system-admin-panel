@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/config/app_config.dart';
 import 'package:geetha_pathshala_management_web/src/core/async_handlers/response.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
@@ -217,9 +218,7 @@ class CreatePathshalaController extends ChangeNotifier {
     }
 
     final params = CreatePathshalaParams(
-      // TODO: replace with the signed-in user's real organization id once
-      // an auth/session concept exists in the app.
-      organizationId: 'org-gp-central',
+      organizationId: AppConfig.defaultOrganizationId,
       code: 'PS-${DateTime.now().millisecondsSinceEpoch}',
       name: nameController.text.trim(),
       districtId: _selectedDistrictId,

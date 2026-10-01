@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/config/app_config.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/core/utils/utils.dart';
@@ -10,9 +11,7 @@ class CreatePersonController extends ChangeNotifier {
 
   CreatePersonController({required this.createPerson});
 
-  // TODO: replace with the signed-in user's real organization id once
-  // an auth/session concept exists in the app.
-  final String _organizationId = 'org-gp-central';
+  final String _organizationId = AppConfig.defaultOrganizationId;
 
   String _legalName = '';
   String? _preferredName;

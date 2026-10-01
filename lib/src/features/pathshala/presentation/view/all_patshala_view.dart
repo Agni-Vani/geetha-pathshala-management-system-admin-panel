@@ -12,12 +12,11 @@ import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.d
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import 'add_new_patshala_view.dart';
+import '../../../../core/config/app_config.dart';
 import 'patshala_details_view.dart';
 import '../../../../core/constants/app_sizes.dart';
 
-// TODO: replace with the signed-in user's real organization id once
-// an auth/session concept exists in the app.
-const _organizationId = 'org-gp-central';
+const _organizationId = AppConfig.defaultOrganizationId;
 
 /// Narrowest a pathshala card may get before the grid drops a column.
 const _minCardWidth = 300.0;

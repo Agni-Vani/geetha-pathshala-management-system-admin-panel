@@ -12,11 +12,10 @@ import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
 import '../widgets/custom_person_card.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/app_sizes.dart';
 
-// TODO: replace with the signed-in user's real organization id once
-// an auth/session concept exists in the app.
-const _organizationId = 'org-gp-central';
+const _organizationId = AppConfig.defaultOrganizationId;
 
 /// Narrowest a person card may get before the grid drops a column.
 const _minCardWidth = 240.0;

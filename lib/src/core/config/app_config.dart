@@ -39,4 +39,8 @@ final class AppConfig {
 
   /// Returns true if the application should use live remote datasources.
   static bool get shouldUseRemote => isSupabaseConfigured && !forceMockData;
+
+  /// Default Organization UUID (Gita Pathshala Central Board)
+  static const String defaultOrganizationId =
+      '00000000-0000-0000-0000-000000000001';
 }

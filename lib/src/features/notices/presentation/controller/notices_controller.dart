@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/config/app_config.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/utils/utils.dart';
@@ -17,7 +18,7 @@ class NoticesController extends ChangeNotifier {
   List<Notice> get notices => _notices;
 
   Future<void> load({
-    String organizationId = 'org-gp-central',
+    String organizationId = AppConfig.defaultOrganizationId,
     String? pathshalaId,
     SnackbarNotifier? snackbarNotifier,
   }) async {
