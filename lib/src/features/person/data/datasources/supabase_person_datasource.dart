@@ -21,6 +21,47 @@ final class SupabasePersonDatasource implements PersonDatasource {
     return response.data;
   }
 
+  Map<String, dynamic> _normalizePerson(Map<String, dynamic> json) {
+    return {
+      'id': (json['id'] ?? '').toString(),
+      'organizationId': (json['organizationId'] ?? json['organization_id'] ?? '00000000-0000-0000-0000-000000000001').toString(),
+      'legalName': (json['legalName'] ?? json['legal_name'] ?? '').toString(),
+      'preferredName': json['preferredName'] ?? json['preferred_name'],
+      'dateOfBirth': json['dateOfBirth'] ?? json['date_of_birth'],
+      'gender': json['gender'],
+      'primaryPhone': json['primaryPhone'] ?? json['primary_phone'],
+      'primaryEmail': json['primaryEmail'] ?? json['primary_email'],
+      'status': (json['status'] ?? 'active').toString().toLowerCase(),
+      'createdByUserId': json['createdByUserId'] ?? json['created_by_user_id'],
+      'createdAt': (json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()).toString(),
+      'updatedAt': (json['updatedAt'] ?? json['updated_at'] ?? DateTime.now().toIso8601String()).toString(),
+    };
+  }
+
+  Map<String, dynamic> _normalizeContact(Map<String, dynamic> json) {
+    return {
+      'id': (json['id'] ?? '').toString(),
+      'personId': (json['personId'] ?? json['person_id'] ?? '').toString(),
+      'type': (json['type'] ?? 'other').toString().toLowerCase(),
+      'label': (json['label'] ?? '').toString(),
+      'value': (json['value'] ?? '').toString(),
+      'isPrimary': json['isPrimary'] ?? json['is_primary'] ?? false,
+      'verifiedAt': json['verifiedAt'] ?? json['verified_at'],
+    };
+  }
+
+  Map<String, dynamic> _normalizeRelationship(Map<String, dynamic> json) {
+    return {
+      'id': (json['id'] ?? '').toString(),
+      'personId': (json['personId'] ?? json['person_id'] ?? '').toString(),
+      'relatedPersonId': (json['relatedPersonId'] ?? json['related_person_id'] ?? '').toString(),
+      'type': (json['type'] ?? 'other').toString().toLowerCase(),
+      'isPrimaryGuardian': json['isPrimaryGuardian'] ?? json['is_primary_guardian'] ?? false,
+      'effectiveFrom': (json['effectiveFrom'] ?? json['effective_from'] ?? DateTime.now().toIso8601String()).toString(),
+      'effectiveTo': json['effectiveTo'] ?? json['effective_to'],
+    };
+  }
+
   @override
   Future<List<PersonModel>> searchPeople(SearchPeopleParams params) async {
     final data = await _invoke('searchPeople', {
@@ -34,14 +75,14 @@ final class SupabasePersonDatasource implements PersonDatasource {
         ? data['data'] as List
         : (data is List ? data : <dynamic>[]);
     return list
-        .map((json) => PersonModel.fromJson(json as Map<String, dynamic>))
+        .map((json) => PersonModel.fromJson(_normalizePerson(json as Map<String, dynamic>)))
         .toList();
   }
 
   @override
   Future<PersonModel> getPersonById(String personId) async {
     final data = await _invoke('getPersonById', {'personId': personId});
-    return PersonModel.fromJson(data as Map<String, dynamic>);
+    return PersonModel.fromJson(_normalizePerson(data as Map<String, dynamic>));
   }
 
   @override
@@ -55,7 +96,7 @@ final class SupabasePersonDatasource implements PersonDatasource {
       'primaryPhone': params.primaryPhone,
       'primaryEmail': params.primaryEmail,
     });
-    return PersonModel.fromJson(data as Map<String, dynamic>);
+    return PersonModel.fromJson(_normalizePerson(data as Map<String, dynamic>));
   }
 
   @override
@@ -64,7 +105,7 @@ final class SupabasePersonDatasource implements PersonDatasource {
     final list = data is List ? data : <dynamic>[];
     return list
         .map(
-          (json) => PersonContactModel.fromJson(json as Map<String, dynamic>),
+          (json) => PersonContactModel.fromJson(_normalizeContact(json as Map<String, dynamic>)),
         )
         .toList();
   }
@@ -80,7 +121,7 @@ final class SupabasePersonDatasource implements PersonDatasource {
     return list
         .map(
           (json) =>
-              PersonRelationshipModel.fromJson(json as Map<String, dynamic>),
+              PersonRelationshipModel.fromJson(_normalizeRelationship(json as Map<String, dynamic>)),
         )
         .toList();
   }
