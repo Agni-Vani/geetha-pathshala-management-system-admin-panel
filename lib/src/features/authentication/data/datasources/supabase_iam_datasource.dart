@@ -39,7 +39,7 @@ final class SupabaseIamDatasource implements IamDatasource {
     final data = await _invoke('getUserAccount', {
       'userAccountId': userAccountId,
     });
-    return UserAccountModel.fromJson(data as Map<String, dynamic>);
+    return UserAccountModel.fromJson(_normalizeUserAccount(data as Map<String, dynamic>));
   }
 
   @override
@@ -47,7 +47,7 @@ final class SupabaseIamDatasource implements IamDatasource {
     final data = await _invoke('getUserAccountByAuthId', {
       'authUserId': authUserId,
     });
-    return UserAccountModel.fromJson(data as Map<String, dynamic>);
+    return UserAccountModel.fromJson(_normalizeUserAccount(data as Map<String, dynamic>));
   }
 
   @override
@@ -60,7 +60,7 @@ final class SupabaseIamDatasource implements IamDatasource {
             ? data['data'] as List
             : data as List;
     return list
-        .map((json) => UserRoleModel.fromJson(json as Map<String, dynamic>))
+        .map((json) => UserRoleModel.fromJson(_normalizeUserRole(json as Map<String, dynamic>)))
         .toList();
   }
 
@@ -88,7 +88,7 @@ final class SupabaseIamDatasource implements IamDatasource {
       'effectiveTo': params.effectiveTo?.toIso8601String(),
       'grantedByUserId': params.grantedByUserId,
     });
-    return UserRoleModel.fromJson(data as Map<String, dynamic>);
+    return UserRoleModel.fromJson(_normalizeUserRole(data as Map<String, dynamic>));
   }
 
   @override
@@ -99,7 +99,7 @@ final class SupabaseIamDatasource implements IamDatasource {
             ? data['data'] as List
             : data as List;
     return list
-        .map((json) => RoleModel.fromJson(json as Map<String, dynamic>))
+        .map((json) => RoleModel.fromJson(_normalizeRole(json as Map<String, dynamic>)))
         .toList();
   }
 
@@ -111,7 +111,7 @@ final class SupabaseIamDatasource implements IamDatasource {
             ? data['data'] as List
             : data as List;
     return list
-        .map((json) => PermissionModel.fromJson(json as Map<String, dynamic>))
+        .map((json) => PermissionModel.fromJson(_normalizePermission(json as Map<String, dynamic>)))
         .toList();
   }
 
@@ -147,5 +147,66 @@ final class SupabaseIamDatasource implements IamDatasource {
     final currentAuthUser = client.auth.currentUser;
     if (currentAuthUser == null) return null;
     return getUserAccountByAuthId(currentAuthUser.id);
+  }
+
+  Map<String, dynamic> _normalizeUserAccount(Map<String, dynamic> json) {
+    return {
+      'id': json['id']?.toString() ?? '',
+      'personId': (json['personId'] ?? json['person_id'])?.toString() ?? '',
+      'authUserId': (json['authUserId'] ?? json['auth_user_id'])?.toString(),
+      'email': json['email']?.toString() ?? '',
+      'status': json['status']?.toString() ?? 'active',
+      'createdAt': (json['createdAt'] ?? json['created_at'])?.toString() ??
+          DateTime.now().toIso8601String(),
+      'updatedAt': (json['updatedAt'] ?? json['updated_at'])?.toString() ??
+          DateTime.now().toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> _normalizeUserRole(Map<String, dynamic> json) {
+    return {
+      'id': json['id']?.toString() ?? '',
+      'userAccountId':
+          (json['userAccountId'] ?? json['user_account_id'])?.toString() ?? '',
+      'roleId': (json['roleId'] ?? json['role_id'])?.toString() ?? '',
+      'roleCode': (json['roleCode'] ?? json['role_code'])?.toString() ?? '',
+      'scopeOrganizationId':
+          (json['scopeOrganizationId'] ?? json['scope_organization_id'])?.toString(),
+      'scopePathshalaId':
+          (json['scopePathshalaId'] ?? json['scope_pathshala_id'])?.toString(),
+      'effectiveFrom':
+          (json['effectiveFrom'] ?? json['effective_from'])?.toString() ??
+              DateTime.now().toIso8601String(),
+      'effectiveTo':
+          (json['effectiveTo'] ?? json['effective_to'])?.toString(),
+      'grantedByUserId':
+          (json['grantedByUserId'] ?? json['granted_by_user_id'])?.toString(),
+      'status': json['status']?.toString() ?? 'active',
+    };
+  }
+
+  Map<String, dynamic> _normalizeRole(Map<String, dynamic> json) {
+    return {
+      'id': json['id']?.toString() ?? '',
+      'code': json['code']?.toString() ?? '',
+      'name': json['name']?.toString() ?? '',
+      'scopeType': (json['scopeType'] ?? json['scope_type'])?.toString() ?? 'global',
+      'description': json['description']?.toString(),
+      'permissionCodes': json['permissionCodes'] ?? json['permission_codes'] ?? <dynamic>[],
+      'createdAt': (json['createdAt'] ?? json['created_at'])?.toString() ??
+          DateTime.now().toIso8601String(),
+    };
+  }
+
+  Map<String, dynamic> _normalizePermission(Map<String, dynamic> json) {
+    return {
+      'id': json['id']?.toString() ?? '',
+      'code': json['code']?.toString() ?? '',
+      'name': json['name']?.toString() ?? '',
+      'module': json['module']?.toString() ?? '',
+      'description': json['description']?.toString(),
+      'createdAt': (json['createdAt'] ?? json['created_at'])?.toString() ??
+          DateTime.now().toIso8601String(),
+    };
   }
 }
