@@ -7,13 +7,17 @@ final class MockPersonDatasource implements PersonDatasource {
   final List<PersonModel> _people;
   final List<PersonContactModel> _contacts;
   final List<PersonRelationshipModel> _relationships;
+  final List<PersonEducationModel> _educations;
+  final List<PersonWorkExperienceModel> _workExperiences;
 
   final Duration processingDelay;
 
   MockPersonDatasource({this.processingDelay = const Duration(milliseconds: 10)})
       : _people = _seedPeople(),
         _contacts = _seedContacts(),
-        _relationships = _seedRelationships();
+        _relationships = _seedRelationships(),
+        _educations = _seedEducations(),
+        _workExperiences = _seedWorkExperiences();
 
   Future<void> _simulateProcessing() async {
     if (processingDelay > Duration.zero) {
@@ -82,6 +86,76 @@ final class MockPersonDatasource implements PersonDatasource {
   ) async {
     await _simulateProcessing();
     return _relationships.where((r) => r.personId == personId).toList();
+  }
+
+  @override
+  Future<List<PersonEducationModel>> getPersonEducations(String personId) async {
+    await _simulateProcessing();
+    return _educations.where((e) => e.personId == personId).toList();
+  }
+
+  @override
+  Future<PersonEducationModel> createPersonEducation(
+    CreatePersonEducationParams params,
+  ) async {
+    await _simulateProcessing();
+    final now = DateTime.now();
+    final edu = PersonEducationModel(
+      id: 'edu-${now.millisecondsSinceEpoch}',
+      personId: params.personId,
+      academicLevel: params.academicLevel,
+      disciplineOrGroup: params.disciplineOrGroup,
+      institutionName: params.institutionName,
+      governingBoard: params.governingBoard,
+      startYear: params.startYear,
+      passingYear: params.passingYear,
+      isOngoing: params.isOngoing,
+      resultOrScore: params.resultOrScore,
+      remarks: params.remarks,
+      createdByUserId: params.createdByUserId,
+      createdByRoleAtTime: params.createdByRoleAtTime,
+      createdByNameSnapshot: params.createdByNameSnapshot,
+      createdAt: now,
+      updatedAt: now,
+    );
+    _educations.add(edu);
+    return edu;
+  }
+
+  @override
+  Future<List<PersonWorkExperienceModel>> getPersonWorkExperiences(
+    String personId,
+  ) async {
+    await _simulateProcessing();
+    return _workExperiences.where((w) => w.personId == personId).toList();
+  }
+
+  @override
+  Future<PersonWorkExperienceModel> createPersonWorkExperience(
+    CreatePersonWorkExperienceParams params,
+  ) async {
+    await _simulateProcessing();
+    final now = DateTime.now();
+    final exp = PersonWorkExperienceModel(
+      id: 'exp-${now.millisecondsSinceEpoch}',
+      personId: params.personId,
+      organizationName: params.organizationName,
+      roleOrDesignation: params.roleOrDesignation,
+      departmentOrUnit: params.departmentOrUnit,
+      engagementType: params.engagementType,
+      location: params.location,
+      startDate: params.startDate,
+      endDate: params.endDate,
+      isOngoing: params.isOngoing,
+      responsibilities: params.responsibilities,
+      createdByUserId: params.createdByUserId,
+      createdByRoleAtTime: params.createdByRoleAtTime,
+      createdByNameSnapshot: params.createdByNameSnapshot,
+      createdAt: now,
+      updatedAt: now,
+    );
+    _workExperiences.add(exp);
+    return exp;
   }
 }
 
@@ -226,6 +300,72 @@ List<PersonRelationshipModel> _seedRelationships() {
       isPrimaryGuardian: true,
       effectiveFrom: DateTime(2026, 7, 5),
       effectiveTo: null,
+    ),
+  ];
+}
+
+List<PersonEducationModel> _seedEducations() {
+  final now = DateTime(2026, 7, 1);
+  return [
+    PersonEducationModel(
+      id: 'edu-anirban-1',
+      personId: 'person-anirban-sen',
+      academicLevel: 'B.A. (Honours) in Sanskrit',
+      disciplineOrGroup: 'Sanskrit Literature',
+      institutionName: 'University of Dhaka',
+      governingBoard: 'University of Dhaka',
+      startYear: 2004,
+      passingYear: 2008,
+      isOngoing: false,
+      resultOrScore: 'First Class',
+      remarks: 'Department Gold Medalist',
+      createdByUserId: 'user-system-admin',
+      createdByRoleAtTime: 'SuperAdmin',
+      createdByNameSnapshot: 'System Administrator',
+      createdAt: now,
+      updatedAt: now,
+    ),
+    PersonEducationModel(
+      id: 'edu-rishav-1',
+      personId: 'person-rishav-roy',
+      academicLevel: 'Class 4',
+      disciplineOrGroup: 'General',
+      institutionName: 'Mirpur Model High School',
+      governingBoard: 'Dhaka Education Board',
+      startYear: 2024,
+      passingYear: null,
+      isOngoing: true,
+      resultOrScore: 'GPA 5.0',
+      remarks: null,
+      createdByUserId: 'user-system-admin',
+      createdByRoleAtTime: 'SuperAdmin',
+      createdByNameSnapshot: 'System Administrator',
+      createdAt: now,
+      updatedAt: now,
+    ),
+  ];
+}
+
+List<PersonWorkExperienceModel> _seedWorkExperiences() {
+  final now = DateTime(2026, 7, 1);
+  return [
+    PersonWorkExperienceModel(
+      id: 'exp-anirban-1',
+      personId: 'person-anirban-sen',
+      organizationName: 'Geetha Pathshala Trust',
+      roleOrDesignation: 'Lead Gita Instructor',
+      departmentOrUnit: 'Academics',
+      engagementType: 'volunteer',
+      location: 'Dhaka',
+      startDate: DateTime(2018, 1, 1),
+      endDate: null,
+      isOngoing: true,
+      responsibilities: 'Instructing senior class batches and training teachers.',
+      createdByUserId: 'user-system-admin',
+      createdByRoleAtTime: 'SuperAdmin',
+      createdByNameSnapshot: 'System Administrator',
+      createdAt: now,
+      updatedAt: now,
     ),
   ];
 }

@@ -174,6 +174,10 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(() => CreatePerson(sl<PersonRepository>()));
   sl.registerLazySingleton(() => GetPersonContacts(sl<PersonRepository>()));
   sl.registerLazySingleton(() => GetPersonRelationships(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => GetPersonEducations(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => AddPersonEducation(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => GetPersonWorkExperiences(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => AddPersonWorkExperience(sl<PersonRepository>()));
 
   // Pathshala Use Cases
   sl.registerLazySingleton(() => GetOrganization(sl<PathshalaRepository>()));

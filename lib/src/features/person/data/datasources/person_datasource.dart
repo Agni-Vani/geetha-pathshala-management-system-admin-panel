@@ -7,4 +7,8 @@ abstract class PersonDatasource {
   Future<PersonModel> createPerson(CreatePersonParams params);
   Future<List<PersonContactModel>> getPersonContacts(String personId);
   Future<List<PersonRelationshipModel>> getPersonRelationships(String personId);
+  Future<List<PersonEducationModel>> getPersonEducations(String personId);
+  Future<PersonEducationModel> createPersonEducation(CreatePersonEducationParams params);
+  Future<List<PersonWorkExperienceModel>> getPersonWorkExperiences(String personId);
+  Future<PersonWorkExperienceModel> createPersonWorkExperience(CreatePersonWorkExperienceParams params);
 }

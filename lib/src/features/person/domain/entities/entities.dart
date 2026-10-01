@@ -1,6 +1,8 @@
 export 'person.dart';
 export 'person_contact.dart';
 export 'person_relationship.dart';
+export 'person_education.dart';
+export 'person_work_experience.dart';
 export 'person_enums.dart';
 export 'student.dart';
 export 'student_admission.dart';

@@ -40,6 +40,32 @@ final class PersonRepositoryImpl
     return _request(() => datasource.getPersonRelationships(personId));
   }
 
+  @override
+  AsyncRequest<List<PersonEducation>> getPersonEducations(String personId) {
+    return _request(() => datasource.getPersonEducations(personId));
+  }
+
+  @override
+  AsyncRequest<PersonEducation> addPersonEducation(
+    CreatePersonEducationParams params,
+  ) {
+    return _request(() => datasource.createPersonEducation(params));
+  }
+
+  @override
+  AsyncRequest<List<PersonWorkExperience>> getPersonWorkExperiences(
+    String personId,
+  ) {
+    return _request(() => datasource.getPersonWorkExperiences(personId));
+  }
+
+  @override
+  AsyncRequest<PersonWorkExperience> addPersonWorkExperience(
+    CreatePersonWorkExperienceParams params,
+  ) {
+    return _request(() => datasource.createPersonWorkExperience(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {
