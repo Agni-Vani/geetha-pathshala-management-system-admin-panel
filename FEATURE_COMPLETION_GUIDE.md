@@ -92,6 +92,173 @@ Person (Registry — created ONCE)
 
 ---
 
+## User Journey Behaviour: Person (Participant) vs. Operator (Admin)
+
+To build the UI flows correctly, developers must understand the interaction dynamic between the **Person** (the individual human being participating in the organization) and the **Operator** (the authorized administrator entering and managing details in the Admin Panel).
+
+In Gita Pathshala, **public self-registration is intentionally disabled**. All registrations, admissions, and assignments are governed and entered by authorized operators (Central Super Admins, District Coordinators, or local Pathshala Admins).
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Person as Person (Participant / Guardian)
+    actor Operator as Operator (Admin / Registrar)
+    participant UI as Admin Panel (Flutter)
+    participant API as Supabase Edge Functions
+    participant DB as Postgres Database
+
+    Note over Person,Operator: Phase 1: Intake & Search-First Guardrail
+    Person->>Operator: Provides identity info (Name, Phone, DOB, schooling)
+    Operator->>UI: Enters phone or name into Person Search Delegate
+    UI->>API: POST /registry-api (action: searchPeople)
+    API->>DB: Query registry.people & contacts
+    DB-->>UI: Return matches (or empty)
+
+    alt Person Already Exists (e.g. Prior Branch or Family Member)
+        Operator->>UI: Selects existing Person record
+    else New Person
+        Operator->>UI: Clicks "Register New Person" (AddPersonView)
+        UI->>API: POST /registry-api (action: createPerson)
+        API->>DB: Insert into registry.people
+        DB-->>UI: Return newly created Person
+    end
+
+    Note over Operator,UI: Phase 2: Provenance-Aware Enrichment
+    opt Add Qualifications or Seva Experience
+        Operator->>UI: Adds Education (e.g. "Class 5" or "B.A. Sanskrit")
+        UI->>API: POST /registry-api (action: createEducation)
+        Note right of API: Automatically snapshots:<br/>createdByUserId, createdByRoleAtTime, createdByNameSnapshot
+        API->>DB: Insert into registry.person_educations
+    end
+
+    Note over Person,DB: Phase 3: Role Layering & Operational Participation
+    alt Admit as Student
+        Operator->>UI: Opens AdmitStudentView (Pathshala, Roll #, Group)
+        UI->>API: POST /education-api (action: admitStudent)
+        API->>DB: Insert education.student_admissions
+        UI-->>Operator: Admission confirmed (Generates Admission Slip)
+        Operator-->>Person: Hands over Admission Slip / Roll Number
+    else Assign as Teacher
+        Operator->>UI: Creates TeacherProfile & Assignment (Pathshala, Group)
+        UI->>API: POST /education-api (action: assignTeacher)
+        API->>DB: Insert education.teacher_profiles & assignments
+        UI-->>Operator: Assignment confirmed
+        Operator-->>Person: Issues Teaching Appointment & Schedule
+    end
+```
+
+---
+
+### Journey A: The Person Who Registers (Student, Teacher, or Devotee)
+
+The **Person** is the human subject. They may be a young child, a teenager, an adult volunteer, an academic scholar, or an elderly devotee.
+
+#### 1. Intake & Identity Registration Stage
+* **What they experience:**
+  * The person (or their parent/guardian if a child) arrives at the Pathshala intake desk or submits a paper/intake form.
+  * They provide fundamental identity details:
+    * **Full Legal Name** (in English and Bengali script if applicable)
+    * **Primary Contact Phone** (either personal or parent's phone)
+    * **Date of Birth & Gender**
+    * **Residential Address & Guardian Details** (Father, Mother, or Guardian name & emergency contact)
+  * **System Impact:** The person receives an immutable, universal `personId`. They are recognized across the *entire* Gita Pathshala organization once and for all.
+
+#### 2. Academic & Experience Enrichment Stage
+* **What they experience:**
+  * If a **child/school student**: They state their current school grade (e.g., *"Class 4 at Ideal School, Motijheel"*). This is stored as a `PersonEducation` record with `isOngoing = true`.
+  * If an **adult volunteer / teacher**: They share their formal degrees (e.g., *"B.A. in Sanskrit from Dhaka University"*, *"Gita Shastri Certification"*) and their volunteer/professional background (e.g., *"Volunteer Teacher at Ramakrishna Mission for 3 years"*).
+  * **System Impact:** Qualifications and service histories attach directly to the `Person` root identity, independent of which specific branch they teach at today.
+
+#### 3. Operational Role Enactment Stage
+* **Student Journey:**
+  * The person is admitted into a specific local Pathshala branch (e.g., *Dhanmondi Pathshala*).
+  * They receive a **Roll Number** and are placed into an Educational Group (e.g., *Shishu Vibhag* or *Madhyama Vibhag*).
+  * They attend weekly classes, have attendance recorded against their admissions, and receive evaluation marks.
+* **Teacher Journey:**
+  * The person is recognized as a qualified teacher (`TeacherProfile`).
+  * They are assigned to teach specific class groups on scheduled days (e.g., *Saturday 10:00 AM – Bhagavad Gita Chapter 2 Slokas*).
+  * They may teach at **multiple Pathshalas** simultaneously without requiring multiple user profiles.
+
+#### 4. Progression, Mobility & Lifelong Continuity
+* **Transfers without History Loss:**
+  * When a family relocates (e.g., from Dhanmondi to Uttara), the person is not deleted or renamed.
+  * The Dhanmondi admission is marked as transferred/completed. A new `StudentAdmission` is issued at Uttara.
+  * The person retains their complete lifelong transcript and attendance history across all branches.
+* **Role Evolution Over Time:**
+  * A student who joins at age 8 can graduate at age 16, become an Assistant Teacher at age 18, and join the Pathshala Management Committee at age 25.
+  * All roles, admissions, teaching assignments, and committee appointments link to the **exact same `personId`**.
+
+---
+
+### Journey B: The Operator Entering Details (Admin / Registrar)
+
+The **Operator** is the authorized staff member (Central Super Admin, District Coordinator, or local Pathshala Admin) sitting in front of the Admin Panel desktop/web application.
+
+#### 1. Mandatory Search-First Guardrail (Anti-Duplicate Protocol)
+* **What the operator does:**
+  * When a student or teacher arrives for onboarding, the operator **never** opens an isolated "Create Student" form.
+  * The operator opens the **Person Search Widget / Dialog** (`PersonSearchDelegate`).
+  * The operator types the phone number or name:
+    * **Match Found:** The operator clicks the matching card, verifies the date of birth or guardian name, and selects the existing `Person`.
+    * **No Match:** The operator clicks **"+ Register New Person"**, transitioning into `AddPersonView`.
+* **System Impact:** Prevents duplicate human records, fragmented phone lookups, and fractured institutional memory.
+
+#### 2. Governed Person Creation (`AddPersonView`)
+* **What the operator does:**
+  * Fills out the standard person form: Legal Name, Primary Phone, Email (optional), Date of Birth, Gender, Address.
+  * Submits the form. The UI displays an active loading indicator while calling `CreatePersonController.createPerson()`.
+  * Upon success, the UI automatically transitions to `PersonDetailsView` or advances to the next step of the onboarding wizard.
+
+#### 3. Provenance-Aware Educational & Experience Enrichment
+* **What the operator does:**
+  * On the Person Details screen, under the **"Education"** tab, clicks **"+ Add Qualification / Schooling"**.
+  * Fills in `academicLevel` (e.g. `"Class 5"` for a school student, or `"B.A. in Sanskrit"` for a teacher), institution name, board, and passing/ongoing status.
+  * If registering a prospective teacher, switches to the **"Experience"** tab and logs past institutions and seva engagements.
+* **Audit & Provenance Automation:**
+  * The operator **never** manually enters audit fields.
+  * The client layer automatically grabs the current operator's active session from `AppSession` and snapshots:
+    * `created_by_user_id`: The operator's Supabase auth UUID.
+    * `created_by_role_at_time`: The role string at the moment of entry (e.g., `'SuperAdmin'`, `'PathshalaAdmin'`).
+    * `created_by_name_snapshot`: The operator's full display name (e.g., `'Shyamal Das'`).
+  * This guarantees institutional accountability: anyone reviewing the record 5 years later knows exactly who verified and recorded that qualification.
+
+#### 4. Role Assignment & Admission with Scoped Authorization
+* **Admitting a Student:**
+  * Operator clicks **"Admit Student"** from either the Student List or the Person Details view.
+  * If the operator is a local **PathshalaAdmin**, the Pathshala dropdown is **pre-selected and locked** to their authorized Pathshala scope.
+  * If the operator is a **SuperAdmin**, they can select any active Pathshala across the country.
+  * The operator inputs the assigned **Roll Number**, chooses the **Admission Date**, and confirms.
+* **Assigning a Teacher:**
+  * Operator clicks **"Assign Teacher"**.
+  * The system verifies if the person already has a `TeacherProfile`. If not, it seamlessly creates the profile first.
+  * Operator selects the Pathshala branch, target Class Group, and effective date.
+  * The system validates that there is no schedule conflict before committing.
+
+#### 5. Confirmation, Slips & Operational Feedback
+* **What the operator experiences:**
+  * Clear success feedback: Toast/Snack bar indicating successful admission or assignment.
+  * A printable / previewable **Student Admission Slip** or **Teacher Appointment Summary** containing:
+    * Person Full Name, Photo/Placeholder, Person ID
+    * Pathshala Name & Location
+    * Roll Number, Class Group, and Academic Year
+    * Timestamp and Operator Signature / Provenance Stamp
+  * The operator hands the slip or confirms the roll number with the student/guardian.
+
+---
+
+### UX Behavioral Matrix for Developers
+
+| Step | User Action (Operator) | View / Widget | Underlying Use Case | Edge Function Called | Error / Duplicate Handling |
+|---|---|---|---|---|---|
+| **1. Search** | Type phone or name | `PersonSearchDelegate` | `SearchPeople` | `registry-api` | If phone matches existing person, show banner: *"Person already registered. Click to view profile."* |
+| **2. Register Person** | Fill name, phone, DOB | `AddPersonView` | `CreatePerson` | `registry-api` | Reject invalid phone; warn on duplicate name + DOB combination. |
+| **3. Add Education** | Enter academic level & school | `AddEducationDialog` | `AddPersonEducation` | `registry-api` | Auto-inject operator's `userId`, `roleAtTime`, and `nameSnapshot`. |
+| **4. Add Experience** | Enter organization & role | `AddExperienceDialog` | `AddPersonWorkExperience` | `registry-api` | Auto-inject operator's provenance snapshot. |
+| **5. Admit Student** | Select Pathshala & roll # | `AdmitStudentView` | `AdmitStudent` | `education-api` | Validate roll number uniqueness within that Pathshala and academic year. |
+| **6. Assign Teacher** | Select Group & effective date | `AddTeacherView` (rebuilt) | `CreateTeacherProfile` + `AssignTeacher` | `education-api` | Alert if person already has an overlapping active assignment in the same time slot. |
+
+---
+
 ## Current State of Each Feature
 
 | Feature | Status | Problem |
