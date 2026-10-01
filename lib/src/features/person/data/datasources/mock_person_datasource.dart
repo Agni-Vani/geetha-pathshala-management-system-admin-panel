@@ -71,7 +71,72 @@ final class MockPersonDatasource implements PersonDatasource {
       updatedAt: now,
     );
     _people.add(person);
+
+    for (final edu in params.educations) {
+      _educations.add(PersonEducationModel(
+        id: 'edu-${DateTime.now().millisecondsSinceEpoch}-${_educations.length}',
+        personId: person.id,
+        academicLevel: edu.academicLevel,
+        disciplineOrGroup: edu.disciplineOrGroup,
+        institutionName: edu.institutionName,
+        governingBoard: edu.governingBoard,
+        startYear: edu.startYear,
+        passingYear: edu.passingYear,
+        isOngoing: edu.isOngoing,
+        resultOrScore: edu.resultOrScore,
+        remarks: edu.remarks,
+        createdByUserId: edu.createdByUserId,
+        createdByRoleAtTime: edu.createdByRoleAtTime,
+        createdByNameSnapshot: edu.createdByNameSnapshot,
+        createdAt: now,
+        updatedAt: now,
+      ));
+    }
+
+    for (final exp in params.workExperiences) {
+      _workExperiences.add(PersonWorkExperienceModel(
+        id: 'exp-${DateTime.now().millisecondsSinceEpoch}-${_workExperiences.length}',
+        personId: person.id,
+        organizationName: exp.organizationName,
+        roleOrDesignation: exp.roleOrDesignation,
+        departmentOrUnit: exp.departmentOrUnit,
+        engagementType: exp.engagementType,
+        location: exp.location,
+        startDate: exp.startDate,
+        endDate: exp.endDate,
+        isOngoing: exp.isOngoing,
+        responsibilities: exp.responsibilities,
+        createdByUserId: exp.createdByUserId,
+        createdByRoleAtTime: exp.createdByRoleAtTime,
+        createdByNameSnapshot: exp.createdByNameSnapshot,
+        createdAt: now,
+        updatedAt: now,
+      ));
+    }
+
     return person;
+  }
+
+  @override
+  Future<PersonModel> updatePerson(UpdatePersonParams params) async {
+    await _simulateProcessing();
+    final index = _people.indexWhere((p) => p.id == params.personId);
+    if (index == -1) {
+      throw StateError('Person not found.');
+    }
+    final existing = _people[index];
+    final updated = existing.copyWith(
+      legalName: params.legalName ?? existing.legalName,
+      preferredName: params.preferredName ?? existing.preferredName,
+      dateOfBirth: params.dateOfBirth ?? existing.dateOfBirth,
+      gender: params.gender ?? existing.gender,
+      primaryPhone: params.primaryPhone ?? existing.primaryPhone,
+      primaryEmail: params.primaryEmail ?? existing.primaryEmail,
+      status: params.status ?? existing.status,
+      updatedAt: DateTime.now(),
+    );
+    _people[index] = updated;
+    return updated;
   }
 
   @override

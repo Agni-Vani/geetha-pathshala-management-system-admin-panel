@@ -6,6 +6,7 @@ abstract class PersonRepository {
   AsyncRequest<Person> getPersonById(String personId);
   AsyncRequest<List<Person>> searchPeople(SearchPeopleParams params);
   AsyncRequest<Person> createPerson(CreatePersonParams params);
+  AsyncRequest<Person> updatePerson(UpdatePersonParams params);
   AsyncRequest<List<PersonContact>> getPersonContacts(String personId);
   AsyncRequest<List<PersonRelationship>> getPersonRelationships(String personId);
   AsyncRequest<List<PersonEducation>> getPersonEducations(String personId);

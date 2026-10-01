@@ -87,7 +87,7 @@ final class SupabasePersonDatasource implements PersonDatasource {
 
   @override
   Future<PersonModel> createPerson(CreatePersonParams params) async {
-    final data = await _invoke('createPerson', {
+    final payload = <String, dynamic>{
       'organizationId': params.organizationId,
       'legalName': params.legalName,
       'preferredName': params.preferredName,
@@ -95,7 +95,59 @@ final class SupabasePersonDatasource implements PersonDatasource {
       'gender': params.gender,
       'primaryPhone': params.primaryPhone,
       'primaryEmail': params.primaryEmail,
-    });
+    };
+
+    if (params.educations.isNotEmpty) {
+      payload['educations'] = params.educations.map((e) => {
+        'academicLevel': e.academicLevel,
+        'disciplineOrGroup': e.disciplineOrGroup,
+        'institutionName': e.institutionName,
+        'governingBoard': e.governingBoard,
+        'startYear': e.startYear,
+        'passingYear': e.passingYear,
+        'isOngoing': e.isOngoing,
+        'resultOrScore': e.resultOrScore,
+        'remarks': e.remarks,
+        'createdByUserId': e.createdByUserId,
+        'createdByRoleAtTime': e.createdByRoleAtTime,
+        'createdByNameSnapshot': e.createdByNameSnapshot,
+      }).toList();
+    }
+
+    if (params.workExperiences.isNotEmpty) {
+      payload['workExperiences'] = params.workExperiences.map((w) => {
+        'organizationName': w.organizationName,
+        'roleOrDesignation': w.roleOrDesignation,
+        'departmentOrUnit': w.departmentOrUnit,
+        'engagementType': w.engagementType,
+        'location': w.location,
+        'startDate': w.startDate.toIso8601String().split('T').first,
+        'endDate': w.endDate?.toIso8601String().split('T').first,
+        'isOngoing': w.isOngoing,
+        'responsibilities': w.responsibilities,
+        'createdByUserId': w.createdByUserId,
+        'createdByRoleAtTime': w.createdByRoleAtTime,
+        'createdByNameSnapshot': w.createdByNameSnapshot,
+      }).toList();
+    }
+
+    final data = await _invoke('createPerson', payload);
+    return PersonModel.fromJson(_normalizePerson(data as Map<String, dynamic>));
+  }
+
+  @override
+  Future<PersonModel> updatePerson(UpdatePersonParams params) async {
+    final payload = <String, dynamic>{
+      'personId': params.personId,
+      if (params.legalName != null) 'legalName': params.legalName,
+      if (params.preferredName != null) 'preferredName': params.preferredName,
+      if (params.dateOfBirth != null) 'dateOfBirth': params.dateOfBirth!.toIso8601String(),
+      if (params.gender != null) 'gender': params.gender,
+      if (params.primaryPhone != null) 'primaryPhone': params.primaryPhone,
+      if (params.primaryEmail != null) 'primaryEmail': params.primaryEmail,
+      if (params.status != null) 'status': params.status!.name,
+    };
+    final data = await _invoke('updatePerson', payload);
     return PersonModel.fromJson(_normalizePerson(data as Map<String, dynamic>));
   }
 

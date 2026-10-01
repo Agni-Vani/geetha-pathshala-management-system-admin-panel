@@ -17,10 +17,9 @@ class CustomPersonCard extends StatelessWidget {
   final String? gender;
   final DateTime? dateOfBirth;
 
-  /// Only a non-active person is marked — an "Active" badge on every card is
-  /// noise, since active is the norm.
   final bool isActive;
   final VoidCallback? onTap;
+  final VoidCallback? onEdit;
 
   const CustomPersonCard({
     super.key,
@@ -32,6 +31,7 @@ class CustomPersonCard extends StatelessWidget {
     this.dateOfBirth,
     this.isActive = true,
     this.onTap,
+    this.onEdit,
   });
 
   String get _initials {
@@ -116,6 +116,18 @@ class CustomPersonCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (onEdit != null)
+                IconButton(
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    size: 18,
+                    color: colors.primaryColor,
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  tooltip: 'Edit Information',
+                  onPressed: onEdit,
+                ),
             ],
           ),
           const SizedBox(height: 14),

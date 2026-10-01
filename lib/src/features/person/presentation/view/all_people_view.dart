@@ -4,6 +4,7 @@ import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifie
 import 'package:geetha_pathshala_management_web/src/di/di.dart';
 import '../../domain/person_domain.dart';
 import '../controller/list_people_controller.dart';
+import '../controller/update_person_controller.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import 'add_person_view.dart';
@@ -73,6 +74,272 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (_) => const AddPersonRegistryView()))
         .then((_) => _refreshList());
+  }
+
+  void _showEditPersonDialog(Person person) {
+    final colors = AppColors.context(context);
+    final updateController = sl.get<UpdatePersonController>();
+    updateController.initialize(person);
+
+    final legalNameCtrl = TextEditingController(text: person.legalName);
+    final preferredNameCtrl =
+        TextEditingController(text: person.preferredName ?? '');
+    final phoneCtrl = TextEditingController(text: person.primaryPhone ?? '');
+    final emailCtrl = TextEditingController(text: person.primaryEmail ?? '');
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            return AlertDialog(
+              backgroundColor: colors.backgroundColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              title: Row(
+                children: [
+                  Icon(Icons.edit, color: colors.primaryColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'ব্যক্তির তথ্য সংশোধন (Edit Person)',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: colors.textColor,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 520,
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextFormField(
+                          controller: legalNameCtrl,
+                          decoration: InputDecoration(
+                            labelText: 'Legal Name *',
+                            hintText: 'e.g. Radha Krishna Das',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          validator: (v) =>
+                              (v == null || v.trim().isEmpty)
+                                  ? 'Legal name is required'
+                                  : null,
+                          onChanged: updateController.onChangeLegalName,
+                        ),
+                        const SizedBox(height: 14),
+                        TextFormField(
+                          controller: preferredNameCtrl,
+                          decoration: InputDecoration(
+                            labelText: 'Preferred Name',
+                            hintText: 'e.g. Radhe',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onChanged: updateController.onChangePreferredName,
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: InkWell(
+                                onTap: () async {
+                                  final picked = await showDatePicker(
+                                    context: context,
+                                    initialDate:
+                                        updateController.dateOfBirth ??
+                                        DateTime(2000),
+                                    firstDate: DateTime(1920),
+                                    lastDate: DateTime.now(),
+                                  );
+                                  if (picked != null) {
+                                    setDialogState(
+                                      () => updateController.selectDateOfBirth(
+                                        picked,
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: InputDecorator(
+                                  decoration: InputDecoration(
+                                    labelText: 'Date of Birth',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    updateController.dateOfBirth != null
+                                        ? '${updateController.dateOfBirth!.year}-${updateController.dateOfBirth!.month.toString().padLeft(2, '0')}-${updateController.dateOfBirth!.day.toString().padLeft(2, '0')}'
+                                        : 'Select Date of Birth',
+                                    style: TextStyle(
+                                      color:
+                                          updateController.dateOfBirth != null
+                                              ? colors.textColor
+                                              : colors.hintColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: DropdownButtonFormField<String>(
+                                initialValue:
+                                    updateController.gender != null &&
+                                            [
+                                              'Male',
+                                              'Female',
+                                              'Other',
+                                            ].contains(updateController.gender)
+                                        ? updateController.gender
+                                        : null,
+                                decoration: InputDecoration(
+                                  labelText: 'Gender',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'Male',
+                                    child: Text('Male'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Female',
+                                    child: Text('Female'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Other',
+                                    child: Text('Other'),
+                                  ),
+                                ],
+                                onChanged: (val) {
+                                  setDialogState(
+                                    () => updateController.selectGender(val),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: phoneCtrl,
+                                keyboardType: TextInputType.phone,
+                                decoration: InputDecoration(
+                                  labelText: 'Primary Phone',
+                                  hintText: '+880 1XXX-XXXXXX',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                onChanged: updateController.onChangePrimaryPhone,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: TextFormField(
+                                controller: emailCtrl,
+                                keyboardType: TextInputType.emailAddress,
+                                decoration: InputDecoration(
+                                  labelText: 'Primary Email',
+                                  hintText: 'name@example.com',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                onChanged: updateController.onChangePrimaryEmail,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        DropdownButtonFormField<PersonStatus>(
+                          initialValue: updateController.status,
+                          decoration: InputDecoration(
+                            labelText: 'Status',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: PersonStatus.active,
+                              child: Text('Active (সক্রিয়)'),
+                            ),
+                            DropdownMenuItem(
+                              value: PersonStatus.inactive,
+                              child: Text('Inactive (নিষ্ক্রিয়)'),
+                            ),
+                          ],
+                          onChanged: (val) {
+                            if (val != null) {
+                              setDialogState(
+                                () => updateController.selectStatus(val),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: colors.hintColor),
+                  ),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: colors.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    if (formKey.currentState?.validate() ?? false) {
+                      updateController.update(
+                        snackbarNotifier: snackbarNotifier,
+                        onSuccess: () {
+                          Navigator.pop(ctx);
+                          _refreshList();
+                        },
+                      );
+                    }
+                  },
+                  child: const Text(
+                    'Save Changes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   Widget _buildHeader(BuildContext context, AppColors colors, bool isNarrow) {
@@ -190,6 +457,8 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             gender: _displayGender(person.gender),
             dateOfBirth: person.dateOfBirth,
             isActive: person.status == PersonStatus.active,
+            onTap: () => _showEditPersonDialog(person),
+            onEdit: () => _showEditPersonDialog(person),
           );
         },
         itemCount: people.length,

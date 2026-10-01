@@ -29,6 +29,11 @@ final class PersonRepositoryImpl
   }
 
   @override
+  AsyncRequest<Person> updatePerson(UpdatePersonParams params) {
+    return _request(() => datasource.updatePerson(params));
+  }
+
+  @override
   AsyncRequest<List<PersonContact>> getPersonContacts(String personId) {
     return _request(() => datasource.getPersonContacts(personId));
   }

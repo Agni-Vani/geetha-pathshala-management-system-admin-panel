@@ -1,5 +1,8 @@
 import '../entities/entities.dart';
 
+import 'person_education_params.dart';
+import 'person_work_experience_params.dart';
+
 /// Input required to create a person registry record.
 final class CreatePersonParams {
   final String organizationId;
@@ -11,6 +14,8 @@ final class CreatePersonParams {
   final String? primaryEmail;
   final List<CreatePersonContactParams> contacts;
   final List<CreatePersonRelationshipParams> relationships;
+  final List<CreatePersonEducationParams> educations;
+  final List<CreatePersonWorkExperienceParams> workExperiences;
 
   const CreatePersonParams({
     required this.organizationId,
@@ -22,6 +27,8 @@ final class CreatePersonParams {
     required this.primaryEmail,
     this.contacts = const [],
     this.relationships = const [],
+    this.educations = const [],
+    this.workExperiences = const [],
   });
 }
 

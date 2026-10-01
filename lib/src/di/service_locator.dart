@@ -33,6 +33,7 @@ import '../features/person/presentation/controller/create_person_controller.dart
 import '../features/person/presentation/controller/list_people_controller.dart';
 import '../features/person/presentation/controller/students_controller.dart';
 import '../features/person/presentation/controller/teachers_controller.dart';
+import '../features/person/presentation/controller/update_person_controller.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -174,6 +175,7 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(() => SearchPeople(sl<PersonRepository>()));
   sl.registerLazySingleton(() => GetPersonById(sl<PersonRepository>()));
   sl.registerLazySingleton(() => CreatePerson(sl<PersonRepository>()));
+  sl.registerLazySingleton(() => UpdatePerson(sl<PersonRepository>()));
   sl.registerLazySingleton(() => GetPersonContacts(sl<PersonRepository>()));
   sl.registerLazySingleton(() => GetPersonRelationships(sl<PersonRepository>()));
   sl.registerLazySingleton(() => GetPersonEducations(sl<PersonRepository>()));
@@ -308,6 +310,9 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   );
   sl.registerFactory(
     () => CreatePersonController(createPerson: sl<CreatePerson>()),
+  );
+  sl.registerFactory(
+    () => UpdatePersonController(updatePerson: sl<UpdatePerson>()),
   );
   sl.registerFactory(
     () => ListPeopleController(searchPeople: sl<SearchPeople>()),
