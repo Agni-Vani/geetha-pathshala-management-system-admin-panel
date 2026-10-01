@@ -1,5 +1,4 @@
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
-import 'package:pagination_pkg/pagination_pkg.dart';
 
 import '../../async_handlers/async_request.dart';
 import '../../async_handlers/response.dart';
@@ -98,4 +97,37 @@ handlePaginationRequest<ItemUniqueKey, ItemData>({
     message: 'Something went wrong.',
     isCritical: true,
   );
+}
+
+/// Abstract response returned when fetching a page of items.
+sealed class PageFetchResponse<ItemUniqueKey, ItemData> {
+  const PageFetchResponse();
+}
+
+/// Represents a successfully fetched page of items.
+final class PaginationPage<ItemUniqueKey, ItemData>
+    extends PageFetchResponse<ItemUniqueKey, ItemData> {
+  final Map<ItemUniqueKey, ItemData> items;
+  final bool hasMore;
+  final int page;
+
+  const PaginationPage({
+    required this.items,
+    required this.hasMore,
+    required this.page,
+  });
+}
+
+/// Represents a failure when fetching a page of items.
+final class PaginationError<ItemUniqueKey, ItemData>
+    extends PageFetchResponse<ItemUniqueKey, ItemData> {
+  final int page;
+  final String message;
+  final bool isCritical;
+
+  const PaginationError({
+    required this.page,
+    required this.message,
+    this.isCritical = false,
+  });
 }
