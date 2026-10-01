@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../domain/params/params.dart';
@@ -11,14 +12,26 @@ final class SupabaseIamDatasource implements IamDatasource {
       : client = client ?? Supabase.instance.client;
 
   Future<dynamic> _invoke(String action, Map<String, dynamic> body) async {
+    debugPrint('🌐 [SupabaseIamDatasource] Calling iam-api ($action)...');
     final response = await client.functions.invoke(
       'iam-api',
       body: {'action': action, ...body},
     );
+    debugPrint('🌐 [SupabaseIamDatasource] iam-api ($action) response status: ${response.status}');
+
     if (response.status != 200) {
-      throw StateError('Edge Function error: ${response.data}');
+      debugPrint('❌ [SupabaseIamDatasource] iam-api ($action) failed: ${response.data}');
+      throw StateError('Edge Function error (${response.status}): ${response.data}');
     }
-    return response.data;
+
+    final data = response.data;
+    if (data is Map && data['success'] == false) {
+      final err = data['error']?.toString() ?? 'IAM API error';
+      debugPrint('❌ [SupabaseIamDatasource] iam-api returned error: $err');
+      throw StateError(err);
+    }
+
+    return data;
   }
 
   @override
@@ -104,16 +117,24 @@ final class SupabaseIamDatasource implements IamDatasource {
 
   @override
   Future<UserAccountModel> loginWithEmail(LoginParams params) async {
-    final authResponse = await client.auth.signInWithPassword(
-      email: params.email,
-      password: params.password,
-    );
+    debugPrint('🌐 [SupabaseIamDatasource] Calling client.auth.signInWithPassword for: ${params.email}');
+    try {
+      final authResponse = await client.auth.signInWithPassword(
+        email: params.email,
+        password: params.password,
+      );
 
-    if (authResponse.user == null) {
-      throw StateError('Authentication failed: Invalid credentials');
+      debugPrint('🌐 [SupabaseIamDatasource] signInWithPassword returned user ID: ${authResponse.user?.id}');
+
+      if (authResponse.user == null) {
+        throw StateError('Authentication failed: Invalid credentials');
+      }
+
+      return await getUserAccountByAuthId(authResponse.user!.id);
+    } catch (e) {
+      debugPrint('❌ [SupabaseIamDatasource] signInWithPassword error: $e');
+      rethrow;
     }
-
-    return getUserAccountByAuthId(authResponse.user!.id);
   }
 
   @override

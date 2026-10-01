@@ -70,12 +70,15 @@ class AuthController extends ChangeNotifier {
     processStatusNotifier.setLoading(message: 'Authenticating...');
     notifyListeners();
 
+    debugPrint('🔑 [AuthController] Attempting login for email: $email');
+
     final response = await loginWithEmail.call(
       LoginParams(email: email.trim(), password: password),
     );
 
     if (response is SuccessRepoCall<UserAccount> && response.data != null) {
       _currentUser = response.data;
+      debugPrint('✅ [AuthController] Authentication successful for user ID: ${_currentUser!.id}, personId: ${_currentUser!.personId}');
       await _loadUserRoles(_currentUser!.id);
       processStatusNotifier.setEnabled();
       snackbarNotifier?.notifySuccess(message: 'স্বাগতম! সফলভাবে লগইন করা হয়েছে।');
@@ -87,6 +90,7 @@ class AuthController extends ChangeNotifier {
     final errorMessage = (response is FailedRepoCall)
         ? response.message
         : 'ইমেইল অথবা পাসওয়ার্ড সঠিক নয়।';
+    debugPrint('❌ [AuthController] Login failed: $errorMessage');
     snackbarNotifier?.notifyError(message: errorMessage);
     notifyListeners();
     return false;

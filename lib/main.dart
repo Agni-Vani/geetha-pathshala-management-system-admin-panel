@@ -5,10 +5,14 @@ import 'package:geetha_pathshala_management_web/src/di/service_locator.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'src/core/navigation/app_route_builders.dart';
+import 'src/core/utils/debug/debug_service.dart';
 import 'src/features/authentication/presentation/view/splash_view.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Enable all debug logging labels in development
+  DebugService.instance(allowsOnly: DebugLabel.values.toSet());
 
   if (AppConfig.isSupabaseConfigured) {
     await Supabase.initialize(

@@ -24,7 +24,7 @@ class _LoginViewState extends State<LoginView> {
 
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController(text: 'arrow360degree@gmail.com');
-  final _passwordController = TextEditingController(text: 'Admin@123456');
+  final _passwordController = TextEditingController(text: 'password@123');
 
   bool _obscurePassword = true;
 
@@ -43,15 +43,24 @@ class _LoginViewState extends State<LoginView> {
   }
 
   Future<void> _handleLogin() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_formKey.currentState!.validate()) {
+      debugPrint('⚠️ [LoginView] Form validation failed');
+      return;
+    }
+
+    final email = _emailController.text.trim();
+    debugPrint('🖱️ [LoginView] Login requested for: $email');
 
     final success = await _authController.login(
-      email: _emailController.text.trim(),
+      email: email,
       password: _passwordController.text,
       snackbarNotifier: _snackbarNotifier,
     );
 
+    debugPrint('🖱️ [LoginView] Login result: $success');
+
     if (success && mounted) {
+      debugPrint('🚀 [LoginView] Navigating to dashboard...');
       Navigator.of(context).pushReplacementNamed(AppRouteNames.dashboard);
     }
   }
@@ -59,7 +68,7 @@ class _LoginViewState extends State<LoginView> {
   void _fillFirstAdminCredentials() {
     setState(() {
       _emailController.text = 'arrow360degree@gmail.com';
-      _passwordController.text = 'Admin@123456';
+      _passwordController.text = 'password@123';
     });
   }
 

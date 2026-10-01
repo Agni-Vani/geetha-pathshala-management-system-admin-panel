@@ -25,18 +25,30 @@ mixin class ErrorHandler {
         stackTrace: s,
       );
     } catch (e, s) {
+      final msg = _extractErrorMessage(e);
       error = FailedRepoCall<T>(
-        message: 'Something went wrong.',
-        exception: Exception(e.toString()),
+        message: msg,
+        exception: e is Exception ? e : Exception(e.toString()),
         stackTrace: s,
       );
     }
 
     if (kDebugMode) {
-      debugger?.log('SuperChat error: ${error.toString()}');
+      debugPrint('🔴 [ErrorHandler] Caught error: ${error.message}');
+      debugPrint('📍 [ErrorHandler] StackTrace: ${error.stackTrace}');
+      debugger?.log('Error: ${error.toString()}');
     }
 
     return error;
+  }
+
+  String _extractErrorMessage(dynamic e) {
+    if (e == null) return 'Something went wrong.';
+    final str = e.toString();
+    if (str.startsWith('Exception: ')) return str.substring('Exception: '.length);
+    if (str.startsWith('StateError: ')) return str.substring('StateError: '.length);
+    if (str.startsWith('AuthException: ')) return str.substring('AuthException: '.length);
+    return str.isNotEmpty ? str : 'Something went wrong.';
   }
 
   String getFriendlyStatusMessage(int? statusCode, String responseMessage) {
