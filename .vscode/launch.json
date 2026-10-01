@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Admin Panel (Live Remote Supabase)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": ["-d", "chrome"]
+    },
+    {
+      "name": "Admin Panel (Offline Mock Data)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+      "args": ["-d", "chrome", "--dart-define=FORCE_MOCK_DATA=true"]
+    }
+  ]
+}
