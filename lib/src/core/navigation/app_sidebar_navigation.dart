@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../di/service_locator.dart';
 import '../../features/authentication/presentation/controller/auth_controller.dart';
+import '../shared/widget/custom_widgets/responsive_app_shell.dart';
 import 'app_route_names.dart';
 
 abstract final class AppSidebarNavigation {
@@ -35,10 +36,15 @@ abstract final class AppSidebarNavigation {
   }
 
   static void navigateToIndex(BuildContext context, int index) {
+    final shellScope = ShellScope.of(context);
+    if (shellScope != null) {
+      shellScope.onItemSelected(index);
+      return;
+    }
     final route = routeForIndex(index);
     final currentRoute = ModalRoute.of(context)?.settings.name;
     if (currentRoute == route) return;
-    Navigator.of(context).pushReplacementNamed(route);
+    Navigator.of(context).pushNamedAndRemoveUntil(route, (r) => false);
   }
 
   static void pushReplacement(BuildContext context, int index) {

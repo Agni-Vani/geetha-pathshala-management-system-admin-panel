@@ -6,6 +6,29 @@ import '../../../theme/app_colors.dart';
 import 'custom_sidebar.dart';
 import 'custom_top_bar.dart';
 
+/// An InheritedWidget that provides the persistent shell context to child views.
+/// When child views are rendered inside a ShellScope, their nested [ResponsiveAppShell]
+/// avoids duplicating the Scaffold, Sidebar, or TopBar and returns [body] directly.
+class ShellScope extends InheritedWidget {
+  final int selectedIndex;
+  final ValueChanged<int> onItemSelected;
+
+  const ShellScope({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemSelected,
+    required super.child,
+  });
+
+  static ShellScope? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<ShellScope>();
+  }
+
+  @override
+  bool updateShouldNotify(ShellScope oldWidget) =>
+      selectedIndex != oldWidget.selectedIndex;
+}
+
 /// Shared page skeleton (sidebar + top bar + body) that adapts across
 /// mobile (< [mobileBreakpoint]), tablet (< [tabletBreakpoint]) and desktop
 /// widths:
@@ -47,6 +70,11 @@ class ResponsiveAppShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final shellScope = ShellScope.of(context);
+    if (shellScope != null) {
+      return body;
+    }
+
     final colors = AppColors.context(context);
     final backAction = _resolveBackAction(context);
 
