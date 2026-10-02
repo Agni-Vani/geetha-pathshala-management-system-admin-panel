@@ -9,6 +9,7 @@ import '../../../../core/shared/widget/custom_widgets/custom_form_field.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_section_divider.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_section_header.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_time_field.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../person/presentation/view/add_teacher_view.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
@@ -356,36 +357,23 @@ class _AddClassViewState extends State<AddClassView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text('Pathshalas', style: TextStyle(fontSize: 12, color: colors.hintColor)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(Icons.chevron_right, size: 14, color: colors.hintColor),
+                      AppBreadcrumbs(
+                        items: [
+                          BreadcrumbItem.home(context),
+                          BreadcrumbItem(
+                            label: 'পাঠশালা',
+                            icon: Icons.school_outlined,
+                            onTap: () => AppSidebarNavigation.navigateToIndex(context, 1),
                           ),
-                          Flexible(
-                            child: Text(
-                              widget.pathshala.name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 12, color: colors.hintColor),
-                            ),
+                          BreadcrumbItem(
+                            label: widget.pathshala.name,
+                            onTap: () => Navigator.of(context).maybePop(),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(Icons.chevron_right, size: 14, color: colors.hintColor),
-                          ),
-                          Expanded(
-                            child: Text(
-                              'Add Class',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 12, color: colors.hintColor),
-                            ),
+                          const BreadcrumbItem(
+                            label: 'ক্লাস যোগ করুন',
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
                       Text(
                         'Add Class',
                         style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: colors.primaryColor),

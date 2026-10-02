@@ -13,6 +13,7 @@ import '../../../../core/shared/widget/custom_widgets/custom_form_field.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_section_divider.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_section_header.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_toggle_field.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/navigation/app_route_names.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
@@ -178,33 +179,19 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text(
-                            'Pathshalas',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colors.hintColor,
-                            ),
+                      AppBreadcrumbs(
+                        items: [
+                          BreadcrumbItem.home(context),
+                          BreadcrumbItem(
+                            label: 'পাঠশালা',
+                            icon: Icons.school_outlined,
+                            onTap: () => Navigator.of(context).maybePop(),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(
-                              Icons.chevron_right,
-                              size: 14,
-                              color: colors.hintColor,
-                            ),
-                          ),
-                          Text(
-                            _isEditing ? 'Edit Pathshala' : 'Add New Pathshala',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: colors.hintColor,
-                            ),
+                          BreadcrumbItem(
+                            label: _isEditing ? 'পাঠশালা সম্পাদন' : 'নতুন পাঠশালা যোগ',
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
                       Text(
                         _isEditing ? 'Edit Pathshala' : 'Add New Pathshala',
                         style: TextStyle(

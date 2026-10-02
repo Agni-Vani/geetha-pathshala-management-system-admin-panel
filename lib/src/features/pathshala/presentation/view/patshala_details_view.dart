@@ -9,6 +9,7 @@ import '../../../classes/presentation/view/class_schedule_view.dart';
 import '../../domain/pathshala_domain.dart';
 import 'add_new_patshala_view.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_section_header.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../controller/pathshala_details_controller.dart';
@@ -207,21 +208,16 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
   }
 
   Widget _buildTopRow(AppColors colors, Pathshala pathshala) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('Pathshalas', style: TextStyle(fontSize: 12, color: colors.hintColor)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Icon(Icons.chevron_right, size: 14, color: colors.hintColor),
+    return AppBreadcrumbs(
+      items: [
+        BreadcrumbItem.home(context),
+        BreadcrumbItem(
+          label: 'পাঠশালা',
+          icon: Icons.school_outlined,
+          onTap: () => Navigator.of(context).maybePop(),
         ),
-        Flexible(
-          child: Text(
-            pathshala.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, color: colors.textColor, fontWeight: FontWeight.w600),
-          ),
+        BreadcrumbItem(
+          label: pathshala.name,
         ),
       ],
     );

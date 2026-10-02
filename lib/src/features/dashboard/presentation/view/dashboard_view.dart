@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
@@ -91,6 +92,18 @@ class _DashboardViewState extends State<DashboardView> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          const AppBreadcrumbs(
+                            items: [
+                              BreadcrumbItem(
+                                label: 'হোম',
+                                icon: Icons.home_outlined,
+                              ),
+                              BreadcrumbItem(
+                                label: 'ড্যাশবোর্ড',
+                                icon: Icons.dashboard_outlined,
+                              ),
+                            ],
+                          ),
                           Text('ড্যাশবোর্ড', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colors.primaryColor)),
                           const SizedBox(height: 4),
                           Text(

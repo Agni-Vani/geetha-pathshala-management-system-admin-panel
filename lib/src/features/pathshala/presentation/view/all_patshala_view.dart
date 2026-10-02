@@ -9,6 +9,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
 import '../widgets/custom_pathshala_card.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import 'add_new_patshala_view.dart';
@@ -83,6 +84,15 @@ class _AllPatshalaViewState extends State<AllPatshalaView> {
     final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        AppBreadcrumbs(
+          items: [
+            BreadcrumbItem.home(context),
+            const BreadcrumbItem(
+              label: 'পাঠশালা',
+              icon: Icons.school_outlined,
+            ),
+          ],
+        ),
         Text(
           "পাঠশালা সমূহ",
           style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: colors.primaryColor),

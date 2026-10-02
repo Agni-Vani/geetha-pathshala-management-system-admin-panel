@@ -4,6 +4,7 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
@@ -115,27 +116,21 @@ class _ClassScheduleViewState extends State<ClassScheduleView> {
   }
 
   Widget _buildBreadcrumb(AppColors colors) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text('Pathshalas', style: TextStyle(fontSize: 12, color: colors.hintColor)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Icon(Icons.chevron_right, size: 14, color: colors.hintColor),
+    return AppBreadcrumbs(
+      items: [
+        BreadcrumbItem.home(context),
+        BreadcrumbItem(
+          label: 'পাঠশালা',
+          icon: Icons.school_outlined,
+          onTap: () => AppSidebarNavigation.navigateToIndex(context, 1),
         ),
-        Flexible(
-          child: Text(
-            widget.pathshala.name,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(fontSize: 12, color: colors.textColor, fontWeight: FontWeight.w600),
-          ),
+        BreadcrumbItem(
+          label: widget.pathshala.name,
+          onTap: () => Navigator.of(context).maybePop(),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Icon(Icons.chevron_right, size: 14, color: colors.hintColor),
+        const BreadcrumbItem(
+          label: 'ক্লাস সময়সূচী',
         ),
-        Text('ক্লাস সময়সূচী', style: TextStyle(fontSize: 12, color: colors.hintColor)),
       ],
     );
   }

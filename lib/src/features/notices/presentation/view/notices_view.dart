@@ -6,6 +6,7 @@ import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_status_badge.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
@@ -220,6 +221,15 @@ class _NoticesViewState extends State<NoticesView> {
     final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        AppBreadcrumbs(
+          items: [
+            BreadcrumbItem.home(context),
+            const BreadcrumbItem(
+              label: 'নোটিশ',
+              icon: Icons.note_alt_outlined,
+            ),
+          ],
+        ),
         Text(
           'নোটিশ',
           style: TextStyle(

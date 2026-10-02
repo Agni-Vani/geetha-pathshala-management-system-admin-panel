@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
@@ -123,6 +124,15 @@ class _ReportsViewState extends State<ReportsView> {
     final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        AppBreadcrumbs(
+          items: [
+            BreadcrumbItem.home(context),
+            const BreadcrumbItem(
+              label: 'রিপোর্ট',
+              icon: Icons.bar_chart_outlined,
+            ),
+          ],
+        ),
         Text('রিপোর্ট', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: colors.primaryColor)),
         const SizedBox(height: 4),
         Text('বিভিন্ন ধরনের রিপোর্ট তৈরি ও পর্যালোচনা করুন।', style: TextStyle(color: colors.hintColor)),

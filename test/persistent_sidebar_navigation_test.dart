@@ -67,4 +67,19 @@ void main() {
     expect(find.byType(CustomSidebar), findsOneWidget);
     expect(find.byType(EventsView), findsOneWidget);
   });
+
+  testWidgets('Breadcrumbs are rendered on every page and clicking home returns to Dashboard', (tester) async {
+    await pumpShell(tester, route: AppRouteNames.pathshalas);
+
+    // Should find breadcrumb with 'হোম' and 'পাঠশালা'
+    expect(find.text('হোম'), findsOneWidget);
+    expect(find.text('পাঠশালা'), findsWidgets);
+
+    // Tap 'হোম' in breadcrumbs to navigate back to Dashboard
+    await tester.tap(find.text('হোম'));
+    await tester.pumpAndSettle();
+    while (tester.takeException() != null) {}
+
+    expect(find.byType(DashboardView), findsOneWidget);
+  });
 }

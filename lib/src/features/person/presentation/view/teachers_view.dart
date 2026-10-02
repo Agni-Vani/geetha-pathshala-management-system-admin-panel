@@ -5,6 +5,7 @@ import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_status_badge.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
@@ -120,6 +121,15 @@ class _TeachersViewState extends State<TeachersView> {
     final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        AppBreadcrumbs(
+          items: [
+            BreadcrumbItem.home(context),
+            const BreadcrumbItem(
+              label: 'শিক্ষক',
+              icon: Icons.badge_outlined,
+            ),
+          ],
+        ),
         Text(
           'শিক্ষক',
           style: TextStyle(

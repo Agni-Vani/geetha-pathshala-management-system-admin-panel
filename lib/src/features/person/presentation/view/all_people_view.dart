@@ -12,6 +12,7 @@ import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
 import '../widgets/custom_person_card.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/app_sizes.dart';
@@ -346,6 +347,15 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        AppBreadcrumbs(
+          items: [
+            BreadcrumbItem.home(context),
+            const BreadcrumbItem(
+              label: 'ব্যক্তি রেজিস্ট্রি',
+              icon: Icons.person_outline,
+            ),
+          ],
+        ),
         Text(
           "ব্যক্তি রেজিস্ট্রি",
           style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: colors.primaryColor),

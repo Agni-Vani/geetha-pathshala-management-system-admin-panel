@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../widgets/geographic_areas_management_widget.dart';
@@ -35,7 +36,21 @@ class _AreasViewState extends State<AreasView> {
           Expanded(
             child: SingleChildScrollView(
               padding: AppSizes.pagePadding(context),
-              child: const GeographicAreasManagementWidget(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppBreadcrumbs(
+                    items: [
+                      BreadcrumbItem.home(context),
+                      const BreadcrumbItem(
+                        label: 'ভৌগোলিক এলাকা',
+                        icon: Icons.location_on_outlined,
+                      ),
+                    ],
+                  ),
+                  const GeographicAreasManagementWidget(),
+                ],
+              ),
             ),
           ),
           Container(

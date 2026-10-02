@@ -6,6 +6,7 @@ import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
@@ -237,6 +238,15 @@ class _EventsViewState extends State<EventsView> {
     final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        AppBreadcrumbs(
+          items: [
+            BreadcrumbItem.home(context),
+            const BreadcrumbItem(
+              label: 'অনুষ্ঠান',
+              icon: Icons.calendar_month_outlined,
+            ),
+          ],
+        ),
         Text(
           'অনুষ্ঠান',
           style: TextStyle(

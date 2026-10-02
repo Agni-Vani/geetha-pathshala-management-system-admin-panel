@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_form_field.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../areas/presentation/widgets/geographic_areas_management_widget.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
@@ -75,6 +76,15 @@ class _SettingsViewState extends State<SettingsView> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      AppBreadcrumbs(
+                        items: [
+                          BreadcrumbItem.home(context),
+                          const BreadcrumbItem(
+                            label: 'সেটিংস',
+                            icon: Icons.settings_outlined,
+                          ),
+                        ],
+                      ),
                       Text(
                         'সেটিংস',
                         style: TextStyle(

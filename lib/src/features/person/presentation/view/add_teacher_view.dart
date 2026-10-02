@@ -5,6 +5,7 @@ import '../../../../core/shared/widget/custom_widgets/custom_date_field.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_form_field.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_section_divider.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_section_header.dart';
+import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
@@ -192,24 +193,19 @@ class _AddTeacherViewState extends State<AddTeacherView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Text('Teachers', style: TextStyle(fontSize: 12, color: colors.hintColor)),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(Icons.chevron_right, size: 14, color: colors.hintColor),
+                      AppBreadcrumbs(
+                        items: [
+                          BreadcrumbItem.home(context),
+                          BreadcrumbItem(
+                            label: 'শিক্ষক',
+                            icon: Icons.badge_outlined,
+                            onTap: () => Navigator.of(context).maybePop(),
                           ),
-                          Expanded(
-                            child: Text(
-                              'Add New Teacher',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 12, color: colors.hintColor),
-                            ),
+                          const BreadcrumbItem(
+                            label: 'নতুন শিক্ষক যোগ',
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
                       Text(
                         'Add New Teacher',
                         style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: colors.primaryColor),
