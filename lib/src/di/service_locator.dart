@@ -271,6 +271,12 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     () => PublishNotice(repository: sl<NoticesRepository>()),
   );
   sl.registerLazySingleton(
+    () => UpdateNotice(repository: sl<NoticesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => DeleteNotice(repository: sl<NoticesRepository>()),
+  );
+  sl.registerLazySingleton(
     () => GetNotices(repository: sl<NoticesRepository>()),
   );
   sl.registerLazySingleton(
@@ -280,6 +286,15 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   // Events Use Cases
   sl.registerLazySingleton(
     () => ListEvents(repository: sl<EventsRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => CreateEvent(repository: sl<EventsRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => UpdateEvent(repository: sl<EventsRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => DeleteEvent(repository: sl<EventsRepository>()),
   );
 
   // Dashboard Use Cases
@@ -339,13 +354,25 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     ),
   );
   sl.registerFactory(
-    () => EventsController(listEvents: sl<ListEvents>()),
+    () => EventsController(
+      listEvents: sl<ListEvents>(),
+      createEvent: sl<CreateEvent>(),
+      updateEvent: sl<UpdateEvent>(),
+      deleteEvent: sl<DeleteEvent>(),
+      listPathshalas: sl<ListPathshalas>(),
+    ),
   );
   sl.registerFactory(
     () => DashboardController(getDashboardOverview: sl<GetDashboardOverview>()),
   );
   sl.registerFactory(
-    () => NoticesController(getNotices: sl<GetNotices>()),
+    () => NoticesController(
+      getNotices: sl<GetNotices>(),
+      publishNotice: sl<PublishNotice>(),
+      updateNotice: sl<UpdateNotice>(),
+      deleteNotice: sl<DeleteNotice>(),
+      listPathshalas: sl<ListPathshalas>(),
+    ),
   );
   sl.registerFactory(
     () => StudentsController(listStudents: sl<ListStudents>()),

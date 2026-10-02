@@ -28,6 +28,7 @@ final class SupabaseNoticesDatasource implements NoticesDatasource {
       'pathshalaId': params.pathshalaId,
       'title': params.title,
       'content': params.content,
+      'status': params.status.name,
       'createdByUserId': params.createdByUserId,
       'targets':
           params.targets
@@ -40,6 +41,36 @@ final class SupabaseNoticesDatasource implements NoticesDatasource {
               .toList(),
     });
     return NoticeModel.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<NoticeModel> updateNotice(UpdateNoticeParams params) async {
+    final body = <String, dynamic>{
+      'id': params.id,
+      'title': params.title,
+      'content': params.content,
+      'status': params.status.name,
+      'pathshalaId': params.pathshalaId,
+    };
+    if (params.targets != null) {
+      body['targets'] =
+          params.targets!
+              .map(
+                (t) => {
+                  'targetType': t.targetType.name,
+                  'targetId': t.targetId,
+                },
+              )
+              .toList();
+    }
+    final data = await _invoke('updateNotice', body);
+    return NoticeModel.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<bool> deleteNotice(DeleteNoticeParams params) async {
+    await _invoke('deleteNotice', {'id': params.id});
+    return true;
   }
 
   @override

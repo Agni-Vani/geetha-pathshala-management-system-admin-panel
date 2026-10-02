@@ -35,4 +35,39 @@ final class SupabaseEventsDatasource implements EventsDatasource {
         .map((json) => EventModel.fromJson(json as Map<String, dynamic>))
         .toList();
   }
+
+  @override
+  Future<EventModel> createEvent(CreateEventParams params) async {
+    final data = await _invoke('createEvent', {
+      'title': params.title,
+      'description': params.description,
+      'eventDate': params.eventDate.toIso8601String(),
+      'time': params.time,
+      'scope': params.scope,
+      'pathshalaId': params.pathshalaId,
+      'iconName': params.iconName,
+    });
+    return EventModel.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<EventModel> updateEvent(UpdateEventParams params) async {
+    final data = await _invoke('updateEvent', {
+      'id': params.id,
+      'title': params.title,
+      'description': params.description,
+      'eventDate': params.eventDate.toIso8601String(),
+      'time': params.time,
+      'scope': params.scope,
+      'pathshalaId': params.pathshalaId,
+      'iconName': params.iconName,
+    });
+    return EventModel.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<bool> deleteEvent(DeleteEventParams params) async {
+    await _invoke('deleteEvent', {'id': params.id});
+    return true;
+  }
 }

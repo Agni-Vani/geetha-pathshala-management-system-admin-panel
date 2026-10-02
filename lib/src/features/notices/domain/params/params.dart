@@ -16,6 +16,7 @@ final class PublishNoticeParams {
   final String title;
   final String content;
   final String createdByUserId;
+  final NoticeStatus status;
   final List<NoticeTargetParam> targets;
 
   const PublishNoticeParams({
@@ -24,19 +25,46 @@ final class PublishNoticeParams {
     required this.title,
     required this.content,
     required this.createdByUserId,
-    required this.targets,
+    this.status = NoticeStatus.published,
+    this.targets = const [],
   });
+}
+
+final class UpdateNoticeParams {
+  final String id;
+  final String title;
+  final String content;
+  final NoticeStatus status;
+  final String? pathshalaId;
+  final List<NoticeTargetParam>? targets;
+
+  const UpdateNoticeParams({
+    required this.id,
+    required this.title,
+    required this.content,
+    required this.status,
+    this.pathshalaId,
+    this.targets,
+  });
+}
+
+final class DeleteNoticeParams {
+  final String id;
+
+  const DeleteNoticeParams({required this.id});
 }
 
 final class GetNoticesParams {
   final String organizationId;
   final String? pathshalaId;
+  final NoticeStatus? status;
   final int page;
   final int pageSize;
 
   const GetNoticesParams({
     required this.organizationId,
     this.pathshalaId,
+    this.status,
     this.page = 1,
     this.pageSize = 20,
   });
@@ -53,3 +81,4 @@ final class RecordReadReceiptParams {
     required this.userAccountId,
   });
 }
+

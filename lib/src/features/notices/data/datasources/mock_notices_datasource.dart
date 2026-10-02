@@ -25,8 +25,8 @@ final class MockNoticesDatasource implements NoticesDatasource {
       pathshalaId: params.pathshalaId,
       title: params.title,
       content: params.content,
-      status: NoticeStatus.published,
-      publishedAt: DateTime.now(),
+      status: params.status,
+      publishedAt: params.status == NoticeStatus.published ? DateTime.now() : null,
       createdByUserId: params.createdByUserId,
       createdAt: DateTime.now(),
     );
@@ -43,6 +43,36 @@ final class MockNoticesDatasource implements NoticesDatasource {
       );
     }
     return notice;
+  }
+
+  @override
+  Future<NoticeModel> updateNotice(UpdateNoticeParams params) async {
+    await _simulateProcessing();
+    final index = _notices.indexWhere((n) => n.id == params.id);
+    if (index == -1) {
+      throw StateError('Notice not found: ${params.id}');
+    }
+    final existing = _notices[index];
+    final updated = existing.copyWith(
+      title: params.title,
+      content: params.content,
+      status: params.status,
+      pathshalaId: params.pathshalaId,
+      publishedAt: params.status == NoticeStatus.published
+          ? (existing.publishedAt ?? DateTime.now())
+          : existing.publishedAt,
+    );
+    _notices[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<bool> deleteNotice(DeleteNoticeParams params) async {
+    await _simulateProcessing();
+    _notices.removeWhere((n) => n.id == params.id);
+    _targets.removeWhere((t) => t.noticeId == params.id);
+    _receipts.removeWhere((r) => r.noticeId == params.id);
+    return true;
   }
 
   @override

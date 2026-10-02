@@ -16,6 +16,21 @@ final class EventsRepositoryImpl with ErrorHandler implements EventsRepository {
     return _request(() => datasource.listEvents(params));
   }
 
+  @override
+  AsyncRequest<Event> createEvent(CreateEventParams params) {
+    return _request(() => datasource.createEvent(params));
+  }
+
+  @override
+  AsyncRequest<Event> updateEvent(UpdateEventParams params) {
+    return _request(() => datasource.updateEvent(params));
+  }
+
+  @override
+  AsyncRequest<bool> deleteEvent(DeleteEventParams params) {
+    return _request(() => datasource.deleteEvent(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {

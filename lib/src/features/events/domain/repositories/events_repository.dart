@@ -4,4 +4,7 @@ import '../params/params.dart';
 
 abstract interface class EventsRepository {
   AsyncRequest<List<Event>> listEvents(ListEventsParams params);
+  AsyncRequest<Event> createEvent(CreateEventParams params);
+  AsyncRequest<Event> updateEvent(UpdateEventParams params);
+  AsyncRequest<bool> deleteEvent(DeleteEventParams params);
 }

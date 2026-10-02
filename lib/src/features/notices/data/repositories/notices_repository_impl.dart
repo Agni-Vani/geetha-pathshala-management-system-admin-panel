@@ -19,6 +19,16 @@ final class NoticesRepositoryImpl
   }
 
   @override
+  AsyncRequest<Notice> updateNotice(UpdateNoticeParams params) {
+    return _request(() => datasource.updateNotice(params));
+  }
+
+  @override
+  AsyncRequest<bool> deleteNotice(DeleteNoticeParams params) {
+    return _request(() => datasource.deleteNotice(params));
+  }
+
+  @override
   AsyncRequest<List<Notice>> getNotices(GetNoticesParams params) {
     return _request(() => datasource.getNotices(params));
   }

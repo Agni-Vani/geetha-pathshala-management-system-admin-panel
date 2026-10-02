@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/assets.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
+import '../../../../core/shared/reactive_notifier/process_notifier.dart';
+import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
 import '../../domain/events_domain.dart';
 import '../controller/events_controller.dart';
+import '../widgets/add_edit_event_dialog.dart';
 
 class EventsView extends StatefulWidget {
   const EventsView({super.key});
@@ -59,6 +62,70 @@ class _EventsViewState extends State<EventsView> {
     return '${bn(date.day)} ${months[date.month - 1]}, ${bn(date.year)}';
   }
 
+  void _openAddEventDialog() {
+    AddEditEventDialog.show(context, controller: _controller);
+  }
+
+  void _openEditEventDialog(Event event) {
+    AddEditEventDialog.show(context, controller: _controller, event: event);
+  }
+
+  void _confirmDeleteEvent(Event event) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final colors = AppColors.context(ctx);
+        return AlertDialog(
+          backgroundColor: colors.backgroundColor,
+          surfaceTintColor: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.delete_outline, color: Colors.red),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  'অনুষ্ঠান মুছে ফেলুন (Delete Event)',
+                  style: TextStyle(
+                    color: colors.textColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            '"${event.title}" অনুষ্ঠানটি মুছে ফেলতে চান? আপনি কি নিশ্চিত?',
+            style: TextStyle(color: colors.textColor),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text('বাতিল', style: TextStyle(color: colors.hintColor)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              ),
+              onPressed: () async {
+                Navigator.of(ctx).pop();
+                final snackbar = SnackbarNotifier(context: context);
+                await _controller.deleteExistingEvent(
+                  id: event.id,
+                  snackbarNotifier: snackbar,
+                );
+              },
+              child: const Text('মুছে ফেলুন', style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
@@ -72,6 +139,7 @@ class _EventsViewState extends State<EventsView> {
         listenable: _controller,
         builder: (context, _) {
           final events = _controller.events;
+          final isLoading = _controller.processStatusNotifier.status is ProcessLoading;
 
           return Column(
             children: [
@@ -92,19 +160,29 @@ class _EventsViewState extends State<EventsView> {
                         children: [
                           _buildHeader(colors, isNarrow),
                           SizedBox(height: AppSizes.sectionGap(context)),
-                          GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: crossAxisCount,
-                              crossAxisSpacing: 20,
-                              mainAxisSpacing: 20,
-                              mainAxisExtent: 250,
+                          if (isLoading && events.isEmpty)
+                            const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(40.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          else if (events.isEmpty)
+                            _buildEmptyState(colors)
+                          else
+                            GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: 20,
+                                mainAxisSpacing: 20,
+                                mainAxisExtent: 260,
+                              ),
+                              itemCount: events.length,
+                              itemBuilder: (context, index) =>
+                                  _buildEventCard(colors, events[index]),
                             ),
-                            itemCount: events.length,
-                            itemBuilder: (context, index) =>
-                                _buildEventCard(colors, events[index]),
-                          ),
                         ],
                       );
                     },
@@ -124,6 +202,33 @@ class _EventsViewState extends State<EventsView> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(AppColors colors) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48),
+        child: Column(
+          children: [
+            Icon(Icons.event_outlined, size: 56, color: colors.hintColor.withValues(alpha: 0.5)),
+            const SizedBox(height: 12),
+            Text(
+              'কোন অনুষ্ঠান পাওয়া যায়নি',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: colors.textColor,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'নতুন অনুষ্ঠান যুক্ত করতে উপরের "Add Event" বোতামে চাপুন।',
+              style: TextStyle(fontSize: 13, color: colors.hintColor),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -153,7 +258,7 @@ class _EventsViewState extends State<EventsView> {
       child: CustomButton(
         label: 'Add Event',
         icon: Icons.add,
-        onPressed: () {},
+        onPressed: _openAddEventDialog,
       ),
     );
 
@@ -220,10 +325,33 @@ class _EventsViewState extends State<EventsView> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
-                child: Icon(iconData, color: colors.primaryColor, size: 20),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
+                    child: Icon(iconData, color: colors.primaryColor, size: 20),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 18),
+                    tooltip: 'সম্পাদনা (Edit)',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    color: colors.hintColor,
+                    onPressed: () => _openEditEventDialog(event),
+                  ),
+                  const SizedBox(width: 12),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    tooltip: 'মুছে ফেলুন (Delete)',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    color: Colors.red.withValues(alpha: 0.8),
+                    onPressed: () => _confirmDeleteEvent(event),
+                  ),
+                ],
               ),
               const SizedBox(height: 12),
               Text(
@@ -250,12 +378,15 @@ class _EventsViewState extends State<EventsView> {
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   _metaChip(colors, Icons.calendar_today_outlined, _formatDate(event.eventDate)),
-                  _metaChip(colors, Icons.schedule_outlined, event.time),
+                  if (event.time.isNotEmpty)
+                    _metaChip(colors, Icons.schedule_outlined, event.time),
                 ],
               ),
               const SizedBox(height: 6),
               Text(
                 event.scope,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

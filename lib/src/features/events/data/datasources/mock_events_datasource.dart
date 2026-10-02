@@ -21,6 +21,49 @@ final class MockEventsDatasource implements EventsDatasource {
     }).toList();
   }
 
+  @override
+  Future<EventModel> createEvent(CreateEventParams params) async {
+    await _simulateProcessing();
+    final event = EventModel(
+      id: 'event-${DateTime.now().millisecondsSinceEpoch}',
+      title: params.title,
+      description: params.description ?? '',
+      eventDate: params.eventDate,
+      time: params.time ?? '',
+      scope: params.scope,
+      iconName: params.iconName ?? 'event_outlined',
+    );
+    _events.add(event);
+    return event;
+  }
+
+  @override
+  Future<EventModel> updateEvent(UpdateEventParams params) async {
+    await _simulateProcessing();
+    final index = _events.indexWhere((e) => e.id == params.id);
+    if (index == -1) {
+      throw StateError('Event not found: ${params.id}');
+    }
+    final updated = EventModel(
+      id: params.id,
+      title: params.title,
+      description: params.description ?? '',
+      eventDate: params.eventDate,
+      time: params.time ?? '',
+      scope: params.scope,
+      iconName: params.iconName,
+    );
+    _events[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<bool> deleteEvent(DeleteEventParams params) async {
+    await _simulateProcessing();
+    _events.removeWhere((e) => e.id == params.id);
+    return true;
+  }
+
   Future<void> _simulateProcessing() async {
     if (processingDelay > Duration.zero) {
       await Future.delayed(processingDelay);
