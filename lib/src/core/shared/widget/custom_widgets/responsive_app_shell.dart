@@ -128,17 +128,14 @@ class ResponsiveAppShell extends StatelessWidget {
                       Expanded(
                         child: Builder(
                           builder: (innerContext) {
-                            final showTopBar = isMobile || backAction != null;
                             return Column(
                               children: [
-                                if (showTopBar)
+                                if (isMobile)
                                   CustomTopBar(
                                     title: topBarTitle,
                                     onBack: backAction,
-                                    onMenuTap: isMobile
-                                        ? () =>
-                                              Scaffold.of(innerContext).openDrawer()
-                                        : null,
+                                    onMenuTap: () =>
+                                        Scaffold.of(innerContext).openDrawer(),
                                   ),
                                 Expanded(child: AppBackground(child: body)),
                               ],
