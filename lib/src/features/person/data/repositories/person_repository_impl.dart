@@ -58,6 +58,11 @@ final class PersonRepositoryImpl
   }
 
   @override
+  AsyncRequest<void> deletePersonEducation(String id) {
+    return _request(() => datasource.deletePersonEducation(id));
+  }
+
+  @override
   AsyncRequest<List<PersonWorkExperience>> getPersonWorkExperiences(
     String personId,
   ) {
@@ -69,6 +74,11 @@ final class PersonRepositoryImpl
     CreatePersonWorkExperienceParams params,
   ) {
     return _request(() => datasource.createPersonWorkExperience(params));
+  }
+
+  @override
+  AsyncRequest<void> deletePersonWorkExperience(String id) {
+    return _request(() => datasource.deletePersonWorkExperience(id));
   }
 
   AsyncRequest<T> _request<T>(Future<T> Function() request) {

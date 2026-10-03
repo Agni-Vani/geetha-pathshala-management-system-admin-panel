@@ -10,6 +10,8 @@ abstract class PersonDatasource {
   Future<List<PersonRelationshipModel>> getPersonRelationships(String personId);
   Future<List<PersonEducationModel>> getPersonEducations(String personId);
   Future<PersonEducationModel> createPersonEducation(CreatePersonEducationParams params);
+  Future<void> deletePersonEducation(String id);
   Future<List<PersonWorkExperienceModel>> getPersonWorkExperiences(String personId);
   Future<PersonWorkExperienceModel> createPersonWorkExperience(CreatePersonWorkExperienceParams params);
+  Future<void> deletePersonWorkExperience(String id);
 }

@@ -11,6 +11,8 @@ abstract class PersonRepository {
   AsyncRequest<List<PersonRelationship>> getPersonRelationships(String personId);
   AsyncRequest<List<PersonEducation>> getPersonEducations(String personId);
   AsyncRequest<PersonEducation> addPersonEducation(CreatePersonEducationParams params);
+  AsyncRequest<void> deletePersonEducation(String id);
   AsyncRequest<List<PersonWorkExperience>> getPersonWorkExperiences(String personId);
   AsyncRequest<PersonWorkExperience> addPersonWorkExperience(CreatePersonWorkExperienceParams params);
+  AsyncRequest<void> deletePersonWorkExperience(String id);
 }

@@ -212,6 +212,11 @@ final class SupabasePersonDatasource implements PersonDatasource {
   }
 
   @override
+  Future<void> deletePersonEducation(String id) async {
+    await _invoke('deletePersonEducation', {'id': id});
+  }
+
+  @override
   Future<List<PersonWorkExperienceModel>> getPersonWorkExperiences(
     String personId,
   ) async {
@@ -247,5 +252,10 @@ final class SupabasePersonDatasource implements PersonDatasource {
       'createdByNameSnapshot': params.createdByNameSnapshot,
     });
     return PersonWorkExperienceModel.fromJson(data as Map<String, dynamic>);
+  }
+
+  @override
+  Future<void> deletePersonWorkExperience(String id) async {
+    await _invoke('deletePersonWorkExperience', {'id': id});
   }
 }

@@ -188,6 +188,12 @@ final class MockPersonDatasource implements PersonDatasource {
   }
 
   @override
+  Future<void> deletePersonEducation(String id) async {
+    await _simulateProcessing();
+    _educations.removeWhere((e) => e.id == id);
+  }
+
+  @override
   Future<List<PersonWorkExperienceModel>> getPersonWorkExperiences(
     String personId,
   ) async {
@@ -221,6 +227,12 @@ final class MockPersonDatasource implements PersonDatasource {
     );
     _workExperiences.add(exp);
     return exp;
+  }
+
+  @override
+  Future<void> deletePersonWorkExperience(String id) async {
+    await _simulateProcessing();
+    _workExperiences.removeWhere((w) => w.id == id);
   }
 }
 
