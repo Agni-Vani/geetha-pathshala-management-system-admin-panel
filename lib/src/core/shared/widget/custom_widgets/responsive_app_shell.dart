@@ -127,19 +127,23 @@ class ResponsiveAppShell extends StatelessWidget {
                       if (!isMobile) sidebar,
                       Expanded(
                         child: Builder(
-                          builder: (innerContext) => Column(
-                            children: [
-                              CustomTopBar(
-                                title: topBarTitle,
-                                onBack: backAction,
-                                onMenuTap: isMobile
-                                    ? () =>
-                                          Scaffold.of(innerContext).openDrawer()
-                                    : null,
-                              ),
-                              Expanded(child: AppBackground(child: body)),
-                            ],
-                          ),
+                          builder: (innerContext) {
+                            final showTopBar = isMobile || backAction != null;
+                            return Column(
+                              children: [
+                                if (showTopBar)
+                                  CustomTopBar(
+                                    title: topBarTitle,
+                                    onBack: backAction,
+                                    onMenuTap: isMobile
+                                        ? () =>
+                                              Scaffold.of(innerContext).openDrawer()
+                                        : null,
+                                  ),
+                                Expanded(child: AppBackground(child: body)),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ],
