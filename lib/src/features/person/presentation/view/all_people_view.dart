@@ -302,7 +302,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
               onChanged: _onSearchChanged,
               style: TextStyle(fontSize: 13, color: colors.textColor),
               decoration: InputDecoration(
-                hintText: 'Search...',
+                hintText: 'Search',
                 hintStyle: TextStyle(fontSize: 13, color: colors.hintColor),
                 border: InputBorder.none,
                 isDense: true,
@@ -320,24 +320,8 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                 _onSearchChanged('');
               },
             )
-          else if (!isNarrow) ...[
-            Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF2F4F7),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: const Text(
-                '⌘K',
-                style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF667085),
-                ),
-              ),
-            ),
-          ],
+          else
+            const SizedBox(width: 8),
         ],
       ),
     );
