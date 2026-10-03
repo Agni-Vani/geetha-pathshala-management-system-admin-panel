@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geetha_pathshala_management_web/src/core/async_handlers/response.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
 import 'package:geetha_pathshala_management_web/src/di/di.dart';
@@ -36,6 +37,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
 
   /// Kept so a refresh after adding a person keeps the active search applied.
   String? _searchQuery;
+  PersonStatus? _statusFilter;
 
   @override
   void initState() {
@@ -86,6 +88,192 @@ class _AllPeopleViewState extends State<AllPeopleView> {
         .then((_) => _refreshList());
   }
 
+  Future<void> _togglePersonStatus(Person person) async {
+    final newStatus = person.status == PersonStatus.active
+        ? PersonStatus.inactive
+        : PersonStatus.active;
+    final isDeactivating = newStatus == PersonStatus.inactive;
+    final colors = AppColors.context(context);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: colors.backgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(
+              isDeactivating
+                  ? Icons.pause_circle_outline
+                  : Icons.play_circle_outline,
+              color: isDeactivating ? Colors.orange : Colors.green,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                isDeactivating
+                    ? 'Deactivate Person (নিষ্ক্রিয়)'
+                    : 'Activate Person (সক্রিয়)',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: colors.textColor,
+                ),
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          isDeactivating
+              ? 'Are you sure you want to mark "${person.displayName}" as Inactive? They will remain in records but marked as inactive.'
+              : 'Are you sure you want to reactivate "${person.displayName}"?',
+          style: TextStyle(color: colors.textColor),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text('Cancel', style: TextStyle(color: colors.hintColor)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor:
+                  isDeactivating ? Colors.orange : colors.primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              isDeactivating ? 'Deactivate' : 'Activate',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final response = await sl<UpdatePerson>().call(
+        UpdatePersonParams(personId: person.id, status: newStatus),
+      );
+      if (response is SuccessRepoCall) {
+        snackbarNotifier.notifySuccess(
+          message:
+              '${person.displayName} marked as ${isDeactivating ? "inactive" : "active"}.',
+        );
+        _refreshList();
+      } else {
+        snackbarNotifier.notifyError(message: response.message);
+      }
+    }
+  }
+
+  Widget _buildFilterChips(AppColors colors, List<Person> allPeople) {
+    final totalCount = allPeople.length;
+    final activeCount =
+        allPeople.where((p) => p.status == PersonStatus.active).length;
+    final inactiveCount =
+        allPeople.where((p) => p.status == PersonStatus.inactive).length;
+
+    Widget chip({
+      required String label,
+      required int count,
+      required bool isSelected,
+      required VoidCallback onTap,
+      Color? activeColor,
+    }) {
+      final color = activeColor ?? colors.primaryColor;
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            color: isSelected ? color : colors.surfaceColor,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected ? color : colors.dividerColor,
+              width: 1.2,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.25),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? Colors.white : colors.textColor,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.white.withValues(alpha: 0.25)
+                      : colors.softAccentColor,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '$count',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? Colors.white : colors.primaryColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          chip(
+            label: 'All (সকল)',
+            count: totalCount,
+            isSelected: _statusFilter == null,
+            onTap: () => setState(() => _statusFilter = null),
+          ),
+          const SizedBox(width: 8),
+          chip(
+            label: 'Active (সক্রিয়)',
+            count: activeCount,
+            isSelected: _statusFilter == PersonStatus.active,
+            activeColor: Colors.green[700],
+            onTap: () => setState(() => _statusFilter = PersonStatus.active),
+          ),
+          const SizedBox(width: 8),
+          chip(
+            label: 'Inactive (নিষ্ক্রিয়)',
+            count: inactiveCount,
+            isSelected: _statusFilter == PersonStatus.inactive,
+            activeColor: Colors.orange[800],
+            onTap: () => setState(() => _statusFilter = PersonStatus.inactive),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildHeader(BuildContext context, AppColors colors, bool isNarrow) {
     final titleBlock = Column(
@@ -159,9 +347,12 @@ class _AllPeopleViewState extends State<AllPeopleView> {
 
   Widget _buildGrid(AppColors colors) {
     final status = listPeopleController.processStatusNotifier.status;
-    final people = listPeopleController.people;
+    final allPeople = listPeopleController.people;
+    final people = _statusFilter == null
+        ? allPeople
+        : allPeople.where((p) => p.status == _statusFilter).toList();
 
-    if (status is ProcessLoading && people.isEmpty) {
+    if (status is ProcessLoading && allPeople.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 48),
         child: Center(child: CircularProgressIndicator(color: colors.primaryColor)),
@@ -169,18 +360,23 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     }
 
     if (people.isEmpty) {
-      // A search that found nothing is a different problem from an empty
-      // registry, so only the latter invites the user to register someone.
       final isSearching = _searchQuery != null && _searchQuery!.trim().isNotEmpty;
+      final isFiltering = _statusFilter != null;
 
       return CustomEmptyState(
-        icon: isSearching ? Icons.search_off : Icons.person_add_alt_1_outlined,
-        title: isSearching ? 'No matching person found' : 'No one registered yet',
+        icon: isSearching || isFiltering
+            ? Icons.search_off
+            : Icons.person_add_alt_1_outlined,
+        title: isSearching
+            ? 'No matching person found'
+            : (isFiltering ? 'No people in this category' : 'No one registered yet'),
         message: isSearching
             ? 'No person matches "${_searchQuery!.trim()}". Try a different name.'
-            : 'The community directory is empty. Register the first person to get started.',
-        actionLabel: isSearching ? null : 'Add New Person',
-        onAction: isSearching ? null : _openAddPerson,
+            : (isFiltering
+                ? 'No ${_statusFilter == PersonStatus.active ? "active" : "inactive"} people found.'
+                : 'The community directory is empty. Register the first person to get started.'),
+        actionLabel: isSearching || isFiltering ? null : 'Add New Person',
+        onAction: isSearching || isFiltering ? null : _openAddPerson,
       );
     }
 
@@ -197,8 +393,6 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           crossAxisCount: columns,
           crossAxisSpacing: spacing,
           mainAxisSpacing: spacing,
-          // Fits the card's content plus a second chip row on narrow cards;
-          // the card's Spacer absorbs the slack when the chips fit on one line.
           mainAxisExtent: 218,
         ),
         itemBuilder: (context, index) {
@@ -213,6 +407,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             isActive: person.status == PersonStatus.active,
             onTap: () => _openEditPerson(person),
             onEdit: () => _openEditPerson(person),
+            onToggleStatus: () => _togglePersonStatus(person),
           );
         },
         itemCount: people.length,
@@ -247,6 +442,14 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                         searchHint: 'Search by name...',
                         showFilters: false,
                         onSearchChanged: _onSearchChanged,
+                      ),
+                      const SizedBox(height: 12),
+                      AnimatedBuilder(
+                        animation: listPeopleController,
+                        builder: (context, _) => _buildFilterChips(
+                          colors,
+                          listPeopleController.people,
+                        ),
                       ),
                       SizedBox(height: AppSizes.sectionGap(context)),
                       AnimatedBuilder(

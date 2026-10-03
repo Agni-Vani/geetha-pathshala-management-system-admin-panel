@@ -20,6 +20,7 @@ class CustomPersonCard extends StatelessWidget {
   final bool isActive;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
+  final VoidCallback? onToggleStatus;
 
   const CustomPersonCard({
     super.key,
@@ -32,6 +33,7 @@ class CustomPersonCard extends StatelessWidget {
     this.isActive = true,
     this.onTap,
     this.onEdit,
+    this.onToggleStatus,
   });
 
   String get _initials {
@@ -69,13 +71,12 @@ class CustomPersonCard extends StatelessWidget {
         _MetaChip(icon: Icons.wc_outlined, label: normalizedGender, colors: colors),
       if (age != null)
         _MetaChip(icon: Icons.cake_outlined, label: '$age yrs', colors: colors),
-      if (!isActive)
-        _MetaChip(
-          icon: Icons.pause_circle_outline,
-          label: 'Inactive',
-          colors: colors,
-          foreground: colors.errorColor,
-        ),
+      _MetaChip(
+        icon: isActive ? Icons.check_circle_outline : Icons.pause_circle_outline,
+        label: isActive ? 'Active (সক্রিয়)' : 'Inactive (নিষ্ক্রিয়)',
+        colors: colors,
+        foreground: isActive ? Colors.green[800] : colors.errorColor,
+      ),
     ];
 
     return OrnamentalCard(
@@ -116,6 +117,22 @@ class CustomPersonCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (onToggleStatus != null) ...[
+                IconButton(
+                  icon: Icon(
+                    isActive ? Icons.pause_circle_outline : Icons.play_circle_outline,
+                    size: 19,
+                    color: isActive ? colors.hintColor : Colors.green[700],
+                  ),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  tooltip: isActive
+                      ? 'Mark Inactive (নিষ্ক্রিয় করুন)'
+                      : 'Mark Active (সক্রিয় করুন)',
+                  onPressed: onToggleStatus,
+                ),
+                const SizedBox(width: 8),
+              ],
               if (onEdit != null)
                 IconButton(
                   icon: Icon(
