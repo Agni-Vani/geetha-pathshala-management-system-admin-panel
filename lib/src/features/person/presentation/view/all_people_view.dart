@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:geetha_pathshala_management_web/src/core/async_handlers/response.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
@@ -410,24 +411,27 @@ class _AllPeopleViewState extends State<AllPeopleView> {
       ),
     );
 
-    return Wrap(
-      alignment: WrapAlignment.spaceBetween,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      spacing: 12,
-      runSpacing: 12,
-      children: [
-        titleBlock,
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: 10,
-          runSpacing: 10,
-          children: [
-            statusFilters,
-            searchBox,
-            addButton,
-          ],
-        ),
-      ],
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
+        children: [
+          titleBlock,
+          Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              statusFilters,
+              searchBox,
+              addButton,
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -937,6 +941,8 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           ],
         );
 
+        final tableWidth = math.max(constraints.maxWidth, 850.0);
+
         final card = Container(
           decoration: BoxDecoration(
             color: tableBg,
@@ -952,12 +958,8 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           ),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: constraints.maxWidth < 800
-                    ? 800
-                    : constraints.maxWidth,
-              ),
+            child: SizedBox(
+              width: tableWidth,
               child: content,
             ),
           ),
