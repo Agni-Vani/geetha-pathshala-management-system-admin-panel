@@ -10,17 +10,13 @@ import '../../../../core/theme/app_colors.dart';
 import 'add_person_view.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
-import '../widgets/custom_person_card.dart';
-import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.dart';
+import '../widgets/person_list_tile.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/app_sizes.dart';
 
 const _organizationId = AppConfig.defaultOrganizationId;
-
-/// Narrowest a person card may get before the grid drops a column.
-const _minCardWidth = 240.0;
 
 class AllPeopleView extends StatefulWidget {
   const AllPeopleView({super.key});
@@ -32,6 +28,7 @@ class AllPeopleView extends StatefulWidget {
 class _AllPeopleViewState extends State<AllPeopleView> {
   final ListPeopleController listPeopleController = sl.get<ListPeopleController>();
   late final SnackbarNotifier snackbarNotifier;
+  final TextEditingController _searchController = TextEditingController();
 
   final int _selectedIndex = 3;
 
@@ -44,6 +41,12 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     super.initState();
     snackbarNotifier = SnackbarNotifier(context: context);
     _refreshList();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   void _onSidebarItemSelected(int index) {
@@ -60,16 +63,10 @@ class _AllPeopleViewState extends State<AllPeopleView> {
   }
 
   void _onSearchChanged(String query) {
-    _searchQuery = query;
+    setState(() {
+      _searchQuery = query;
+    });
     _refreshList();
-  }
-
-  /// Seed data stores gender lowercase while the form saves it capitalised —
-  /// normalise so the grid reads the same either way.
-  String? _displayGender(String? gender) {
-    final value = gender?.trim();
-    if (value == null || value.isEmpty) return null;
-    return value[0].toUpperCase() + value.substring(1).toLowerCase();
   }
 
   void _openAddPerson() {
@@ -98,8 +95,8 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: colors.backgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: colors.dialogBackgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         title: Row(
           children: [
             Icon(
@@ -116,7 +113,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                     : 'Activate Person (সক্রিয়)',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                  fontSize: 16,
                   color: colors.textColor,
                 ),
               ),
@@ -127,7 +124,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           isDeactivating
               ? 'Are you sure you want to mark "${person.displayName}" as Inactive? They will remain in records but marked as inactive.'
               : 'Are you sure you want to reactivate "${person.displayName}"?',
-          style: TextStyle(color: colors.textColor),
+          style: TextStyle(color: colors.textColor, fontSize: 13.5),
         ),
         actions: [
           TextButton(
@@ -138,8 +135,9 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             style: ElevatedButton.styleFrom(
               backgroundColor:
                   isDeactivating ? Colors.orange : colors.primaryColor,
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(6),
               ),
             ),
             onPressed: () => Navigator.pop(ctx, true),
@@ -147,7 +145,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
               isDeactivating ? 'Deactivate' : 'Activate',
               style: const TextStyle(
                 color: Colors.white,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),
@@ -171,110 +169,6 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     }
   }
 
-  Widget _buildFilterChips(AppColors colors, List<Person> allPeople) {
-    final totalCount = allPeople.length;
-    final activeCount =
-        allPeople.where((p) => p.status == PersonStatus.active).length;
-    final inactiveCount =
-        allPeople.where((p) => p.status == PersonStatus.inactive).length;
-
-    Widget chip({
-      required String label,
-      required int count,
-      required bool isSelected,
-      required VoidCallback onTap,
-      Color? activeColor,
-    }) {
-      final color = activeColor ?? colors.primaryColor;
-      return InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-          decoration: BoxDecoration(
-            color: isSelected ? color : colors.surfaceColor,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: isSelected ? color : colors.dividerColor,
-              width: 1.2,
-            ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.25),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  color: isSelected ? Colors.white : colors.textColor,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? Colors.white.withValues(alpha: 0.25)
-                      : colors.softAccentColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '$count',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : colors.primaryColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          chip(
-            label: 'All (সকল)',
-            count: totalCount,
-            isSelected: _statusFilter == null,
-            onTap: () => setState(() => _statusFilter = null),
-          ),
-          const SizedBox(width: 8),
-          chip(
-            label: 'Active (সক্রিয়)',
-            count: activeCount,
-            isSelected: _statusFilter == PersonStatus.active,
-            activeColor: Colors.green[700],
-            onTap: () => setState(() => _statusFilter = PersonStatus.active),
-          ),
-          const SizedBox(width: 8),
-          chip(
-            label: 'Inactive (নিষ্ক্রিয়)',
-            count: inactiveCount,
-            isSelected: _statusFilter == PersonStatus.inactive,
-            activeColor: Colors.orange[800],
-            onTap: () => setState(() => _statusFilter = PersonStatus.inactive),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildHeader(BuildContext context, AppColors colors, bool isNarrow) {
     final titleBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -288,39 +182,49 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             ),
           ],
         ),
+        const SizedBox(height: 6),
         Text(
           "ব্যক্তি রেজিস্ট্রি",
-          style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500, color: colors.primaryColor),
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: colors.textColor,
+            letterSpacing: -0.3,
+          ),
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         Text(
           "Manage everyone registered in the community directory.",
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(
+            fontSize: 13,
+            color: colors.hintColor,
+          ),
         ),
       ],
     );
 
     final addButton = InkWell(
       onTap: _openAddPerson,
-      borderRadius: AppSizes.rectangleButtonRadius,
+      borderRadius: BorderRadius.circular(6),
       child: Container(
-        height: 52,
-        width: isNarrow ? double.infinity : null,
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        decoration: BoxDecoration(color: colors.primaryColor, borderRadius: AppSizes.rectangleButtonRadius),
-        child: Row(
-          mainAxisSize: isNarrow ? MainAxisSize.max : MainAxisSize.min,
+        height: 38,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: colors.primaryColor,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.add, size: 18, color: Colors.white),
-            const SizedBox(width: 8),
-            Flexible(
-              child: Text(
-                'Add New Person',
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+            Icon(Icons.add, size: 16, color: Colors.white),
+            SizedBox(width: 6),
+            Text(
+              'Add New Person',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
               ),
             ),
           ],
@@ -331,7 +235,11 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     if (isNarrow) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [titleBlock, const SizedBox(height: 16), addButton],
+        children: [
+          titleBlock,
+          const SizedBox(height: 14),
+          Row(children: [Expanded(child: addButton)]),
+        ],
       );
     }
 
@@ -345,7 +253,177 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     );
   }
 
-  Widget _buildGrid(AppColors colors) {
+  Widget _buildToolbar(
+    BuildContext context,
+    AppColors colors,
+    List<Person> allPeople,
+    bool isNarrow,
+  ) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final totalCount = allPeople.length;
+    final activeCount =
+        allPeople.where((p) => p.status == PersonStatus.active).length;
+    final inactiveCount =
+        allPeople.where((p) => p.status == PersonStatus.inactive).length;
+
+    final searchField = Container(
+      height: 38,
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF0F1B1B) : const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: isDark ? colors.borderColor : const Color(0xFFE5E7EB),
+        ),
+      ),
+      child: TextField(
+        controller: _searchController,
+        onChanged: _onSearchChanged,
+        style: TextStyle(fontSize: 13, color: colors.textColor),
+        decoration: InputDecoration(
+          hintText: 'Search by name...',
+          hintStyle: TextStyle(fontSize: 13, color: colors.hintColor),
+          prefixIcon: Icon(Icons.search, size: 18, color: colors.hintColor),
+          suffixIcon: _searchController.text.isNotEmpty
+              ? IconButton(
+                  icon: const Icon(Icons.close, size: 16),
+                  padding: EdgeInsets.zero,
+                  color: colors.hintColor,
+                  onPressed: () {
+                    _searchController.clear();
+                    _onSearchChanged('');
+                  },
+                )
+              : null,
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 9),
+          isDense: true,
+        ),
+      ),
+    );
+
+    Widget filterTab({
+      required String label,
+      required int count,
+      required bool isSelected,
+      required VoidCallback onTap,
+      Color? activeColor,
+    }) {
+      final color = activeColor ?? colors.primaryColor;
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(6),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
+            borderRadius: BorderRadius.circular(6),
+            border: Border.all(
+              color: isSelected ? color.withValues(alpha: 0.4) : Colors.transparent,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected ? color : colors.hintColor,
+                ),
+              ),
+              const SizedBox(width: 5),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? color.withValues(alpha: 0.2)
+                      : (isDark ? const Color(0xFF1E2D2D) : const Color(0xFFF3F4F6)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '$count',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? color : colors.hintColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final filterTabs = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        filterTab(
+          label: 'All',
+          count: totalCount,
+          isSelected: _statusFilter == null,
+          onTap: () => setState(() => _statusFilter = null),
+        ),
+        const SizedBox(width: 4),
+        filterTab(
+          label: 'Active',
+          count: activeCount,
+          isSelected: _statusFilter == PersonStatus.active,
+          activeColor: const Color(0xFF16A34A),
+          onTap: () => setState(() => _statusFilter = PersonStatus.active),
+        ),
+        const SizedBox(width: 4),
+        filterTab(
+          label: 'Inactive',
+          count: inactiveCount,
+          isSelected: _statusFilter == PersonStatus.inactive,
+          activeColor: const Color(0xFFEA580C),
+          onTap: () => setState(() => _statusFilter = PersonStatus.inactive),
+        ),
+      ],
+    );
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF13201F) : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDark ? colors.dividerColor : const Color(0xFFE5E7EB),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 2,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: isNarrow
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                searchField,
+                const SizedBox(height: 10),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: filterTabs,
+                ),
+              ],
+            )
+          : Row(
+              children: [
+                SizedBox(width: 320, child: searchField),
+                const Spacer(),
+                filterTabs,
+              ],
+            ),
+    );
+  }
+
+  Widget _buildList(AppColors colors) {
     final status = listPeopleController.processStatusNotifier.status;
     final allPeople = listPeopleController.people;
     final people = _statusFilter == null
@@ -355,7 +433,16 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     if (status is ProcessLoading && allPeople.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 48),
-        child: Center(child: CircularProgressIndicator(color: colors.primaryColor)),
+        child: Center(
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: colors.primaryColor,
+            ),
+          ),
+        ),
       );
     }
 
@@ -380,39 +467,37 @@ class _AllPeopleViewState extends State<AllPeopleView> {
       );
     }
 
-    // A column is only added while every card can still be at least
-    // [_minCardWidth] wide — below that the contents get squeezed and overflow.
-    return LayoutBuilder(builder: (context, constraints) {
-      const spacing = 20.0;
-      final columns = ((constraints.maxWidth + spacing) / (_minCardWidth + spacing)).floor().clamp(1, 4);
-
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: columns,
-          crossAxisSpacing: spacing,
-          mainAxisSpacing: spacing,
-          mainAxisExtent: 218,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 2, bottom: 8),
+          child: Text(
+            'Showing ${people.length} ${people.length == 1 ? "person" : "persons"}',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: colors.hintColor,
+            ),
+          ),
         ),
-        itemBuilder: (context, index) {
-          final person = people[index];
-          return CustomPersonCard(
-            name: person.displayName,
-            legalName: person.legalName,
-            phone: person.primaryPhone,
-            email: person.primaryEmail,
-            gender: _displayGender(person.gender),
-            dateOfBirth: person.dateOfBirth,
-            isActive: person.status == PersonStatus.active,
-            onTap: () => _openEditPerson(person),
-            onEdit: () => _openEditPerson(person),
-            onToggleStatus: () => _togglePersonStatus(person),
-          );
-        },
-        itemCount: people.length,
-      );
-    });
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: people.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          itemBuilder: (context, index) {
+            final person = people[index];
+            return PersonListTile(
+              person: person,
+              onTap: () => _openEditPerson(person),
+              onEdit: () => _openEditPerson(person),
+              onToggleStatus: () => _togglePersonStatus(person),
+            );
+          },
+        ),
+      ],
+    );
   }
 
   @override
@@ -437,26 +522,22 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildHeader(context, colors, isNarrow),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      CustomSearchFilterBar(
-                        searchHint: 'Search by name...',
-                        showFilters: false,
-                        onSearchChanged: _onSearchChanged,
-                      ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 16),
                       AnimatedBuilder(
                         animation: listPeopleController,
-                        builder: (context, _) => _buildFilterChips(
+                        builder: (context, _) => _buildToolbar(
+                          context,
                           colors,
                           listPeopleController.people,
+                          isNarrow,
                         ),
                       ),
-                      SizedBox(height: AppSizes.sectionGap(context)),
+                      const SizedBox(height: 16),
                       AnimatedBuilder(
                         animation: Listenable.merge(
                           [listPeopleController, listPeopleController.processStatusNotifier],
                         ),
-                        builder: (context, _) => _buildGrid(colors),
+                        builder: (context, _) => _buildList(colors),
                       ),
                     ],
                   );
