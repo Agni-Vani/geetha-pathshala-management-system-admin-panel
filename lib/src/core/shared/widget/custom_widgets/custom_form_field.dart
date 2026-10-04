@@ -80,8 +80,9 @@ class CustomFormField extends StatelessWidget {
         if (isDropdown)
           DropdownButtonFormField<String>(
             isExpanded: true,
-            initialValue: value,
+            initialValue: (value != null && items.toSet().contains(value)) ? value : null,
             items: items
+                .toSet()
                 .map((item) =>
                     DropdownMenuItem(value: item, child: Text(item)))
                 .toList(),

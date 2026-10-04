@@ -79,7 +79,7 @@ class CreatePathshalaController extends ChangeNotifier {
         res.data != null &&
         res.data!.isNotEmpty) {
       _districtEntities = res.data!;
-      _districts = res.data!.map((d) => d.name).toList()..sort();
+      _districts = res.data!.map((d) => d.name).toSet().toList()..sort();
       notifyListeners();
     }
   }
