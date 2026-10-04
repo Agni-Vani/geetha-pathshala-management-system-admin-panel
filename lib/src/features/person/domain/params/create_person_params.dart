@@ -12,6 +12,7 @@ final class CreatePersonParams {
   final String? gender;
   final String? primaryPhone;
   final String? primaryEmail;
+  final String? photoUrl;
   final List<CreatePersonContactParams> contacts;
   final List<CreatePersonRelationshipParams> relationships;
   final List<CreatePersonEducationParams> educations;
@@ -25,6 +26,7 @@ final class CreatePersonParams {
     required this.gender,
     required this.primaryPhone,
     required this.primaryEmail,
+    this.photoUrl,
     this.contacts = const [],
     this.relationships = const [],
     this.educations = const [],

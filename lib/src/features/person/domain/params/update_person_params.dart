@@ -9,6 +9,7 @@ final class UpdatePersonParams {
   final String? gender;
   final String? primaryPhone;
   final String? primaryEmail;
+  final String? photoUrl;
   final PersonStatus? status;
 
   const UpdatePersonParams({
@@ -19,6 +20,7 @@ final class UpdatePersonParams {
     this.gender,
     this.primaryPhone,
     this.primaryEmail,
+    this.photoUrl,
     this.status,
   });
 }

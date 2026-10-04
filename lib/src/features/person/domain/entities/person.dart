@@ -12,6 +12,7 @@ abstract class Person {
   String? get gender;
   String? get primaryPhone;
   String? get primaryEmail;
+  String? get photoUrl;
   PersonStatus get status;
   String? get createdByUserId;
   DateTime get createdAt;

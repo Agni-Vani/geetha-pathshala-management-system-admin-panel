@@ -65,6 +65,36 @@ void main() {
       final afterExps = (afterRes as SuccessRepoCall).data;
       expect(afterExps.any((e) => e.id == firstExpId), isFalse);
     });
+
+    test('createPerson and updatePerson persist photoUrl', () async {
+      const photoUrl = 'https://example.com/photos/avatar1.jpg';
+      final createRes = await repository.createPerson(
+        const CreatePersonParams(
+          organizationId: 'org-gp-central',
+          legalName: 'Test Photo Person',
+          preferredName: 'PhotoPerson',
+          dateOfBirth: null,
+          gender: null,
+          primaryPhone: null,
+          primaryEmail: null,
+          photoUrl: photoUrl,
+        ),
+      );
+      expect(createRes, isA<SuccessRepoCall>());
+      final created = (createRes as SuccessRepoCall).data;
+      expect(created.photoUrl, equals(photoUrl));
+
+      const updatedPhotoUrl = 'https://example.com/photos/avatar2.jpg';
+      final updateRes = await repository.updatePerson(
+        UpdatePersonParams(
+          personId: created.id,
+          photoUrl: updatedPhotoUrl,
+        ),
+      );
+      expect(updateRes, isA<SuccessRepoCall>());
+      final updated = (updateRes as SuccessRepoCall).data;
+      expect(updated.photoUrl, equals(updatedPhotoUrl));
+    });
   });
 }
 

@@ -745,7 +745,6 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                       Container(
                         width: 36,
                         height: 36,
-                        alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: colors.softAccentColor.withValues(alpha: 0.6),
                           shape: BoxShape.circle,
@@ -753,13 +752,35 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                             color: colors.primaryColor.withValues(alpha: 0.2),
                           ),
                         ),
-                        child: Text(
-                          initials,
-                          style: TextStyle(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w700,
-                            color: colors.primaryColor,
-                          ),
+                        child: ClipOval(
+                          child: (person.photoUrl != null &&
+                                  person.photoUrl!.trim().isNotEmpty)
+                              ? Image.network(
+                                  person.photoUrl!,
+                                  width: 36,
+                                  height: 36,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => Center(
+                                    child: Text(
+                                      initials,
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: colors.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Center(
+                                  child: Text(
+                                    initials,
+                                    style: TextStyle(
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.primaryColor,
+                                    ),
+                                  ),
+                                ),
                         ),
                       ),
                       const SizedBox(width: 12),

@@ -46,6 +46,7 @@ dependencies:
   # Routing
   go_router: ^17.2.3
   supabase_flutter: ^2.8.0
+  image_picker: ^1.1.2
 
 
 dev_dependencies:

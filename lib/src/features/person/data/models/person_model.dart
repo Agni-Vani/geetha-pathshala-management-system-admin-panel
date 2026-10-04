@@ -19,6 +19,7 @@ abstract class PersonModel extends Person with _$PersonModel {
     required String? gender,
     required String? primaryPhone,
     required String? primaryEmail,
+    String? photoUrl,
     required PersonStatus status,
     required String? createdByUserId,
     required DateTime createdAt,

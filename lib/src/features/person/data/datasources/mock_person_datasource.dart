@@ -65,6 +65,7 @@ final class MockPersonDatasource implements PersonDatasource {
       gender: params.gender,
       primaryPhone: params.primaryPhone,
       primaryEmail: params.primaryEmail,
+      photoUrl: params.photoUrl,
       status: PersonStatus.active,
       createdByUserId: null,
       createdAt: now,
@@ -132,6 +133,7 @@ final class MockPersonDatasource implements PersonDatasource {
       gender: params.gender ?? existing.gender,
       primaryPhone: params.primaryPhone ?? existing.primaryPhone,
       primaryEmail: params.primaryEmail ?? existing.primaryEmail,
+      photoUrl: params.photoUrl ?? existing.photoUrl,
       status: params.status ?? existing.status,
       updatedAt: DateTime.now(),
     );

@@ -31,6 +31,7 @@ final class SupabasePersonDatasource implements PersonDatasource {
       'gender': json['gender'],
       'primaryPhone': json['primaryPhone'] ?? json['primary_phone'],
       'primaryEmail': json['primaryEmail'] ?? json['primary_email'],
+      'photoUrl': json['photoUrl'] ?? json['photo_url'],
       'status': (json['status'] ?? 'active').toString().toLowerCase(),
       'createdByUserId': json['createdByUserId'] ?? json['created_by_user_id'],
       'createdAt': (json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()).toString(),
@@ -95,6 +96,7 @@ final class SupabasePersonDatasource implements PersonDatasource {
       'gender': params.gender,
       'primaryPhone': params.primaryPhone,
       'primaryEmail': params.primaryEmail,
+      if (params.photoUrl != null) 'photoUrl': params.photoUrl,
     };
 
     if (params.educations.isNotEmpty) {
@@ -145,6 +147,7 @@ final class SupabasePersonDatasource implements PersonDatasource {
       if (params.gender != null) 'gender': params.gender,
       if (params.primaryPhone != null) 'primaryPhone': params.primaryPhone,
       if (params.primaryEmail != null) 'primaryEmail': params.primaryEmail,
+      if (params.photoUrl != null) 'photoUrl': params.photoUrl,
       if (params.status != null) 'status': params.status!.name,
     };
     final data = await _invoke('updatePerson', payload);

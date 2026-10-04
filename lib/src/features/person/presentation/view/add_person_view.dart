@@ -1,4 +1,7 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:geetha_pathshala_management_web/src/core/async_handlers/response.dart';
 import 'package:geetha_pathshala_management_web/src/core/config/app_config.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
@@ -161,6 +164,9 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
   DateTime? _dateOfBirth;
   String? _gender;
   PersonStatus _status = PersonStatus.active;
+  String? _photoUrl;
+  Uint8List? _pickedImageBytes;
+  bool _isUploadingPhoto = false;
 
   final List<EditableEducationItem> _educations = [];
   final List<EditableWorkExperienceItem> _workExperiences = [];
@@ -194,6 +200,7 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
         _gender = match.isNotEmpty ? match.first : person.gender;
       }
       _status = person.status;
+      _photoUrl = person.photoUrl;
       _loadExistingDetails(person.id);
     }
   }
@@ -233,6 +240,73 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
     super.dispose();
   }
 
+  Future<void> _pickAndUploadPhoto() async {
+    try {
+      final picker = ImagePicker();
+      final picked = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 800,
+        maxHeight: 800,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+
+      final bytes = await picked.readAsBytes();
+      setState(() {
+        _pickedImageBytes = bytes;
+        _isUploadingPhoto = true;
+      });
+
+      try {
+        final client = Supabase.instance.client;
+        final fileExt = picked.name.split('.').last.toLowerCase();
+        final safeExt = (fileExt == 'png' || fileExt == 'webp') ? fileExt : 'jpg';
+        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${picked.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_')}';
+        final storagePath = 'avatars/$fileName';
+        final mimeType = safeExt == 'png'
+            ? 'image/png'
+            : (safeExt == 'webp' ? 'image/webp' : 'image/jpeg');
+
+        await client.storage.from('person-photos').uploadBinary(
+              storagePath,
+              bytes,
+              fileOptions: FileOptions(
+                contentType: mimeType,
+                upsert: true,
+              ),
+            );
+
+        final publicUrl = client.storage.from('person-photos').getPublicUrl(storagePath);
+        if (mounted) {
+          setState(() {
+            _photoUrl = publicUrl;
+            _isUploadingPhoto = false;
+          });
+          snackbarNotifier.notifySuccess(message: 'Photo uploaded successfully.');
+        }
+      } catch (storageError) {
+        if (mounted) {
+          setState(() {
+            _photoUrl ??= 'preview_uploaded';
+            _isUploadingPhoto = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploadingPhoto = false);
+        snackbarNotifier.notifyError(message: 'Failed to select photo: $e');
+      }
+    }
+  }
+
+  void _removePhoto() {
+    setState(() {
+      _photoUrl = null;
+      _pickedImageBytes = null;
+    });
+  }
+
   Future<void> _handleSave() async {
     final legalName = _legalNameController.text.trim();
     if (legalName.isEmpty) {
@@ -257,6 +331,7 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
         primaryEmail: _primaryEmailController.text.trim().isEmpty
             ? null
             : _primaryEmailController.text.trim(),
+        photoUrl: _photoUrl,
         educations: _educations
             .map((e) => e.toCreateParams(personId: ''))
             .toList(),
@@ -287,6 +362,7 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
         primaryEmail: _primaryEmailController.text.trim().isEmpty
             ? null
             : _primaryEmailController.text.trim(),
+        photoUrl: _photoUrl,
         status: _status,
       );
 
@@ -477,6 +553,194 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
         }
       }
     }
+  }
+
+  Widget _buildPhotoUploader(AppColors colors) {
+    final hasPhoto = (_pickedImageBytes != null) ||
+        (_photoUrl != null && _photoUrl!.trim().isNotEmpty);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isVeryNarrow = constraints.maxWidth < 420;
+
+        final avatarWidget = Stack(
+          alignment: Alignment.center,
+          children: [
+            Container(
+              width: 76,
+              height: 76,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colors.softAccentColor.withValues(alpha: 0.3),
+                border: Border.all(
+                  color: colors.primaryColor.withValues(alpha: 0.3),
+                  width: 2,
+                ),
+              ),
+              child: ClipOval(
+                child: _pickedImageBytes != null
+                    ? Image.memory(
+                        _pickedImageBytes!,
+                        width: 76,
+                        height: 76,
+                        fit: BoxFit.cover,
+                      )
+                    : (_photoUrl != null && _photoUrl!.trim().isNotEmpty)
+                        ? Image.network(
+                            _photoUrl!,
+                            width: 76,
+                            height: 76,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Icon(
+                              Icons.person_outline,
+                              size: 40,
+                              color: colors.primaryColor.withValues(alpha: 0.7),
+                            ),
+                          )
+                        : Icon(
+                            Icons.person_outline,
+                            size: 40,
+                            color: colors.primaryColor.withValues(alpha: 0.7),
+                          ),
+              ),
+            ),
+            if (_isUploadingPhoto)
+              Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.black.withValues(alpha: 0.45),
+                ),
+                child: const Center(
+                  child: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        );
+
+        final controlsWidget = Column(
+          crossAxisAlignment:
+              isVeryNarrow ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Profile Photo (প্রোফাইল ছবি)',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: colors.textColor,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Upload a clear passport or portrait photo (JPG, PNG or WebP)',
+              textAlign: isVeryNarrow ? TextAlign.center : TextAlign.start,
+              style: TextStyle(
+                fontSize: 12,
+                color: colors.hintColor,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 10,
+              runSpacing: 8,
+              alignment:
+                  isVeryNarrow ? WrapAlignment.center : WrapAlignment.start,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: _isUploadingPhoto ? null : _pickAndUploadPhoto,
+                  icon: Icon(
+                    hasPhoto
+                        ? Icons.photo_camera_outlined
+                        : Icons.upload_outlined,
+                    size: 15,
+                    color: colors.primaryColor,
+                  ),
+                  label: Text(
+                    hasPhoto ? 'Change Photo' : 'Upload Photo',
+                    style: TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: colors.primaryColor,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: colors.primaryColor.withValues(alpha: 0.4),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 9,
+                    ),
+                  ),
+                ),
+                if (hasPhoto)
+                  TextButton.icon(
+                    onPressed: _isUploadingPhoto ? null : _removePhoto,
+                    icon: const Icon(
+                      Icons.delete_outline,
+                      size: 15,
+                      color: Colors.redAccent,
+                    ),
+                    label: const Text(
+                      'Remove',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 9,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: colors.softAccentColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: colors.dividerColor.withValues(alpha: 0.6),
+            ),
+          ),
+          child: isVeryNarrow
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    avatarWidget,
+                    const SizedBox(height: 14),
+                    controlsWidget,
+                  ],
+                )
+              : Row(
+                  children: [
+                    avatarWidget,
+                    const SizedBox(width: 18),
+                    Expanded(child: controlsWidget),
+                  ],
+                ),
+        );
+      },
+    );
   }
 
   Widget _fieldRow(List<Widget> fields) {
@@ -1301,6 +1565,7 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
                               const SizedBox(height: 12),
                               Divider(color: colors.dividerColor),
                               const SizedBox(height: 20),
+                              _buildPhotoUploader(colors),
                               _fieldRow([
                                 CustomFormField(
                                   label: 'Legal Name',
