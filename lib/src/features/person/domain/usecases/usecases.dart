@@ -18,3 +18,5 @@ export 'list_teachers.dart';
 export 'update_person.dart';
 export 'delete_person_education.dart';
 export 'delete_person_work_experience.dart';
+export 'assign_person_as_teacher.dart';
+export 'admit_person_as_student.dart';

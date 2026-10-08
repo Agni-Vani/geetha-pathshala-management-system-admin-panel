@@ -14,4 +14,6 @@ abstract class PersonDatasource {
   Future<List<PersonWorkExperienceModel>> getPersonWorkExperiences(String personId);
   Future<PersonWorkExperienceModel> createPersonWorkExperience(CreatePersonWorkExperienceParams params);
   Future<void> deletePersonWorkExperience(String id);
+  Future<void> assignPersonAsTeacher(AssignPersonAsTeacherParams params);
+  Future<void> admitPersonAsStudent(AdmitPersonAsStudentParams params);
 }

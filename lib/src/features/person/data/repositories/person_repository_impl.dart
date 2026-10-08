@@ -81,6 +81,16 @@ final class PersonRepositoryImpl
     return _request(() => datasource.deletePersonWorkExperience(id));
   }
 
+  @override
+  AsyncRequest<void> assignPersonAsTeacher(AssignPersonAsTeacherParams params) {
+    return _request(() => datasource.assignPersonAsTeacher(params));
+  }
+
+  @override
+  AsyncRequest<void> admitPersonAsStudent(AdmitPersonAsStudentParams params) {
+    return _request(() => datasource.admitPersonAsStudent(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {

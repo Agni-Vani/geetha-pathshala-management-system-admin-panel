@@ -32,6 +32,11 @@ final class SupabasePersonDatasource implements PersonDatasource {
       'primaryPhone': json['primaryPhone'] ?? json['primary_phone'],
       'primaryEmail': json['primaryEmail'] ?? json['primary_email'],
       'photoUrl': json['photoUrl'] ?? json['photo_url'],
+      'area': json['area'] ?? json['district'] ?? json['division'],
+      'occupation': json['occupation'] ?? json['designation'],
+      'roles': (json['roles'] is List)
+          ? List<String>.from((json['roles'] as List).map((e) => e.toString()))
+          : <String>[],
       'status': (json['status'] ?? 'active').toString().toLowerCase(),
       'createdByUserId': json['createdByUserId'] ?? json['created_by_user_id'],
       'createdAt': (json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()).toString(),
@@ -260,5 +265,29 @@ final class SupabasePersonDatasource implements PersonDatasource {
   @override
   Future<void> deletePersonWorkExperience(String id) async {
     await _invoke('deletePersonWorkExperience', {'id': id});
+  }
+
+  @override
+  Future<void> assignPersonAsTeacher(AssignPersonAsTeacherParams params) async {
+    await _invoke('assignPersonAsTeacher', {
+      'personId': params.personId,
+      'organizationId': params.organizationId,
+      'pathshalaIds': params.pathshalaIds,
+      'role': params.role,
+      'subject': params.subject,
+      'joinedDate': params.joinedDate.toIso8601String().split('T').first,
+    });
+  }
+
+  @override
+  Future<void> admitPersonAsStudent(AdmitPersonAsStudentParams params) async {
+    await _invoke('admitPersonAsStudent', {
+      'personId': params.personId,
+      'organizationId': params.organizationId,
+      'pathshalaId': params.pathshalaId,
+      'rollNumber': params.rollNumber,
+      'admissionDate': params.admissionDate.toIso8601String().split('T').first,
+      'status': params.status.name,
+    });
   }
 }

@@ -236,6 +236,42 @@ final class MockPersonDatasource implements PersonDatasource {
     await _simulateProcessing();
     _workExperiences.removeWhere((w) => w.id == id);
   }
+
+  @override
+  Future<void> assignPersonAsTeacher(AssignPersonAsTeacherParams params) async {
+    await _simulateProcessing();
+    final index = _people.indexWhere((p) => p.id == params.personId);
+    if (index != -1) {
+      final person = _people[index];
+      final currentRoles = List<String>.from(person.roles);
+      if (!currentRoles.contains('Teacher')) {
+        currentRoles.remove('Unassigned');
+        currentRoles.add('Teacher');
+      }
+      _people[index] = person.copyWith(
+        roles: currentRoles,
+        occupation: person.occupation ?? params.role,
+      );
+    }
+  }
+
+  @override
+  Future<void> admitPersonAsStudent(AdmitPersonAsStudentParams params) async {
+    await _simulateProcessing();
+    final index = _people.indexWhere((p) => p.id == params.personId);
+    if (index != -1) {
+      final person = _people[index];
+      final currentRoles = List<String>.from(person.roles);
+      if (!currentRoles.contains('Student')) {
+        currentRoles.remove('Unassigned');
+        currentRoles.add('Student');
+      }
+      _people[index] = person.copyWith(
+        roles: currentRoles,
+        occupation: person.occupation ?? 'Student',
+      );
+    }
+  }
 }
 
 List<PersonModel> _seedPeople() {
@@ -250,6 +286,9 @@ List<PersonModel> _seedPeople() {
       gender: 'male',
       primaryPhone: '+8801711000001',
       primaryEmail: 'anirban.sen@example.org',
+      area: 'Dhaka',
+      occupation: 'Educator',
+      roles: const ['Teacher'],
       status: PersonStatus.active,
       createdByUserId: 'user-system-admin',
       createdAt: createdAt,
@@ -264,6 +303,9 @@ List<PersonModel> _seedPeople() {
       gender: 'female',
       primaryPhone: '+8801711000002',
       primaryEmail: 'madhuri.das@example.org',
+      area: 'Chattogram',
+      occupation: 'Teacher',
+      roles: const ['Teacher'],
       status: PersonStatus.active,
       createdByUserId: 'user-system-admin',
       createdAt: createdAt,
@@ -278,6 +320,9 @@ List<PersonModel> _seedPeople() {
       gender: 'male',
       primaryPhone: '+8801711000003',
       primaryEmail: 'tanmoy.chatterjee@example.org',
+      area: 'Sylhet',
+      occupation: 'Accountant',
+      roles: const ['Unassigned'],
       status: PersonStatus.active,
       createdByUserId: 'user-system-admin',
       createdAt: createdAt,
@@ -292,6 +337,9 @@ List<PersonModel> _seedPeople() {
       gender: 'male',
       primaryPhone: null,
       primaryEmail: null,
+      area: 'Dhaka',
+      occupation: 'Student',
+      roles: const ['Student'],
       status: PersonStatus.active,
       createdByUserId: 'user-pathshala-admin',
       createdAt: createdAt,
@@ -306,6 +354,9 @@ List<PersonModel> _seedPeople() {
       gender: 'female',
       primaryPhone: null,
       primaryEmail: null,
+      area: 'Dhaka',
+      occupation: 'Student',
+      roles: const ['Student'],
       status: PersonStatus.active,
       createdByUserId: 'user-pathshala-admin',
       createdAt: createdAt,
@@ -320,6 +371,9 @@ List<PersonModel> _seedPeople() {
       gender: 'male',
       primaryPhone: '+8801711000103',
       primaryEmail: 'subhash.roy@example.org',
+      area: 'Dhaka',
+      occupation: 'Business',
+      roles: const ['Unassigned'],
       status: PersonStatus.active,
       createdByUserId: 'user-pathshala-admin',
       createdAt: createdAt,

@@ -9,6 +9,8 @@ import '../controller/list_people_controller.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import 'add_person_view.dart';
+import '../widgets/assign_teacher_dialog.dart';
+import '../widgets/admit_student_dialog.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
@@ -35,6 +37,9 @@ class _AllPeopleViewState extends State<AllPeopleView> {
 
   String? _searchQuery;
   PersonStatus? _statusFilter;
+  String? _areaFilter;
+  String? _roleFilter;
+  String? _occupationFilter;
   int _currentPage = 1;
   static const int _pageSize = 10;
 
@@ -355,6 +360,20 @@ class _AllPeopleViewState extends State<AllPeopleView> {
       ),
     );
 
+    final availableAreas = allPeople
+        .map((p) => p.area)
+        .whereType<String>()
+        .toSet()
+        .toList()
+      ..sort();
+
+    final availableOccupations = allPeople
+        .map((p) => p.occupation)
+        .whereType<String>()
+        .toSet()
+        .toList()
+      ..sort();
+
     final statusFilters = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -397,24 +416,174 @@ class _AllPeopleViewState extends State<AllPeopleView> {
 
     return SizedBox(
       width: double.infinity,
-      child: Wrap(
-        alignment: WrapAlignment.spaceBetween,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: 12,
-        runSpacing: 12,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          titleBlock,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              titleBlock,
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  searchBox,
+                  addButton,
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
           Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             spacing: 10,
             runSpacing: 10,
             children: [
               statusFilters,
-              searchBox,
-              addButton,
+              _buildDropdownFilter(
+                context: context,
+                colors: colors,
+                label: 'Area',
+                value: _areaFilter,
+                items: availableAreas,
+                icon: Icons.location_on_outlined,
+                onChanged: (val) => setState(() {
+                  _areaFilter = val;
+                  _currentPage = 1;
+                }),
+              ),
+              _buildDropdownFilter(
+                context: context,
+                colors: colors,
+                label: 'Role',
+                value: _roleFilter,
+                items: const ['Teacher', 'Student', 'Unassigned'],
+                icon: Icons.badge_outlined,
+                onChanged: (val) => setState(() {
+                  _roleFilter = val;
+                  _currentPage = 1;
+                }),
+              ),
+              _buildDropdownFilter(
+                context: context,
+                colors: colors,
+                label: 'Occupation',
+                value: _occupationFilter,
+                items: availableOccupations,
+                icon: Icons.work_outline,
+                onChanged: (val) => setState(() {
+                  _occupationFilter = val;
+                  _currentPage = 1;
+                }),
+              ),
+              if (_areaFilter != null || _roleFilter != null || _occupationFilter != null)
+                TextButton.icon(
+                  onPressed: () => setState(() {
+                    _areaFilter = null;
+                    _roleFilter = null;
+                    _occupationFilter = null;
+                    _currentPage = 1;
+                  }),
+                  icon: const Icon(Icons.clear_all, size: 16),
+                  label: const Text('Reset Filters', style: TextStyle(fontSize: 12)),
+                  style: TextButton.styleFrom(
+                    foregroundColor: colors.hintColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  ),
+                ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildRoleBadge(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 0.8),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 10.5,
+          fontWeight: FontWeight.w600,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDropdownFilter({
+    required BuildContext context,
+    required AppColors colors,
+    required String label,
+    required String? value,
+    required List<String> items,
+    required IconData icon,
+    required ValueChanged<String?> onChanged,
+  }) {
+    final isSelected = value != null;
+    return Container(
+      height: 38,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isSelected ? colors.primaryColor : const Color(0xFFD0D5DD),
+          width: isSelected ? 1.5 : 1,
+        ),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String?>(
+          value: value,
+          isDense: true,
+          icon: Icon(
+            Icons.keyboard_arrow_down,
+            size: 17,
+            color: isSelected ? colors.primaryColor : colors.hintColor,
+          ),
+          style: TextStyle(
+            fontSize: 12.5,
+            color: isSelected ? colors.primaryColor : colors.textColor,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+          ),
+          hint: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 14, color: colors.hintColor),
+              const SizedBox(width: 6),
+              Text(label, style: TextStyle(fontSize: 12.5, color: colors.hintColor)),
+            ],
+          ),
+          items: [
+            DropdownMenuItem<String?>(
+              value: null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 14, color: colors.hintColor),
+                  const SizedBox(width: 6),
+                  Text('All $label', style: TextStyle(color: colors.textColor)),
+                ],
+              ),
+            ),
+            for (final item in items)
+              DropdownMenuItem<String?>(
+                value: item,
+                child: Text(item, style: TextStyle(color: colors.textColor)),
+              ),
+          ],
+          onChanged: onChanged,
+        ),
       ),
     );
   }
@@ -478,6 +647,18 @@ class _AllPeopleViewState extends State<AllPeopleView> {
         onSelected: (action) {
           if (action == 'edit') {
             _openEditPerson(person);
+          } else if (action == 'assign_teacher') {
+            AssignTeacherDialog.show(
+              context,
+              person: person,
+              onSuccess: _refreshList,
+            );
+          } else if (action == 'admit_student') {
+            AdmitStudentDialog.show(
+              context,
+              person: person,
+              onSuccess: _refreshList,
+            );
           } else if (action == 'toggle') {
             _togglePersonStatus(person);
           }
@@ -497,6 +678,35 @@ class _AllPeopleViewState extends State<AllPeopleView> {
               ],
             ),
           ),
+          PopupMenuItem<String>(
+            value: 'assign_teacher',
+            height: 38,
+            child: Row(
+              children: [
+                Icon(Icons.school_outlined, size: 16, color: colors.primaryColor),
+                const SizedBox(width: 8),
+                const Text(
+                  'Assign as Teacher',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF344054)),
+                ),
+              ],
+            ),
+          ),
+          PopupMenuItem<String>(
+            value: 'admit_student',
+            height: 38,
+            child: Row(
+              children: const [
+                Icon(Icons.person_add_alt_1_outlined, size: 16, color: Color(0xFF2563EB)),
+                SizedBox(width: 8),
+                Text(
+                  'Admit as Student',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF344054)),
+                ),
+              ],
+            ),
+          ),
+          const PopupMenuDivider(height: 1),
           PopupMenuItem<String>(
             value: 'toggle',
             height: 38,
@@ -653,6 +863,17 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             Expanded(
               flex: 3,
               child: Text(
+                'Area & Occupation',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: textMuted,
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Text(
                 'Phone Number',
                 style: TextStyle(
                   fontSize: 12,
@@ -789,15 +1010,28 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(
-                              person.displayName,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 13.5,
-                                fontWeight: FontWeight.w600,
-                                color: colors.textColor,
-                              ),
+                            Row(
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    person.displayName,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: colors.textColor,
+                                    ),
+                                  ),
+                                ),
+                                if (person.roles.contains('Teacher')) ...[
+                                  const SizedBox(width: 6),
+                                  _buildRoleBadge('Teacher', const Color(0xFF16A34A)),
+                                ] else if (person.roles.contains('Student')) ...[
+                                  const SizedBox(width: 6),
+                                  _buildRoleBadge('Student', const Color(0xFF2563EB)),
+                                ],
+                              ],
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -810,6 +1044,44 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.location_on_outlined, size: 13, color: colors.hintColor),
+                          const SizedBox(width: 4),
+                          Flexible(
+                            child: Text(
+                              person.area ?? '—',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                                color: colors.textColor,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        person.occupation ?? '—',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colors.hintColor,
                         ),
                       ),
                     ],
@@ -946,7 +1218,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           ],
         );
 
-        final tableWidth = math.max(constraints.maxWidth, 850.0);
+        final tableWidth = math.max(constraints.maxWidth, 940.0);
 
         final card = Container(
           decoration: BoxDecoration(
@@ -999,11 +1271,28 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                     ]),
                     builder: (context, _) {
                       final allPeople = listPeopleController.people;
-                      final people = _statusFilter == null
+                      var people = _statusFilter == null
                           ? allPeople
                           : allPeople
                               .where((p) => p.status == _statusFilter)
                               .toList();
+
+                      if (_areaFilter != null) {
+                        people = people.where((p) => p.area == _areaFilter).toList();
+                      }
+                      if (_roleFilter != null) {
+                        people = people.where((p) {
+                          if (_roleFilter == 'Teacher') return p.roles.contains('Teacher');
+                          if (_roleFilter == 'Student') return p.roles.contains('Student');
+                          if (_roleFilter == 'Unassigned') {
+                            return p.roles.isEmpty || p.roles.contains('Unassigned');
+                          }
+                          return true;
+                        }).toList();
+                      }
+                      if (_occupationFilter != null) {
+                        people = people.where((p) => p.occupation == _occupationFilter).toList();
+                      }
 
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

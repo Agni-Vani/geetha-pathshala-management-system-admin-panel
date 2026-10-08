@@ -13,6 +13,9 @@ abstract class Person {
   String? get primaryPhone;
   String? get primaryEmail;
   String? get photoUrl;
+  String? get area;
+  String? get occupation;
+  List<String> get roles;
   PersonStatus get status;
   String? get createdByUserId;
   DateTime get createdAt;

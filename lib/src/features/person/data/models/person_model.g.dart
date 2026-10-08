@@ -18,6 +18,11 @@ _PersonModel _$PersonModelFromJson(Map<String, dynamic> json) => _PersonModel(
   primaryPhone: json['primaryPhone'] as String?,
   primaryEmail: json['primaryEmail'] as String?,
   photoUrl: json['photoUrl'] as String?,
+  area: json['area'] as String?,
+  occupation: json['occupation'] as String?,
+  roles:
+      (json['roles'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
   status: $enumDecode(_$PersonStatusEnumMap, json['status']),
   createdByUserId: json['createdByUserId'] as String?,
   createdAt: DateTime.parse(json['createdAt'] as String),
@@ -35,6 +40,9 @@ Map<String, dynamic> _$PersonModelToJson(_PersonModel instance) =>
       'primaryPhone': instance.primaryPhone,
       'primaryEmail': instance.primaryEmail,
       'photoUrl': instance.photoUrl,
+      'area': instance.area,
+      'occupation': instance.occupation,
+      'roles': instance.roles,
       'status': _$PersonStatusEnumMap[instance.status]!,
       'createdByUserId': instance.createdByUserId,
       'createdAt': instance.createdAt.toIso8601String(),

@@ -1,3 +1,5 @@
+export 'admit_person_as_student_params.dart';
+export 'assign_person_as_teacher_params.dart';
 export 'create_person_params.dart';
 export 'person_education_params.dart';
 export 'person_work_experience_params.dart';
