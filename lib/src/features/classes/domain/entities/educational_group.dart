@@ -10,4 +10,11 @@ abstract class EducationalGroup {
   String get gradeLevel;
   GroupStatus get status;
   DateTime get createdAt;
+
+  String? get programId;
+  String? get levelId;
+  String? get classTeacherId;
+  String? get classTeacherName;
+  String? get room;
+  int? get maxCapacity;
 }

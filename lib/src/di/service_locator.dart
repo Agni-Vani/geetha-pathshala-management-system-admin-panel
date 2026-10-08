@@ -11,6 +11,7 @@ import '../features/authentication/domain/authentication_domain.dart';
 import '../features/authentication/presentation/controller/auth_controller.dart';
 import '../features/classes/data/classes_data.dart';
 import '../features/classes/domain/classes_domain.dart';
+import '../features/classes/presentation/controller/academic_programs_controller.dart';
 import '../features/classes/presentation/controller/add_class_controller.dart';
 import '../features/classes/presentation/controller/class_schedule_controller.dart';
 import '../features/dashboard/data/dashboard_data.dart';
@@ -269,6 +270,24 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(
     () => ListClassSchedules(repository: sl<ClassesRepository>()),
   );
+  sl.registerLazySingleton(
+    () => ListAcademicPrograms(repository: sl<ClassesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => CreateAcademicProgram(repository: sl<ClassesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ListAcademicLevels(repository: sl<ClassesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => CreateAcademicLevel(repository: sl<ClassesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => CreateEducationalGroup(repository: sl<ClassesRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => AssignClassTeacher(repository: sl<ClassesRepository>()),
+  );
 
   // Notices Use Cases
   sl.registerLazySingleton(
@@ -355,6 +374,18 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
       getNotices: sl<GetNotices>(),
       listStudentAdmissions: sl<ListStudentAdmissions>(),
       listTeacherAssignments: sl<ListTeacherAssignments>(),
+      listTeachers: sl<ListTeachers>(),
+      listEducationalGroups: sl<ListEducationalGroups>(),
+      listAcademicPrograms: sl<ListAcademicPrograms>(),
+      createEducationalGroup: sl<CreateEducationalGroup>(),
+    ),
+  );
+  sl.registerFactory(
+    () => AcademicProgramsController(
+      listAcademicPrograms: sl<ListAcademicPrograms>(),
+      createAcademicProgram: sl<CreateAcademicProgram>(),
+      listAcademicLevels: sl<ListAcademicLevels>(),
+      createAcademicLevel: sl<CreateAcademicLevel>(),
     ),
   );
   sl.registerFactory(

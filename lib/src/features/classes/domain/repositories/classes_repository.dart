@@ -10,4 +10,19 @@ abstract interface class ClassesRepository {
   AsyncRequest<List<ClassSchedule>> listClassSchedules(
     ListClassSchedulesParams params,
   );
+
+  AsyncRequest<List<AcademicProgram>> listAcademicPrograms();
+  AsyncRequest<AcademicProgram> createAcademicProgram(
+    CreateAcademicProgramParams params,
+  );
+  AsyncRequest<List<AcademicLevel>> listAcademicLevels(String programId);
+  AsyncRequest<AcademicLevel> createAcademicLevel(
+    CreateAcademicLevelParams params,
+  );
+  AsyncRequest<EducationalGroup> createEducationalGroup(
+    CreateEducationalGroupParams params,
+  );
+  AsyncRequest<EducationalGroup> assignClassTeacher(
+    AssignClassTeacherParams params,
+  );
 }

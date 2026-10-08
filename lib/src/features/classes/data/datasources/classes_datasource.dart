@@ -9,4 +9,19 @@ abstract class ClassesDatasource {
   Future<List<ClassScheduleModel>> listClassSchedules(
     ListClassSchedulesParams params,
   );
+
+  Future<List<AcademicProgramModel>> listAcademicPrograms();
+  Future<AcademicProgramModel> createAcademicProgram(
+    CreateAcademicProgramParams params,
+  );
+  Future<List<AcademicLevelModel>> listAcademicLevels(String programId);
+  Future<AcademicLevelModel> createAcademicLevel(
+    CreateAcademicLevelParams params,
+  );
+  Future<EducationalGroupModel> createEducationalGroup(
+    CreateEducationalGroupParams params,
+  );
+  Future<EducationalGroupModel> assignClassTeacher(
+    AssignClassTeacherParams params,
+  );
 }

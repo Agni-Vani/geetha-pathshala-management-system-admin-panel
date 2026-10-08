@@ -1,3 +1,9 @@
+export 'assign_class_teacher.dart';
+export 'create_academic_level.dart';
+export 'create_academic_program.dart';
+export 'create_educational_group.dart';
+export 'list_academic_levels.dart';
+export 'list_academic_programs.dart';
 export 'list_academic_years.dart';
 export 'list_class_schedules.dart';
 export 'list_educational_groups.dart';

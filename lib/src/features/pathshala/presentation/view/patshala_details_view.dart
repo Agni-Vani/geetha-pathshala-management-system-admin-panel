@@ -4,8 +4,9 @@ import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/di.dart';
-import '../../../classes/presentation/view/add_class_view.dart';
+import '../../../classes/presentation/view/academic_programs_view.dart';
 import '../../../classes/presentation/view/class_schedule_view.dart';
+import '../../../classes/presentation/widgets/add_pathshala_class_dialog.dart';
 import '../../domain/pathshala_domain.dart';
 import 'add_new_patshala_view.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
@@ -51,13 +52,31 @@ class PatshalaDetailsView extends StatefulWidget {
 }
 
 class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
-  static const _tabs = ['সারসংক্ষেপ', 'প্রশাসক', 'শিক্ষক', 'শিক্ষার্থী', 'উপস্থিতি', 'কার্যক্রম'];
+  static const _tabs = ['সারসংক্ষেপ', 'প্রশাসক', 'শিক্ষক', 'ক্লাস ও ব্যাচ', 'শিক্ষার্থী', 'উপস্থিতি'];
 
   final PathshalaDetailsController controller = sl.get<PathshalaDetailsController>();
   late final SnackbarNotifier snackbarNotifier;
 
   final int _selectedIndex = 1;
   int _selectedTab = 1;
+
+  Future<void> _openAddClassDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AddPathshalaClassDialog(
+        pathshala: widget.pathshala,
+        pathshalaTeachers: controller.pathshalaTeachers,
+        programs: controller.programs,
+        onSave: (params) async {
+          final ok = await controller.addClassGroup(params, snackbarNotifier: snackbarNotifier);
+          if (!ok) throw StateError('Failed to create class');
+        },
+      ),
+    );
+    if (result == true) {
+      snackbarNotifier.notifySuccess(message: 'নতুন ক্লাস ও ব্যাচ সফলভাবে খোলা হয়েছে');
+    }
+  }
 
   @override
   void initState() {
@@ -311,11 +330,7 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
     );
 
     final addClassButton = _pillButton(
-      onPressed: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => AddClassView(pathshala: pathshala)),
-        );
-      },
+      onPressed: _openAddClassDialog,
       icon: Icons.add,
       label: 'Add Class',
       filled: true,
@@ -500,6 +515,12 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
   }
 
   Widget _buildTabContent(AppColors colors, bool isNarrow) {
+    if (_selectedTab == 2) {
+      return _buildTeachersTab(colors, isNarrow);
+    }
+    if (_selectedTab == 3) {
+      return _buildClassesTab(colors, isNarrow);
+    }
     if (_selectedTab != 1) {
       return Container(
         width: double.infinity,
@@ -651,6 +672,323 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
           const CustomSectionHeader(icon: Icons.shield_outlined, title: 'বর্তমান প্রশাসক'),
           const SizedBox(height: 16),
           body,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTeachersTab(AppColors colors, bool isNarrow) {
+    final teachers = controller.pathshalaTeachers;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colors.backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: colors.shadowColor, blurRadius: 6, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CustomSectionHeader(
+                      icon: Icons.badge_outlined,
+                      title: 'পাঠশালায় কর্মরত শিক্ষকবৃন্দ',
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'কেন্দ্রীয় প্রশাসন কর্তৃক এই পাঠশালায় বরাদ্দকৃত শিক্ষকগণ (${teachers.length} জন)',
+                      style: TextStyle(fontSize: 13, color: colors.hintColor),
+                    ),
+                  ],
+                ),
+              ),
+              OutlinedButton.icon(
+                onPressed: () => AppSidebarNavigation.navigateToIndex(context, 3),
+                icon: const Icon(Icons.person_add_alt, size: 16),
+                label: const Text('নতুন শিক্ষক বরাদ্দ করুন'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: colors.primaryColor,
+                  side: BorderSide(color: colors.primaryColor),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Divider(color: colors.dividerColor),
+          const SizedBox(height: 16),
+          if (teachers.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(color: colors.tileColor, borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                children: [
+                  Icon(Icons.badge_outlined, size: 48, color: colors.hintColor),
+                  const SizedBox(height: 12),
+                  Text(
+                    'এই পাঠশালায় এখনো কোনো শিক্ষক বরাদ্দ করা হয়নি।',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: colors.textColor),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'ব্যক্তি রেজিস্ট্রি থেকে যেকোনো ব্যক্তিকে শিক্ষক হিসেবে এই পাঠশালায় যুক্ত করুন।',
+                    style: TextStyle(fontSize: 13, color: colors.hintColor),
+                  ),
+                ],
+              ),
+            )
+          else
+            LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.all(colors.tileColor),
+                    columns: const [
+                      DataColumn(label: Text('শিক্ষকের নাম')),
+                      DataColumn(label: Text('বিষয়')),
+                      DataColumn(label: Text('পদবী / ভূমিকা')),
+                      DataColumn(label: Text('স্ট্যাটাস')),
+                    ],
+                    rows: teachers.map((teacher) {
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 16,
+                                  backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
+                                  child: Icon(Icons.person_outline, size: 16, color: colors.primaryColor),
+                                ),
+                                const SizedBox(width: 10),
+                                Text(
+                                  teacher.name,
+                                  style: TextStyle(fontWeight: FontWeight.w600, color: colors.textColor),
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(Text(teacher.subject.isNotEmpty ? teacher.subject : 'সাধারণ')),
+                          DataCell(const Text('সহকারী শিক্ষক')),
+                          DataCell(
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                'কার্যরত',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF2E7D32)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClassesTab(AppColors colors, bool isNarrow) {
+    final classes = controller.classes;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colors.backgroundColor,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: colors.shadowColor, blurRadius: 6, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const CustomSectionHeader(
+                      icon: Icons.meeting_room_outlined,
+                      title: 'পাঠশালার ক্লাস ও ব্যাচসমূহ',
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'চলমান বিভিন্ন স্তরের ক্লাস এবং তাদের জন্য নিযুক্ত শ্রেণি শিক্ষকগণ (${classes.length} টি শাখা)',
+                      style: TextStyle(fontSize: 13, color: colors.hintColor),
+                    ),
+                  ],
+                ),
+              ),
+              Wrap(
+                spacing: 10,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const AcademicProgramsView()),
+                      );
+                    },
+                    icon: const Icon(Icons.settings_outlined, size: 16),
+                    label: const Text('একাডেমিক প্রোগ্রাম পরিচালনা'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: colors.primaryColor,
+                      side: BorderSide(color: colors.primaryColor),
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _openAddClassDialog,
+                    icon: const Icon(Icons.add, size: 16),
+                    label: const Text('নতুন ক্লাস / ব্যাচ খুলুন'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: colors.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Divider(color: colors.dividerColor),
+          const SizedBox(height: 16),
+          if (classes.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(color: colors.tileColor, borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                children: [
+                  Icon(Icons.meeting_room_outlined, size: 48, color: colors.hintColor),
+                  const SizedBox(height: 12),
+                  Text(
+                    'এই পাঠশালায় এখনো কোনো ক্লাস বা ব্যাচ খোলা হয়নি।',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: colors.textColor),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'উপরের "নতুন ক্লাস / ব্যাচ খুলুন" বোতাম ব্যবহার করে শ্রেণি বা লেভেলের শাখা তৈরি করুন।',
+                    style: TextStyle(fontSize: 13, color: colors.hintColor),
+                  ),
+                ],
+              ),
+            )
+          else
+            LayoutBuilder(
+              builder: (context, constraints) => SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                  child: DataTable(
+                    headingRowColor: WidgetStateProperty.all(colors.tileColor),
+                    columns: const [
+                      DataColumn(label: Text('শাখা / ব্যাচ')),
+                      DataColumn(label: Text('স্তর / শ্রেণি')),
+                      DataColumn(label: Text('শ্রেণি শিক্ষক (Class Teacher)')),
+                      DataColumn(label: Text('কক্ষ ও আসন')),
+                      DataColumn(label: Text('স্ট্যাটাস')),
+                    ],
+                    rows: classes.map((cls) {
+                      final hasTeacher = cls.classTeacherName != null && cls.classTeacherName!.isNotEmpty;
+
+                      return DataRow(
+                        cells: [
+                          DataCell(
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 14,
+                                  backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
+                                  child: Icon(Icons.school_outlined, size: 14, color: colors.primaryColor),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  cls.name,
+                                  style: TextStyle(fontWeight: FontWeight.bold, color: colors.textColor),
+                                ),
+                              ],
+                            ),
+                          ),
+                          DataCell(Text(cls.gradeLevel)),
+                          DataCell(
+                            hasTeacher
+                                ? Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 12,
+                                        backgroundColor: const Color(0xFFE8F5E9),
+                                        child: const Icon(Icons.check, size: 12, color: Color(0xFF2E7D32)),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        cls.classTeacherName!,
+                                        style: TextStyle(fontWeight: FontWeight.w600, color: colors.textColor),
+                                      ),
+                                    ],
+                                  )
+                                : Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF3E0),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: const Text(
+                                      'অনির্ধারিত',
+                                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFFE65100)),
+                                    ),
+                                  ),
+                          ),
+                          DataCell(Text('${cls.room ?? "—"} (ধারণক্ষমতা: ${cls.maxCapacity ?? 30})')),
+                          DataCell(
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE8F5E9),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: const Text(
+                                'চলমান',
+                                style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF2E7D32)),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );

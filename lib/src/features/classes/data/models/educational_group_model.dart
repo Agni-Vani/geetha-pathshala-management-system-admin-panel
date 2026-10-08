@@ -18,6 +18,12 @@ abstract class EducationalGroupModel extends EducationalGroup
     required String gradeLevel,
     required GroupStatus status,
     required DateTime createdAt,
+    String? programId,
+    String? levelId,
+    String? classTeacherId,
+    String? classTeacherName,
+    String? room,
+    int? maxCapacity,
   }) = _EducationalGroupModel;
 
   factory EducationalGroupModel.fromJson(Map<String, dynamic> json) =>

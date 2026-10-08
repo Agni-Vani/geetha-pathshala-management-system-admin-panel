@@ -16,6 +16,12 @@ _EducationalGroupModel _$EducationalGroupModelFromJson(
   gradeLevel: json['gradeLevel'] as String,
   status: $enumDecode(_$GroupStatusEnumMap, json['status']),
   createdAt: DateTime.parse(json['createdAt'] as String),
+  programId: json['programId'] as String?,
+  levelId: json['levelId'] as String?,
+  classTeacherId: json['classTeacherId'] as String?,
+  classTeacherName: json['classTeacherName'] as String?,
+  room: json['room'] as String?,
+  maxCapacity: (json['maxCapacity'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$EducationalGroupModelToJson(
@@ -28,6 +34,12 @@ Map<String, dynamic> _$EducationalGroupModelToJson(
   'gradeLevel': instance.gradeLevel,
   'status': _$GroupStatusEnumMap[instance.status]!,
   'createdAt': instance.createdAt.toIso8601String(),
+  'programId': instance.programId,
+  'levelId': instance.levelId,
+  'classTeacherId': instance.classTeacherId,
+  'classTeacherName': instance.classTeacherName,
+  'room': instance.room,
+  'maxCapacity': instance.maxCapacity,
 };
 
 const _$GroupStatusEnumMap = {

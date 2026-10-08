@@ -1,3 +1,5 @@
+export 'academic_level.dart';
+export 'academic_program.dart';
 export 'academic_year.dart';
 export 'class_schedule.dart';
 export 'classes_enums.dart';

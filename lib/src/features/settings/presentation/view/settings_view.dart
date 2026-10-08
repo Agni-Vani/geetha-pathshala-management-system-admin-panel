@@ -8,10 +8,12 @@ import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart'
 import '../../../areas/presentation/widgets/geographic_areas_management_widget.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../../classes/presentation/widgets/academic_programs_management_widget.dart';
 
 const _settingsTabs = [
   'Organization Profile',
   'Districts & Upazilas (ভৌগোলিক এলাকা)',
+  'Academic Programs & Levels (একাডেমিক প্রোগ্রাম ও স্তর)',
   'User Management',
   'General Settings',
   'Notification Settings',
@@ -171,6 +173,9 @@ class _SettingsViewState extends State<SettingsView> {
   Widget _buildTabContent(AppColors colors) {
     if (_selectedSettingsTab == 1) {
       return const GeographicAreasManagementWidget();
+    }
+    if (_selectedSettingsTab == 2) {
+      return const AcademicProgramsManagementWidget();
     }
 
     if (_selectedSettingsTab != 0) {

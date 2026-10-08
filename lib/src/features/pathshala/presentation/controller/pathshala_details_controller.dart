@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/process_notifier.dart';
-import 'package:geetha_pathshala_management_web/src/core/shared/reactive_notifier/snackbar_notifier.dart';
-import 'package:geetha_pathshala_management_web/src/core/utils/utils.dart';
-import '../../domain/pathshala_domain.dart';
-import '../../../person/domain/person_domain.dart';
+import '../../../../core/shared/reactive_notifier/process_notifier.dart';
+import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
+import '../../../../core/utils/utils.dart';
+import '../../../classes/domain/classes_domain.dart';
 import '../../../notices/domain/notices_domain.dart';
+import '../../../person/domain/person_domain.dart';
+import '../../domain/pathshala_domain.dart';
 
 /// A resolved committee member: the raw [membership] paired with the
 /// [person] it points to, so views don't need a second lookup.
@@ -16,7 +17,8 @@ final class PathshalaAdministrator {
 }
 
 class PathshalaDetailsController extends ChangeNotifier {
-  final ProcessStatusNotifier processStatusNotifier = ProcessStatusNotifier(initialStatus: ProcessEnabled());
+  final ProcessStatusNotifier processStatusNotifier =
+      ProcessStatusNotifier(initialStatus: ProcessEnabled());
 
   final ListCommittees listCommittees;
   final ListCommitteeMemberships listCommitteeMemberships;
@@ -24,6 +26,10 @@ class PathshalaDetailsController extends ChangeNotifier {
   final GetNotices getNotices;
   final ListStudentAdmissions listStudentAdmissions;
   final ListTeacherAssignments listTeacherAssignments;
+  final ListTeachers listTeachers;
+  final ListEducationalGroups listEducationalGroups;
+  final ListAcademicPrograms listAcademicPrograms;
+  final CreateEducationalGroup createEducationalGroup;
 
   PathshalaDetailsController({
     required this.listCommittees,
@@ -32,9 +38,16 @@ class PathshalaDetailsController extends ChangeNotifier {
     required this.getNotices,
     required this.listStudentAdmissions,
     required this.listTeacherAssignments,
+    required this.listTeachers,
+    required this.listEducationalGroups,
+    required this.listAcademicPrograms,
+    required this.createEducationalGroup,
   });
 
   List<PathshalaAdministrator> administrators = [];
+  List<Teacher> pathshalaTeachers = [];
+  List<EducationalGroup> classes = [];
+  List<AcademicProgram> programs = [];
   int studentsCount = 0;
   int teachersCount = 0;
   int noticesCount = 0;
@@ -51,6 +64,7 @@ class PathshalaDetailsController extends ChangeNotifier {
     SnackbarNotifier? snackbarNotifier,
   }) async {
     processStatusNotifier.setLoading();
+    notifyListeners();
 
     final committees = await handleFutureRequest(
       request: () => listCommittees.call(
@@ -109,18 +123,70 @@ class PathshalaDetailsController extends ChangeNotifier {
         ) ??
         const [];
 
+    // Load allocated teachers for this pathshala
+    final loadedTeachers = await handleFutureRequest(
+          request: () => listTeachers.call(
+            ListTeachersParams(pathshalaId: pathshalaId),
+          ),
+        ) ??
+        const [];
+
+    // Load classes / sections running at this pathshala
+    final loadedClasses = await handleFutureRequest(
+          request: () => listEducationalGroups.call(
+            ListGroupsParams(pathshalaId: pathshalaId),
+          ),
+        ) ??
+        const [];
+
+    // Load academic programs
+    final loadedPrograms = await handleFutureRequest(
+          request: () => listAcademicPrograms.call(),
+        ) ??
+        const [];
+
     final now = DateTime.now();
 
     administrators = resolvedAdministrators;
+    pathshalaTeachers = loadedTeachers;
+    classes = loadedClasses;
+    programs = loadedPrograms;
     noticesCount = notices.length;
     studentsCount = admissions.where((a) => a.status == AdmissionStatus.active).length;
-    teachersCount = assignments
-        .where((a) => a.effectiveTo == null || a.effectiveTo!.isAfter(now))
-        .map((a) => a.teacherProfileId)
-        .toSet()
-        .length;
+    teachersCount = loadedTeachers.isNotEmpty
+        ? loadedTeachers.length
+        : assignments
+            .where((a) => a.effectiveTo == null || a.effectiveTo!.isAfter(now))
+            .map((a) => a.teacherProfileId)
+            .toSet()
+            .length;
 
     processStatusNotifier.setSuccess();
     notifyListeners();
+  }
+
+  Future<bool> addClassGroup(
+    CreateEducationalGroupParams params, {
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    processStatusNotifier.setLoading();
+    notifyListeners();
+
+    final result = await handleFutureRequest(
+      request: () => createEducationalGroup.call(params),
+      successSnackbarNotifier: snackbarNotifier,
+      errorSnackbarNotifier: snackbarNotifier,
+      processStatusNotifier: processStatusNotifier,
+    );
+
+    if (result != null) {
+      classes = [...classes, result];
+      processStatusNotifier.setSuccess();
+      notifyListeners();
+      return true;
+    }
+    processStatusNotifier.setEnabled();
+    notifyListeners();
+    return false;
   }
 }

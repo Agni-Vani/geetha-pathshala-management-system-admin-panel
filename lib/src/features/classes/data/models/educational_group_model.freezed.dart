@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EducationalGroupModel {
 
- String get id; String get pathshalaId; String get academicYearId; String get name; String get gradeLevel; GroupStatus get status; DateTime get createdAt;
+ String get id; String get pathshalaId; String get academicYearId; String get name; String get gradeLevel; GroupStatus get status; DateTime get createdAt; String? get programId; String? get levelId; String? get classTeacherId; String? get classTeacherName; String? get room; int? get maxCapacity;
 /// Create a copy of EducationalGroupModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $EducationalGroupModelCopyWith<EducationalGroupModel> get copyWith => _$Educatio
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EducationalGroupModel&&(identical(other.id, id) || other.id == id)&&(identical(other.pathshalaId, pathshalaId) || other.pathshalaId == pathshalaId)&&(identical(other.academicYearId, academicYearId) || other.academicYearId == academicYearId)&&(identical(other.name, name) || other.name == name)&&(identical(other.gradeLevel, gradeLevel) || other.gradeLevel == gradeLevel)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EducationalGroupModel&&(identical(other.id, id) || other.id == id)&&(identical(other.pathshalaId, pathshalaId) || other.pathshalaId == pathshalaId)&&(identical(other.academicYearId, academicYearId) || other.academicYearId == academicYearId)&&(identical(other.name, name) || other.name == name)&&(identical(other.gradeLevel, gradeLevel) || other.gradeLevel == gradeLevel)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.programId, programId) || other.programId == programId)&&(identical(other.levelId, levelId) || other.levelId == levelId)&&(identical(other.classTeacherId, classTeacherId) || other.classTeacherId == classTeacherId)&&(identical(other.classTeacherName, classTeacherName) || other.classTeacherName == classTeacherName)&&(identical(other.room, room) || other.room == room)&&(identical(other.maxCapacity, maxCapacity) || other.maxCapacity == maxCapacity));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,pathshalaId,academicYearId,name,gradeLevel,status,createdAt);
+int get hashCode => Object.hash(runtimeType,id,pathshalaId,academicYearId,name,gradeLevel,status,createdAt,programId,levelId,classTeacherId,classTeacherName,room,maxCapacity);
 
 @override
 String toString() {
-  return 'EducationalGroupModel(id: $id, pathshalaId: $pathshalaId, academicYearId: $academicYearId, name: $name, gradeLevel: $gradeLevel, status: $status, createdAt: $createdAt)';
+  return 'EducationalGroupModel(id: $id, pathshalaId: $pathshalaId, academicYearId: $academicYearId, name: $name, gradeLevel: $gradeLevel, status: $status, createdAt: $createdAt, programId: $programId, levelId: $levelId, classTeacherId: $classTeacherId, classTeacherName: $classTeacherName, room: $room, maxCapacity: $maxCapacity)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $EducationalGroupModelCopyWith<$Res>  {
   factory $EducationalGroupModelCopyWith(EducationalGroupModel value, $Res Function(EducationalGroupModel) _then) = _$EducationalGroupModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String pathshalaId, String academicYearId, String name, String gradeLevel, GroupStatus status, DateTime createdAt
+ String id, String pathshalaId, String academicYearId, String name, String gradeLevel, GroupStatus status, DateTime createdAt, String? programId, String? levelId, String? classTeacherId, String? classTeacherName, String? room, int? maxCapacity
 });
 
 
@@ -65,7 +65,7 @@ class _$EducationalGroupModelCopyWithImpl<$Res>
 
 /// Create a copy of EducationalGroupModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? pathshalaId = null,Object? academicYearId = null,Object? name = null,Object? gradeLevel = null,Object? status = null,Object? createdAt = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? pathshalaId = null,Object? academicYearId = null,Object? name = null,Object? gradeLevel = null,Object? status = null,Object? createdAt = null,Object? programId = freezed,Object? levelId = freezed,Object? classTeacherId = freezed,Object? classTeacherName = freezed,Object? room = freezed,Object? maxCapacity = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,pathshalaId: null == pathshalaId ? _self.pathshalaId : pathshalaId // ignore: cast_nullable_to_non_nullable
@@ -74,7 +74,13 @@ as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non
 as String,gradeLevel: null == gradeLevel ? _self.gradeLevel : gradeLevel // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as GroupStatus,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,programId: freezed == programId ? _self.programId : programId // ignore: cast_nullable_to_non_nullable
+as String?,levelId: freezed == levelId ? _self.levelId : levelId // ignore: cast_nullable_to_non_nullable
+as String?,classTeacherId: freezed == classTeacherId ? _self.classTeacherId : classTeacherId // ignore: cast_nullable_to_non_nullable
+as String?,classTeacherName: freezed == classTeacherName ? _self.classTeacherName : classTeacherName // ignore: cast_nullable_to_non_nullable
+as String?,room: freezed == room ? _self.room : room // ignore: cast_nullable_to_non_nullable
+as String?,maxCapacity: freezed == maxCapacity ? _self.maxCapacity : maxCapacity // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 
@@ -159,10 +165,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String pathshalaId,  String academicYearId,  String name,  String gradeLevel,  GroupStatus status,  DateTime createdAt)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String pathshalaId,  String academicYearId,  String name,  String gradeLevel,  GroupStatus status,  DateTime createdAt,  String? programId,  String? levelId,  String? classTeacherId,  String? classTeacherName,  String? room,  int? maxCapacity)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EducationalGroupModel() when $default != null:
-return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that.gradeLevel,_that.status,_that.createdAt);case _:
+return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that.gradeLevel,_that.status,_that.createdAt,_that.programId,_that.levelId,_that.classTeacherId,_that.classTeacherName,_that.room,_that.maxCapacity);case _:
   return orElse();
 
 }
@@ -180,10 +186,10 @@ return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String pathshalaId,  String academicYearId,  String name,  String gradeLevel,  GroupStatus status,  DateTime createdAt)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String pathshalaId,  String academicYearId,  String name,  String gradeLevel,  GroupStatus status,  DateTime createdAt,  String? programId,  String? levelId,  String? classTeacherId,  String? classTeacherName,  String? room,  int? maxCapacity)  $default,) {final _that = this;
 switch (_that) {
 case _EducationalGroupModel():
-return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that.gradeLevel,_that.status,_that.createdAt);case _:
+return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that.gradeLevel,_that.status,_that.createdAt,_that.programId,_that.levelId,_that.classTeacherId,_that.classTeacherName,_that.room,_that.maxCapacity);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -200,10 +206,10 @@ return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String pathshalaId,  String academicYearId,  String name,  String gradeLevel,  GroupStatus status,  DateTime createdAt)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String pathshalaId,  String academicYearId,  String name,  String gradeLevel,  GroupStatus status,  DateTime createdAt,  String? programId,  String? levelId,  String? classTeacherId,  String? classTeacherName,  String? room,  int? maxCapacity)?  $default,) {final _that = this;
 switch (_that) {
 case _EducationalGroupModel() when $default != null:
-return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that.gradeLevel,_that.status,_that.createdAt);case _:
+return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that.gradeLevel,_that.status,_that.createdAt,_that.programId,_that.levelId,_that.classTeacherId,_that.classTeacherName,_that.room,_that.maxCapacity);case _:
   return null;
 
 }
@@ -215,7 +221,7 @@ return $default(_that.id,_that.pathshalaId,_that.academicYearId,_that.name,_that
 @JsonSerializable()
 
 class _EducationalGroupModel extends EducationalGroupModel {
-  const _EducationalGroupModel({required this.id, required this.pathshalaId, required this.academicYearId, required this.name, required this.gradeLevel, required this.status, required this.createdAt}): super._();
+  const _EducationalGroupModel({required this.id, required this.pathshalaId, required this.academicYearId, required this.name, required this.gradeLevel, required this.status, required this.createdAt, this.programId, this.levelId, this.classTeacherId, this.classTeacherName, this.room, this.maxCapacity}): super._();
   factory _EducationalGroupModel.fromJson(Map<String, dynamic> json) => _$EducationalGroupModelFromJson(json);
 
 @override final  String id;
@@ -225,6 +231,12 @@ class _EducationalGroupModel extends EducationalGroupModel {
 @override final  String gradeLevel;
 @override final  GroupStatus status;
 @override final  DateTime createdAt;
+@override final  String? programId;
+@override final  String? levelId;
+@override final  String? classTeacherId;
+@override final  String? classTeacherName;
+@override final  String? room;
+@override final  int? maxCapacity;
 
 /// Create a copy of EducationalGroupModel
 /// with the given fields replaced by the non-null parameter values.
@@ -239,16 +251,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EducationalGroupModel&&(identical(other.id, id) || other.id == id)&&(identical(other.pathshalaId, pathshalaId) || other.pathshalaId == pathshalaId)&&(identical(other.academicYearId, academicYearId) || other.academicYearId == academicYearId)&&(identical(other.name, name) || other.name == name)&&(identical(other.gradeLevel, gradeLevel) || other.gradeLevel == gradeLevel)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EducationalGroupModel&&(identical(other.id, id) || other.id == id)&&(identical(other.pathshalaId, pathshalaId) || other.pathshalaId == pathshalaId)&&(identical(other.academicYearId, academicYearId) || other.academicYearId == academicYearId)&&(identical(other.name, name) || other.name == name)&&(identical(other.gradeLevel, gradeLevel) || other.gradeLevel == gradeLevel)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.programId, programId) || other.programId == programId)&&(identical(other.levelId, levelId) || other.levelId == levelId)&&(identical(other.classTeacherId, classTeacherId) || other.classTeacherId == classTeacherId)&&(identical(other.classTeacherName, classTeacherName) || other.classTeacherName == classTeacherName)&&(identical(other.room, room) || other.room == room)&&(identical(other.maxCapacity, maxCapacity) || other.maxCapacity == maxCapacity));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,pathshalaId,academicYearId,name,gradeLevel,status,createdAt);
+int get hashCode => Object.hash(runtimeType,id,pathshalaId,academicYearId,name,gradeLevel,status,createdAt,programId,levelId,classTeacherId,classTeacherName,room,maxCapacity);
 
 @override
 String toString() {
-  return 'EducationalGroupModel(id: $id, pathshalaId: $pathshalaId, academicYearId: $academicYearId, name: $name, gradeLevel: $gradeLevel, status: $status, createdAt: $createdAt)';
+  return 'EducationalGroupModel(id: $id, pathshalaId: $pathshalaId, academicYearId: $academicYearId, name: $name, gradeLevel: $gradeLevel, status: $status, createdAt: $createdAt, programId: $programId, levelId: $levelId, classTeacherId: $classTeacherId, classTeacherName: $classTeacherName, room: $room, maxCapacity: $maxCapacity)';
 }
 
 
@@ -259,7 +271,7 @@ abstract mixin class _$EducationalGroupModelCopyWith<$Res> implements $Education
   factory _$EducationalGroupModelCopyWith(_EducationalGroupModel value, $Res Function(_EducationalGroupModel) _then) = __$EducationalGroupModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String pathshalaId, String academicYearId, String name, String gradeLevel, GroupStatus status, DateTime createdAt
+ String id, String pathshalaId, String academicYearId, String name, String gradeLevel, GroupStatus status, DateTime createdAt, String? programId, String? levelId, String? classTeacherId, String? classTeacherName, String? room, int? maxCapacity
 });
 
 
@@ -276,7 +288,7 @@ class __$EducationalGroupModelCopyWithImpl<$Res>
 
 /// Create a copy of EducationalGroupModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? pathshalaId = null,Object? academicYearId = null,Object? name = null,Object? gradeLevel = null,Object? status = null,Object? createdAt = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? pathshalaId = null,Object? academicYearId = null,Object? name = null,Object? gradeLevel = null,Object? status = null,Object? createdAt = null,Object? programId = freezed,Object? levelId = freezed,Object? classTeacherId = freezed,Object? classTeacherName = freezed,Object? room = freezed,Object? maxCapacity = freezed,}) {
   return _then(_EducationalGroupModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,pathshalaId: null == pathshalaId ? _self.pathshalaId : pathshalaId // ignore: cast_nullable_to_non_nullable
@@ -285,7 +297,13 @@ as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non
 as String,gradeLevel: null == gradeLevel ? _self.gradeLevel : gradeLevel // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
 as GroupStatus,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,
+as DateTime,programId: freezed == programId ? _self.programId : programId // ignore: cast_nullable_to_non_nullable
+as String?,levelId: freezed == levelId ? _self.levelId : levelId // ignore: cast_nullable_to_non_nullable
+as String?,classTeacherId: freezed == classTeacherId ? _self.classTeacherId : classTeacherId // ignore: cast_nullable_to_non_nullable
+as String?,classTeacherName: freezed == classTeacherName ? _self.classTeacherName : classTeacherName // ignore: cast_nullable_to_non_nullable
+as String?,room: freezed == room ? _self.room : room // ignore: cast_nullable_to_non_nullable
+as String?,maxCapacity: freezed == maxCapacity ? _self.maxCapacity : maxCapacity // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

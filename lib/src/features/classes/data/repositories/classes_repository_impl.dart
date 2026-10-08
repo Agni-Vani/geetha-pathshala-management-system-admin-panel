@@ -32,6 +32,44 @@ final class ClassesRepositoryImpl
     return _request(() => datasource.listClassSchedules(params));
   }
 
+  @override
+  AsyncRequest<List<AcademicProgram>> listAcademicPrograms() {
+    return _request(() => datasource.listAcademicPrograms());
+  }
+
+  @override
+  AsyncRequest<AcademicProgram> createAcademicProgram(
+    CreateAcademicProgramParams params,
+  ) {
+    return _request(() => datasource.createAcademicProgram(params));
+  }
+
+  @override
+  AsyncRequest<List<AcademicLevel>> listAcademicLevels(String programId) {
+    return _request(() => datasource.listAcademicLevels(programId));
+  }
+
+  @override
+  AsyncRequest<AcademicLevel> createAcademicLevel(
+    CreateAcademicLevelParams params,
+  ) {
+    return _request(() => datasource.createAcademicLevel(params));
+  }
+
+  @override
+  AsyncRequest<EducationalGroup> createEducationalGroup(
+    CreateEducationalGroupParams params,
+  ) {
+    return _request(() => datasource.createEducationalGroup(params));
+  }
+
+  @override
+  AsyncRequest<EducationalGroup> assignClassTeacher(
+    AssignClassTeacherParams params,
+  ) {
+    return _request(() => datasource.assignClassTeacher(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {
