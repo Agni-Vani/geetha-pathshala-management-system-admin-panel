@@ -41,7 +41,7 @@ final GetIt sl = GetIt.instance;
 
 /// Central Service Locator initialization under `lib/src/di/service_locator.dart`.
 /// Set [useMockData] to seamlessly switch between Mock and Supabase Real Datasources.
-Future<void> setupServiceLocator({bool useMockData = true}) async {
+Future<void> setupServiceLocator({bool useMockData = false}) async {
   // Reset service locator if re-initializing
   await sl.reset();
 
@@ -113,8 +113,9 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
     sl.registerLazySingleton<EventsDatasource>(
       () => SupabaseEventsDatasource(),
     );
+    // User requirement: Keep dashboard mock data usage for now
     sl.registerLazySingleton<DashboardDatasource>(
-      () => SupabaseDashboardDatasource(),
+      () => MockDashboardDatasource(processingDelay: Duration.zero),
     );
   }
 

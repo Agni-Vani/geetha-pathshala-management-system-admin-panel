@@ -4,7 +4,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/params/params.dart';
 import '../models/models.dart';
 import 'iam_datasource.dart';
-import 'mock_iam_datasource.dart';
 
 final class SupabaseIamDatasource implements IamDatasource {
   final SupabaseClient client;
@@ -140,36 +139,26 @@ final class SupabaseIamDatasource implements IamDatasource {
 
   @override
   Future<List<UserAccountModel>> listUserAccounts() async {
-    try {
-      final data = await _invoke('listUserAccounts', {});
-      final list =
-          (data is Map && data['data'] is List)
-              ? data['data'] as List
-              : data as List;
-      return list
-          .map((json) => UserAccountModel.fromJson(_normalizeUserAccount(json as Map<String, dynamic>)))
-          .toList();
-    } catch (e) {
-      debugPrint('⚠️ [SupabaseIamDatasource] listUserAccounts edge function failed ($e), falling back to mock');
-      return MockIamDatasource().listUserAccounts();
-    }
+    final data = await _invoke('listUserAccounts', {});
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
+        .map((json) => UserAccountModel.fromJson(_normalizeUserAccount(json as Map<String, dynamic>)))
+        .toList();
   }
 
   @override
   Future<List<UserRoleModel>> listAllUserRoles() async {
-    try {
-      final data = await _invoke('listAllUserRoles', {});
-      final list =
-          (data is Map && data['data'] is List)
-              ? data['data'] as List
-              : data as List;
-      return list
-          .map((json) => UserRoleModel.fromJson(_normalizeUserRole(json as Map<String, dynamic>)))
-          .toList();
-    } catch (e) {
-      debugPrint('⚠️ [SupabaseIamDatasource] listAllUserRoles edge function failed ($e), falling back to mock');
-      return MockIamDatasource().listAllUserRoles();
-    }
+    final data = await _invoke('listAllUserRoles', {});
+    final list =
+        (data is Map && data['data'] is List)
+            ? data['data'] as List
+            : data as List;
+    return list
+        .map((json) => UserRoleModel.fromJson(_normalizeUserRole(json as Map<String, dynamic>)))
+        .toList();
   }
 
   @override
@@ -186,40 +175,30 @@ final class SupabaseIamDatasource implements IamDatasource {
 
   @override
   Future<Map<String, dynamic>> createPathshalaAdmin(CreatePathshalaAdminParams params) async {
-    try {
-      final data = await _invoke('createPathshalaAdmin', {
-        'pathshalaId': params.pathshalaId,
-        'email': params.email,
-        'password': params.password,
-        'personId': params.personId,
-        'personData': {
-          'legalName': params.legalName,
-          'preferredName': params.preferredName,
-          'primaryPhone': params.primaryPhone,
-          'area': params.area,
-        },
-        'title': params.title,
-        'effectiveFrom': params.effectiveFrom.toIso8601String(),
-      });
-      return Map<String, dynamic>.from(data as Map);
-    } catch (e) {
-      debugPrint('⚠️ [SupabaseIamDatasource] createPathshalaAdmin edge function failed ($e), falling back to mock');
-      return MockIamDatasource().createPathshalaAdmin(params);
-    }
+    final data = await _invoke('createPathshalaAdmin', {
+      'pathshalaId': params.pathshalaId,
+      'email': params.email,
+      'password': params.password,
+      'personId': params.personId,
+      'personData': {
+        'legalName': params.legalName,
+        'preferredName': params.preferredName,
+        'primaryPhone': params.primaryPhone,
+        'area': params.area,
+      },
+      'title': params.title,
+      'effectiveFrom': params.effectiveFrom.toIso8601String(),
+    });
+    return Map<String, dynamic>.from(data as Map);
   }
 
   @override
   Future<void> resetUserPassword(ResetUserPasswordParams params) async {
-    try {
-      await _invoke('resetUserPassword', {
-        'userAccountId': params.userAccountId,
-        'email': params.email,
-        'newPassword': params.newPassword,
-      });
-    } catch (e) {
-      debugPrint('⚠️ [SupabaseIamDatasource] resetUserPassword edge function failed ($e), falling back to mock');
-      return MockIamDatasource().resetUserPassword(params);
-    }
+    await _invoke('resetUserPassword', {
+      'userAccountId': params.userAccountId,
+      'email': params.email,
+      'newPassword': params.newPassword,
+    });
   }
 
   Map<String, dynamic> _normalizeUserAccount(Map<String, dynamic> json) {

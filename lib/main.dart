@@ -22,8 +22,8 @@ Future<void> main() async {
     );
   }
 
-  // Initialize DI service locator (uses live Supabase remote datasources by default)
-  await setupServiceLocator(useMockData: !AppConfig.shouldUseRemote);
+  // Initialize DI service locator (uses live Supabase remote datasources; Dashboard mock retained)
+  await setupServiceLocator(useMockData: false);
 
   runApp(const MyApp());
 }
