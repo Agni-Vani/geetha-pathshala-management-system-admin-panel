@@ -127,12 +127,22 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
           border: filled ? null : Border.all(color: colors.primaryColor),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 16, color: contentColor),
             const SizedBox(width: 8),
-            Text(label, style: TextStyle(color: contentColor, fontWeight: FontWeight.w600)),
+            if (expand)
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(color: contentColor, fontWeight: FontWeight.w600),
+                ),
+              )
+            else
+              Text(label, style: TextStyle(color: contentColor, fontWeight: FontWeight.w600)),
           ],
         ),
       ),
@@ -683,19 +693,35 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const CustomSectionHeader(icon: Icons.shield_outlined, title: 'বর্তমান প্রশাসক'),
-              _pillButton(
-                onPressed: _openAssignAdminDialog,
-                icon: Icons.person_add_alt_1_outlined,
-                label: admin == null ? 'প্রশাসক নিয়োগ' : 'নতুন প্রশাসক নিয়োগ / পরিবর্তন',
-                filled: true,
-                colors: colors,
-              ),
-            ],
-          ),
+          if (isNarrow) ...[
+            const CustomSectionHeader(icon: Icons.shield_outlined, title: 'বর্তমান প্রশাসক'),
+            const SizedBox(height: 12),
+            _pillButton(
+              onPressed: _openAssignAdminDialog,
+              icon: Icons.person_add_alt_1_outlined,
+              label: admin == null ? 'প্রশাসক নিয়োগ' : 'নতুন প্রশাসক নিয়োগ / পরিবর্তন',
+              filled: true,
+              colors: colors,
+              expand: true,
+            ),
+          ] else ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Expanded(
+                  child: CustomSectionHeader(icon: Icons.shield_outlined, title: 'বর্তমান প্রশাসক'),
+                ),
+                const SizedBox(width: 12),
+                _pillButton(
+                  onPressed: _openAssignAdminDialog,
+                  icon: Icons.person_add_alt_1_outlined,
+                  label: admin == null ? 'প্রশাসক নিয়োগ' : 'নতুন প্রশাসক নিয়োগ / পরিবর্তন',
+                  filled: true,
+                  colors: colors,
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 16),
           body,
         ],
@@ -725,35 +751,62 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const CustomSectionHeader(
-                      icon: Icons.badge_outlined,
-                      title: 'পাঠশালায় কর্মরত শিক্ষকবৃন্দ',
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'কেন্দ্রীয় প্রশাসন কর্তৃক এই পাঠশালায় বরাদ্দকৃত শিক্ষকগণ (${teachers.length} জন)',
-                      style: TextStyle(fontSize: 13, color: colors.hintColor),
-                    ),
-                  ],
+          if (isNarrow) ...[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CustomSectionHeader(
+                  icon: Icons.badge_outlined,
+                  title: 'পাঠশালায় কর্মরত শিক্ষকবৃন্দ',
                 ),
-              ),
-              _pillButton(
-                onPressed: () => AppSidebarNavigation.navigateToIndex(context, 4),
-                icon: Icons.person_add_alt,
-                label: 'নতুন শিক্ষক বরাদ্দ করুন',
-                filled: false,
-                colors: colors,
-              ),
-            ],
-          ),
+                const SizedBox(height: 4),
+                Text(
+                  'কেন্দ্রীয় প্রশাসন কর্তৃক এই পাঠশালায় বরাদ্দকৃত শিক্ষকগণ (${teachers.length} জন)',
+                  style: TextStyle(fontSize: 13, color: colors.hintColor),
+                ),
+                const SizedBox(height: 12),
+                _pillButton(
+                  onPressed: () => AppSidebarNavigation.navigateToIndex(context, 4),
+                  icon: Icons.person_add_alt,
+                  label: 'নতুন শিক্ষক বরাদ্দ করুন',
+                  filled: false,
+                  colors: colors,
+                  expand: true,
+                ),
+              ],
+            ),
+          ] else ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const CustomSectionHeader(
+                        icon: Icons.badge_outlined,
+                        title: 'পাঠশালায় কর্মরত শিক্ষকবৃন্দ',
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'কেন্দ্রীয় প্রশাসন কর্তৃক এই পাঠশালায় বরাদ্দকৃত শিক্ষকগণ (${teachers.length} জন)',
+                        style: TextStyle(fontSize: 13, color: colors.hintColor),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                _pillButton(
+                  onPressed: () => AppSidebarNavigation.navigateToIndex(context, 4),
+                  icon: Icons.person_add_alt,
+                  label: 'নতুন শিক্ষক বরাদ্দ করুন',
+                  filled: false,
+                  colors: colors,
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 20),
           Divider(color: colors.dividerColor),
           const SizedBox(height: 16),
@@ -853,52 +906,97 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          if (isNarrow) ...[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const CustomSectionHeader(
+                  icon: Icons.meeting_room_outlined,
+                  title: 'পাঠশালার ক্লাস ও ব্যাচসমূহ',
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'চলমান বিভিন্ন স্তরের ক্লাস এবং তাদের জন্য নিযুক্ত শ্রেণি শিক্ষকগণ (${classes.length} টি শাখা)',
+                  style: TextStyle(fontSize: 13, color: colors.hintColor),
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
                   children: [
-                    const CustomSectionHeader(
-                      icon: Icons.meeting_room_outlined,
-                      title: 'পাঠশালার ক্লাস ও ব্যাচসমূহ',
+                    _pillButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const AcademicProgramsView()),
+                        );
+                      },
+                      icon: Icons.settings_outlined,
+                      label: 'একাডেমিক প্রোগ্রাম পরিচালনা',
+                      filled: false,
+                      colors: colors,
+                      expand: true,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'চলমান বিভিন্ন স্তরের ক্লাস এবং তাদের জন্য নিযুক্ত শ্রেণি শিক্ষকগণ (${classes.length} টি শাখা)',
-                      style: TextStyle(fontSize: 13, color: colors.hintColor),
+                    _pillButton(
+                      onPressed: _openAddClassDialog,
+                      icon: Icons.add,
+                      label: 'নতুন ক্লাস / ব্যাচ খুলুন',
+                      filled: true,
+                      colors: colors,
+                      expand: true,
                     ),
                   ],
                 ),
-              ),
-              Wrap(
-                spacing: 10,
-                runSpacing: 8,
-                children: [
-                  _pillButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const AcademicProgramsView()),
-                      );
-                    },
-                    icon: Icons.settings_outlined,
-                    label: 'একাডেমিক প্রোগ্রাম পরিচালনা',
-                    filled: false,
-                    colors: colors,
+              ],
+            ),
+          ] else ...[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const CustomSectionHeader(
+                        icon: Icons.meeting_room_outlined,
+                        title: 'পাঠশালার ক্লাস ও ব্যাচসমূহ',
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'চলমান বিভিন্ন স্তরের ক্লাস এবং তাদের জন্য নিযুক্ত শ্রেণি শিক্ষকগণ (${classes.length} টি শাখা)',
+                        style: TextStyle(fontSize: 13, color: colors.hintColor),
+                      ),
+                    ],
                   ),
-                  _pillButton(
-                    onPressed: _openAddClassDialog,
-                    icon: Icons.add,
-                    label: 'নতুন ক্লাস / ব্যাচ খুলুন',
-                    filled: true,
-                    colors: colors,
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+                const SizedBox(width: 12),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: [
+                    _pillButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const AcademicProgramsView()),
+                        );
+                      },
+                      icon: Icons.settings_outlined,
+                      label: 'একাডেমিক প্রোগ্রাম পরিচালনা',
+                      filled: false,
+                      colors: colors,
+                    ),
+                    _pillButton(
+                      onPressed: _openAddClassDialog,
+                      icon: Icons.add,
+                      label: 'নতুন ক্লাস / ব্যাচ খুলুন',
+                      filled: true,
+                      colors: colors,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 20),
           Divider(color: colors.dividerColor),
           const SizedBox(height: 16),
