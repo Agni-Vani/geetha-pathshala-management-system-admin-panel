@@ -39,4 +39,10 @@ abstract interface class IamRepository {
 
   /// Returns the currently active in-memory authenticated user account.
   AsyncRequest<UserAccount?> getCurrentUserAccount();
+
+  /// Provisions a Pathshala Administrator with credentials and scoped role.
+  AsyncRequest<Map<String, dynamic>> createPathshalaAdmin(CreatePathshalaAdminParams params);
+
+  /// Resets a user account password.
+  AsyncRequest<void> resetUserPassword(ResetUserPasswordParams params);
 }

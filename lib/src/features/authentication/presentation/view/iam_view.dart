@@ -6,8 +6,8 @@ import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
-import '../../domain/entities/entities.dart';
 import '../controller/iam_controller.dart';
+import '../widgets/assign_pathshala_admin_dialog.dart';
 import '../widgets/assign_role_dialog.dart';
 
 class IamView extends StatefulWidget {
@@ -131,6 +131,40 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                             ],
                           );
 
+                          final createAdminBtn = InkWell(
+                            borderRadius: AppSizes.bigRectangleTileRadius,
+                            onTap: () => AssignPathshalaAdminDialog.show(
+                              context,
+                              onSuccess: _controller.loadData,
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.tileColor,
+                                borderRadius: AppSizes.bigRectangleTileRadius,
+                                border: Border.all(color: colors.primaryColor),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.admin_panel_settings_outlined, color: colors.primaryColor, size: 18),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'পাঠশালা প্রশাসক তৈরি',
+                                    style: TextStyle(
+                                      color: colors.primaryColor,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+
                           final assignBtn = InkWell(
                             borderRadius: AppSizes.bigRectangleTileRadius,
                             onTap: () => AssignRoleDialog.show(
@@ -164,13 +198,22 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                             ),
                           );
 
+                          final actions = Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: [
+                              createAdminBtn,
+                              assignBtn,
+                            ],
+                          );
+
                           if (isNarrow) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 titleCol,
                                 const SizedBox(height: 14),
-                                assignBtn,
+                                actions,
                               ],
                             );
                           }
@@ -180,7 +223,7 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Expanded(child: titleCol),
-                              assignBtn,
+                              actions,
                             ],
                           );
                         },
@@ -666,11 +709,9 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
         const SizedBox(height: 16),
         LayoutBuilder(
           builder: (context, constraints) {
-            final isNarrow = constraints.maxWidth < 700;
-
             return ListView.separated(
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics),
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: _controller.roles.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {

@@ -23,7 +23,7 @@ final class AssignUserRoleParams {
   final String? scopePathshalaId;
   final DateTime effectiveFrom;
   final DateTime? effectiveTo;
-  final String grantedByUserId;
+  final String? grantedByUserId;
 
   const AssignUserRoleParams({
     required this.userAccountId,
@@ -32,6 +32,47 @@ final class AssignUserRoleParams {
     this.scopePathshalaId,
     required this.effectiveFrom,
     this.effectiveTo,
-    required this.grantedByUserId,
+    this.grantedByUserId,
   });
 }
+
+/// Input parameters for provisioning a Pathshala Administrator.
+final class CreatePathshalaAdminParams {
+  final String pathshalaId;
+  final String email;
+  final String password;
+  final String? personId;
+  final String? legalName;
+  final String? preferredName;
+  final String? primaryPhone;
+  final String? area;
+  final String title;
+  final DateTime effectiveFrom;
+
+  const CreatePathshalaAdminParams({
+    required this.pathshalaId,
+    required this.email,
+    required this.password,
+    this.personId,
+    this.legalName,
+    this.preferredName,
+    this.primaryPhone,
+    this.area,
+    this.title = 'প্রধান সমন্বয়ক',
+    required this.effectiveFrom,
+  });
+}
+
+/// Input parameters for resetting an application user's password.
+final class ResetUserPasswordParams {
+  final String userAccountId;
+  final String? email;
+  final String newPassword;
+
+  const ResetUserPasswordParams({
+    required this.userAccountId,
+    this.email,
+    required this.newPassword,
+  });
+}
+

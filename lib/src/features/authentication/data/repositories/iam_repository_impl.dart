@@ -71,6 +71,16 @@ final class IamRepositoryImpl with ErrorHandler implements IamRepository {
     return _request(() => datasource.getCurrentUserAccount());
   }
 
+  @override
+  AsyncRequest<Map<String, dynamic>> createPathshalaAdmin(CreatePathshalaAdminParams params) {
+    return _request(() => datasource.createPathshalaAdmin(params));
+  }
+
+  @override
+  AsyncRequest<void> resetUserPassword(ResetUserPasswordParams params) {
+    return _request(() => datasource.resetUserPassword(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {

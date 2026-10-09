@@ -163,6 +163,61 @@ final class MockIamDatasource implements IamDatasource {
     );
   }
 
+  @override
+  Future<Map<String, dynamic>> createPathshalaAdmin(CreatePathshalaAdminParams params) async {
+    await _simulateProcessing();
+
+    final userAccountId = 'usr-admin-${DateTime.now().millisecondsSinceEpoch}';
+    final personId = params.personId ?? 'person-${DateTime.now().millisecondsSinceEpoch}';
+    final authUserId = 'auth-${DateTime.now().millisecondsSinceEpoch}';
+
+    final account = UserAccountModel(
+      id: userAccountId,
+      personId: personId,
+      authUserId: authUserId,
+      email: params.email,
+      status: AccountStatus.active,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    _userAccounts.add(account);
+
+    final userRole = UserRoleModel(
+      id: 'ur-${DateTime.now().millisecondsSinceEpoch}',
+      userAccountId: userAccountId,
+      roleId: 'role-pathshala-admin',
+      roleCode: 'PATHSHALA_ADMIN',
+      scopeOrganizationId: null,
+      scopePathshalaId: params.pathshalaId,
+      effectiveFrom: params.effectiveFrom,
+      effectiveTo: null,
+      grantedByUserId: null,
+      status: UserRoleStatus.active,
+    );
+    _userRoles.add(userRole);
+
+    return {
+      'success': true,
+      'userAccountId': userAccountId,
+      'authUserId': authUserId,
+      'personId': personId,
+      'email': params.email,
+      'roleCode': 'PATHSHALA_ADMIN',
+      'scopePathshalaId': params.pathshalaId,
+      'title': params.title,
+      'message': 'Pathshala administrator created and configured successfully',
+    };
+  }
+
+  @override
+  Future<void> resetUserPassword(ResetUserPasswordParams params) async {
+    await _simulateProcessing();
+    _userAccounts.firstWhere(
+      (a) => a.id == params.userAccountId || (params.email != null && a.email == params.email),
+      orElse: () => throw StateError('User account not found to reset password.'),
+    );
+  }
+
   Future<void> _simulateProcessing() async {
     if (processingDelay > Duration.zero) {
       await Future.delayed(processingDelay);

@@ -11,6 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import 'add_person_view.dart';
 import '../widgets/assign_teacher_dialog.dart';
 import '../widgets/admit_student_dialog.dart';
+import '../../../authentication/presentation/widgets/assign_pathshala_admin_dialog.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
@@ -659,6 +660,12 @@ class _AllPeopleViewState extends State<AllPeopleView> {
               person: person,
               onSuccess: _refreshList,
             );
+          } else if (action == 'assign_admin') {
+            AssignPathshalaAdminDialog.show(
+              context,
+              initialPerson: person,
+              onSuccess: _refreshList,
+            );
           } else if (action == 'toggle') {
             _togglePersonStatus(person);
           }
@@ -673,6 +680,20 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                 SizedBox(width: 8),
                 Text(
                   'Edit',
+                  style: TextStyle(fontSize: 13, color: Color(0xFF344054)),
+                ),
+              ],
+            ),
+          ),
+          PopupMenuItem<String>(
+            value: 'assign_admin',
+            height: 38,
+            child: Row(
+              children: [
+                Icon(Icons.admin_panel_settings_outlined, size: 16, color: colors.primaryColor),
+                const SizedBox(width: 8),
+                const Text(
+                  'Assign as Pathshala Admin',
                   style: TextStyle(fontSize: 13, color: Color(0xFF344054)),
                 ),
               ],

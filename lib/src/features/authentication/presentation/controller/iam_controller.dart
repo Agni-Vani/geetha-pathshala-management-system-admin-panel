@@ -3,11 +3,13 @@ import 'package:flutter/foundation.dart';
 import '../../../../core/async_handlers/response.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
+import '../../../../core/config/app_config.dart';
 import '../../../../core/usecases/base_usecase.dart';
 import '../../../pathshala/domain/entities/pathshala.dart';
+import '../../../pathshala/domain/params/list_pathshalas_params.dart';
 import '../../../pathshala/domain/usecases/list_pathshalas.dart';
 import '../../../person/domain/entities/person.dart';
-import '../../../person/domain/params/person_filter_params.dart';
+import '../../../person/domain/params/search_people_params.dart';
 import '../../../person/domain/usecases/search_people.dart';
 import '../../domain/entities/entities.dart';
 import '../../domain/params/params.dart';
@@ -19,6 +21,8 @@ class IamController extends ChangeNotifier {
   final ListRoles listRolesUseCase;
   final ListPermissions listPermissionsUseCase;
   final AssignUserRole assignUserRoleUseCase;
+  final CreatePathshalaAdmin createPathshalaAdminUseCase;
+  final ResetUserPassword resetUserPasswordUseCase;
   final IamRepository iamRepository;
   final SearchPeople searchPeopleUseCase;
   final ListPathshalas listPathshalasUseCase;
@@ -28,6 +32,8 @@ class IamController extends ChangeNotifier {
     required this.listRolesUseCase,
     required this.listPermissionsUseCase,
     required this.assignUserRoleUseCase,
+    required this.createPathshalaAdminUseCase,
+    required this.resetUserPasswordUseCase,
     required this.iamRepository,
     required this.searchPeopleUseCase,
     required this.listPathshalasUseCase,
@@ -122,12 +128,22 @@ class IamController extends ChangeNotifier {
         _allUserRoles = allRolesRes.data ?? [];
       }
 
-      final peopleRes = await searchPeopleUseCase(const PersonFilterParams());
+      final peopleRes = await searchPeopleUseCase(
+        const SearchPeopleParams(
+          organizationId: AppConfig.defaultOrganizationId,
+          pageSize: 100,
+        ),
+      );
       if (peopleRes is SuccessRepoCall<List<Person>>) {
         _personMap = {for (final p in (peopleRes.data ?? [])) p.id: p};
       }
 
-      final pathshalasRes = await listPathshalasUseCase(const NoParams());
+      final pathshalasRes = await listPathshalasUseCase(
+        const ListPathshalasParams(
+          organizationId: AppConfig.defaultOrganizationId,
+          pageSize: 100,
+        ),
+      );
       if (pathshalasRes is SuccessRepoCall<List<Pathshala>>) {
         _pathshalas = pathshalasRes.data ?? [];
       }
@@ -175,4 +191,64 @@ class IamController extends ChangeNotifier {
     notifyListeners();
     return false;
   }
+
+  Future<bool> createPathshalaAdmin({
+    required CreatePathshalaAdminParams params,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    processStatusNotifier.setLoading(message: 'পাঠশালা প্রশাসক তৈরি হচ্ছে...');
+    notifyListeners();
+
+    final result = await createPathshalaAdminUseCase(params);
+    if (result is SuccessRepoCall<UserAccount>) {
+      snackbarNotifier?.notifySuccess(
+        message: 'পাঠশালা প্রশাসক সফলভাবে তৈরি করা হয়েছে।',
+      );
+      await loadData();
+      return true;
+    }
+
+    final errorMsg = (result is FailedRepoCall)
+        ? result.message
+        : 'পাঠশালা প্রশাসক তৈরি করতে সমস্যা হয়েছে।';
+    snackbarNotifier?.notifyError(message: errorMsg);
+    processStatusNotifier.setError();
+    notifyListeners();
+    return false;
+  }
+
+  Future<bool> resetUserPassword({
+    required String userAccountId,
+    String? email,
+    required String newPassword,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    processStatusNotifier.setLoading(message: 'পাসওয়ার্ড পরিবর্তন করা হচ্ছে...');
+    notifyListeners();
+
+    final result = await resetUserPasswordUseCase(
+      ResetUserPasswordParams(
+        userAccountId: userAccountId,
+        email: email,
+        newPassword: newPassword,
+      ),
+    );
+    if (result is SuccessRepoCall<void>) {
+      snackbarNotifier?.notifySuccess(
+        message: 'পাসওয়ার্ড সফলভাবে পরিবর্তন করা হয়েছে।',
+      );
+      processStatusNotifier.setEnabled();
+      notifyListeners();
+      return true;
+    }
+
+    final errorMsg = (result is FailedRepoCall)
+        ? result.message
+        : 'পাসওয়ার্ড পরিবর্তন করতে সমস্যা হয়েছে।';
+    snackbarNotifier?.notifyError(message: errorMsg);
+    processStatusNotifier.setError();
+    notifyListeners();
+    return false;
+  }
 }
+

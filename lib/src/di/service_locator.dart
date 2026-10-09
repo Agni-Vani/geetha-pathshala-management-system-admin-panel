@@ -230,6 +230,12 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(
     () => ListPermissions(repository: sl<IamRepository>()),
   );
+  sl.registerLazySingleton(
+    () => CreatePathshalaAdmin(repository: sl<IamRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ResetUserPassword(repository: sl<IamRepository>()),
+  );
 
   // Students Use Cases
   sl.registerLazySingleton(
@@ -352,6 +358,8 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
       listRolesUseCase: sl<ListRoles>(),
       listPermissionsUseCase: sl<ListPermissions>(),
       assignUserRoleUseCase: sl<AssignUserRole>(),
+      createPathshalaAdminUseCase: sl<CreatePathshalaAdmin>(),
+      resetUserPasswordUseCase: sl<ResetUserPassword>(),
       iamRepository: sl<IamRepository>(),
       searchPeopleUseCase: sl<SearchPeople>(),
       listPathshalasUseCase: sl<ListPathshalas>(),

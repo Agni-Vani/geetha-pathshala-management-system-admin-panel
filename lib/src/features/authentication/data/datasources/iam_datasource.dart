@@ -14,4 +14,6 @@ abstract class IamDatasource {
   Future<List<UserRoleModel>> listAllUserRoles();
   Future<void> logout();
   Future<UserAccountModel?> getCurrentUserAccount();
+  Future<Map<String, dynamic>> createPathshalaAdmin(CreatePathshalaAdminParams params);
+  Future<void> resetUserPassword(ResetUserPasswordParams params);
 }

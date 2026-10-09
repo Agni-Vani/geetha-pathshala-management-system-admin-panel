@@ -4,6 +4,7 @@ import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/di.dart';
+import '../../../authentication/presentation/widgets/assign_pathshala_admin_dialog.dart';
 import '../../../classes/presentation/view/academic_programs_view.dart';
 import '../../../classes/presentation/view/class_schedule_view.dart';
 import '../../../classes/presentation/widgets/add_pathshala_class_dialog.dart';
@@ -548,10 +549,23 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
     } else if (admin == null) {
       body = Container(
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 24),
+        padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
         decoration: BoxDecoration(color: colors.tileColor, borderRadius: BorderRadius.circular(12)),
-        child: Center(
-          child: Text('কোনো প্রশাসক এখনো নিয়োগ করা হয়নি।', style: TextStyle(color: colors.hintColor)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.admin_panel_settings_outlined, size: 48, color: colors.hintColor.withValues(alpha: 0.5)),
+            const SizedBox(height: 12),
+            Text('কোনো প্রশাসক এখনো নিয়োগ করা হয়নি।', style: TextStyle(color: colors.hintColor, fontSize: 14)),
+            const SizedBox(height: 16),
+            _pillButton(
+              onPressed: _openAssignAdminDialog,
+              icon: Icons.person_add_alt_1_outlined,
+              label: 'প্রশাসক নিয়োগ করুন',
+              filled: true,
+              colors: colors,
+            ),
+          ],
         ),
       );
     } else {
@@ -616,7 +630,7 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
       );
 
       final changeButton = _pillButton(
-        onPressed: () {},
+        onPressed: _openAssignAdminDialog,
         icon: Icons.manage_accounts_outlined,
         label: 'প্রশাসক পরিবর্তন',
         filled: false,
@@ -669,11 +683,31 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const CustomSectionHeader(icon: Icons.shield_outlined, title: 'বর্তমান প্রশাসক'),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const CustomSectionHeader(icon: Icons.shield_outlined, title: 'বর্তমান প্রশাসক'),
+              _pillButton(
+                onPressed: _openAssignAdminDialog,
+                icon: Icons.person_add_alt_1_outlined,
+                label: admin == null ? 'প্রশাসক নিয়োগ' : 'নতুন প্রশাসক নিয়োগ / পরিবর্তন',
+                filled: true,
+                colors: colors,
+              ),
+            ],
+          ),
           const SizedBox(height: 16),
           body,
         ],
       ),
+    );
+  }
+
+  void _openAssignAdminDialog() {
+    AssignPathshalaAdminDialog.show(
+      context,
+      initialPathshalaId: widget.pathshala.id,
+      onSuccess: _loadDetails,
     );
   }
 

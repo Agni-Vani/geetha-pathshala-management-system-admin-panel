@@ -17,3 +17,8 @@ export 'list_permissions.dart';
 export 'login_with_email.dart';
 
 export 'logout.dart';
+
+export 'create_pathshala_admin.dart';
+
+export 'reset_user_password.dart';
+
