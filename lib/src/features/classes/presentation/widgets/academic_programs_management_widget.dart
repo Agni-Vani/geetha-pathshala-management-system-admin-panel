@@ -138,18 +138,27 @@ class _AcademicProgramsManagementWidgetState
       ],
     );
 
-    final addButton = ElevatedButton.icon(
-      onPressed: _openAddProgramDialog,
-      icon: const Icon(Icons.add, size: 18),
-      label: const Text(
-        'নতুন প্রোগ্রাম যোগ করুন',
-        style: TextStyle(fontWeight: FontWeight.w600),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: colors.primaryColor,
-        foregroundColor: Colors.white,
+    final addButton = InkWell(
+      onTap: _openAddProgramDialog,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        decoration: BoxDecoration(
+          color: colors.primaryColor,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: const Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.add, size: 18, color: Colors.white),
+            SizedBox(width: 8),
+            Text(
+              'নতুন প্রোগ্রাম যোগ করুন',
+              style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -293,15 +302,30 @@ class _AcademicProgramsManagementWidgetState
                         ],
                       ),
                     ),
-                    OutlinedButton.icon(
-                      onPressed: () => _openAddLevelDialog(program),
-                      icon: const Icon(Icons.add, size: 16),
-                      label: Text('+ ${program.levelTermLabel} যোগ'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colors.primaryColor,
-                        side: BorderSide(color: colors.primaryColor),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                    InkWell(
+                      onTap: () => _openAddLevelDialog(program),
+                      borderRadius: BorderRadius.circular(6),
+                      child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: colors.primaryColor),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.add, size: 16, color: colors.primaryColor),
+                            const SizedBox(width: 6),
+                            Text(
+                              '+ ${program.levelTermLabel} যোগ',
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: colors.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],

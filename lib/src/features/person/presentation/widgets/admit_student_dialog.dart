@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/config/app_config.dart';
+import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_date_field.dart';
@@ -324,11 +325,19 @@ class _AdmitStudentDialogState extends State<AdmitStudentDialog> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(
-                        'Cancel',
-                        style: TextStyle(color: colors.hintColor),
+                    InkWell(
+                      borderRadius: AppSizes.bigRectangleTileRadius,
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        child: Text(
+                          'Cancel',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: colors.hintColor,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -337,33 +346,38 @@ class _AdmitStudentDialogState extends State<AdmitStudentDialog> {
                       builder: (context, _) {
                         final isLoading =
                             _processStatusNotifier.status is ProcessLoading;
-                        return ElevatedButton(
-                          onPressed: isLoading ? null : _handleAdmit,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: colors.primaryColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
+                        return InkWell(
+                          borderRadius: AppSizes.bigRectangleTileRadius,
+                          onTap: isLoading ? null : _handleAdmit,
+                          child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 12,
+                              horizontal: 22,
+                              vertical: 11,
                             ),
-                            elevation: 0,
-                          ),
-                          child: isLoading
-                              ? const SizedBox(
-                                  width: 18,
-                                  height: 18,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
+                            decoration: BoxDecoration(
+                              color: isLoading
+                                  ? colors.primaryColor.withValues(alpha: 0.6)
+                                  : colors.primaryColor,
+                              borderRadius: AppSizes.bigRectangleTileRadius,
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Confirm Admission',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                )
-                              : const Text(
-                                  'Confirm Admission',
-                                  style: TextStyle(fontWeight: FontWeight.w600),
-                                ),
+                          ),
                         );
                       },
                     ),

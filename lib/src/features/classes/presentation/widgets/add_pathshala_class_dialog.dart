@@ -345,11 +345,15 @@ class _AddPathshalaClassDialogState extends State<AddPathshalaClassDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(
-                      'বাতিল',
-                      style: TextStyle(color: colors.hintColor),
+                  InkWell(
+                    borderRadius: AppSizes.bigRectangleTileRadius,
+                    onTap: () => Navigator.of(context).pop(),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      child: Text(
+                        'বাতিল',
+                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: colors.hintColor),
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -359,32 +363,35 @@ class _AddPathshalaClassDialogState extends State<AddPathshalaClassDialog> {
                       final isLoading =
                           _processNotifier.status is ProcessLoading;
 
-                      return ElevatedButton(
-                        onPressed: isLoading ? null : _handleSubmit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colors.primaryColor,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+                      return InkWell(
+                        borderRadius: AppSizes.bigRectangleTileRadius,
+                        onTap: isLoading ? null : _handleSubmit,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 11),
+                          decoration: BoxDecoration(
+                            color: isLoading
+                                ? colors.primaryColor.withValues(alpha: 0.6)
+                                : colors.primaryColor,
+                            borderRadius: AppSizes.bigRectangleTileRadius,
                           ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppSizes.rectangleButtonRadius,
-                          ),
-                        ),
-                        child: isLoading
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
+                          child: isLoading
+                              ? const SizedBox(
+                                  width: 18,
+                                  height: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Text(
+                                  'ক্লাস খুলুন',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                              )
-                            : const Text(
-                                'ক্লাস খুলুন',
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
+                        ),
                       );
                     },
                   ),

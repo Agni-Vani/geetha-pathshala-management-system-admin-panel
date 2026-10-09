@@ -711,16 +711,12 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
                   ],
                 ),
               ),
-              OutlinedButton.icon(
+              _pillButton(
                 onPressed: () => AppSidebarNavigation.navigateToIndex(context, 3),
-                icon: const Icon(Icons.person_add_alt, size: 16),
-                label: const Text('নতুন শিক্ষক বরাদ্দ করুন'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: colors.primaryColor,
-                  side: BorderSide(color: colors.primaryColor),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
+                icon: Icons.person_add_alt,
+                label: 'নতুন শিক্ষক বরাদ্দ করুন',
+                filled: false,
+                colors: colors,
               ),
             ],
           ),
@@ -847,31 +843,23 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
                 spacing: 10,
                 runSpacing: 8,
                 children: [
-                  OutlinedButton.icon(
+                  _pillButton(
                     onPressed: () {
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const AcademicProgramsView()),
                       );
                     },
-                    icon: const Icon(Icons.settings_outlined, size: 16),
-                    label: const Text('একাডেমিক প্রোগ্রাম পরিচালনা'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: colors.primaryColor,
-                      side: BorderSide(color: colors.primaryColor),
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
+                    icon: Icons.settings_outlined,
+                    label: 'একাডেমিক প্রোগ্রাম পরিচালনা',
+                    filled: false,
+                    colors: colors,
                   ),
-                  ElevatedButton.icon(
+                  _pillButton(
                     onPressed: _openAddClassDialog,
-                    icon: const Icon(Icons.add, size: 16),
-                    label: const Text('নতুন ক্লাস / ব্যাচ খুলুন'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colors.primaryColor,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
+                    icon: Icons.add,
+                    label: 'নতুন ক্লাস / ব্যাচ খুলুন',
+                    filled: true,
+                    colors: colors,
                   ),
                 ],
               ),
