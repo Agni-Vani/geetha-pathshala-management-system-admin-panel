@@ -13,22 +13,26 @@ abstract final class AppSidebarNavigation {
       case 1:
         return AppRouteNames.pathshalas;
       case 2:
-        return AppRouteNames.areas;
+        return AppRouteNames.academicPrograms;
       case 3:
-        return AppRouteNames.peopleRegistry;
+        return AppRouteNames.areas;
       case 4:
-        return AppRouteNames.students;
+        return AppRouteNames.peopleRegistry;
       case 5:
-        return AppRouteNames.teachers;
+        return AppRouteNames.students;
       case 6:
-        return AppRouteNames.attendance;
+        return AppRouteNames.teachers;
       case 7:
-        return AppRouteNames.notices;
+        return AppRouteNames.attendance;
       case 8:
-        return AppRouteNames.events;
+        return AppRouteNames.notices;
       case 9:
-        return AppRouteNames.reports;
+        return AppRouteNames.events;
       case 10:
+        return AppRouteNames.reports;
+      case 11:
+        return AppRouteNames.iam;
+      case 12:
         return AppRouteNames.settings;
       default:
         return AppRouteNames.pathshalas;

@@ -151,7 +151,7 @@ class AddPersonRegistryView extends StatefulWidget {
 class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
   static const _genders = ['Male', 'Female', 'Other'];
 
-  final int _selectedIndex = 3;
+  final int _selectedIndex = 4;
   late final SnackbarNotifier snackbarNotifier;
   final ProcessStatusNotifier _processStatusNotifier =
       ProcessStatusNotifier(initialStatus: ProcessEnabled());

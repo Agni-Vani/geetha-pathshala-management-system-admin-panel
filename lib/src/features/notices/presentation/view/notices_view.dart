@@ -23,7 +23,7 @@ class NoticesView extends StatefulWidget {
 
 class _NoticesViewState extends State<NoticesView> {
   late final NoticesController _controller;
-  int _selectedIndex = 7;
+  int _selectedIndex = 8;
 
   @override
   void initState() {

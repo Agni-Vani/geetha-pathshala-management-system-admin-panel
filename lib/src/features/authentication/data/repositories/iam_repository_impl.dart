@@ -47,6 +47,16 @@ final class IamRepositoryImpl with ErrorHandler implements IamRepository {
   }
 
   @override
+  AsyncRequest<List<UserAccount>> listUserAccounts() {
+    return _request(() => datasource.listUserAccounts());
+  }
+
+  @override
+  AsyncRequest<List<UserRole>> listAllUserRoles() {
+    return _request(() => datasource.listAllUserRoles());
+  }
+
+  @override
   AsyncRequest<UserAccount> loginWithEmail(LoginParams params) {
     return _request(() => datasource.loginWithEmail(params));
   }

@@ -13,7 +13,7 @@ class AcademicProgramsView extends StatelessWidget {
 
   const AcademicProgramsView({super.key, this.controller});
 
-  static const int _selectedIndex = 10;
+  static const int _selectedIndex = 2;
 
   void _onSidebarItemSelected(BuildContext context, int index) {
     if (index == _selectedIndex) return;
@@ -40,13 +40,9 @@ class AcademicProgramsView extends StatelessWidget {
                   AppBreadcrumbs(
                     items: [
                       BreadcrumbItem.home(context),
-                      BreadcrumbItem(
-                        label: 'সেটিংস',
-                        icon: Icons.settings_outlined,
-                        onTap: () => AppSidebarNavigation.navigateToIndex(context, 10),
-                      ),
                       const BreadcrumbItem(
                         label: 'একাডেমিক প্রোগ্রাম ও স্তর',
+                        icon: Icons.auto_stories_outlined,
                       ),
                     ],
                   ),

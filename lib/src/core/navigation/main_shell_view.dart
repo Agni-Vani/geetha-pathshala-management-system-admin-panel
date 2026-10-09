@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../features/areas/presentation/view/areas_view.dart';
 import '../../features/attendance/presentation/view/attendance_view.dart';
+import '../../features/authentication/presentation/view/iam_view.dart';
+import '../../features/classes/presentation/view/academic_programs_view.dart';
 import '../../features/dashboard/presentation/view/dashboard_view.dart';
 import '../../features/events/presentation/view/events_view.dart';
 import '../../features/notices/presentation/view/notices_view.dart';
@@ -61,22 +63,26 @@ class _MainShellViewState extends State<MainShellView> {
       case 1:
         return const AllPatshalaView();
       case 2:
-        return const AreasView();
+        return const AcademicProgramsView();
       case 3:
-        return const AllPeopleView();
+        return const AreasView();
       case 4:
-        return const StudentsView();
+        return const AllPeopleView();
       case 5:
-        return const TeachersView();
+        return const StudentsView();
       case 6:
-        return const AttendanceView();
+        return const TeachersView();
       case 7:
-        return const NoticesView();
+        return const AttendanceView();
       case 8:
-        return const EventsView();
+        return const NoticesView();
       case 9:
-        return const ReportsView();
+        return const EventsView();
       case 10:
+        return const ReportsView();
+      case 11:
+        return const IamView();
+      case 12:
         return const SettingsView();
       default:
         return const AllPatshalaView();
@@ -94,7 +100,7 @@ class _MainShellViewState extends State<MainShellView> {
         onItemSelected: _onItemSelected,
         child: IndexedStack(
           index: _selectedIndex,
-          children: List.generate(11, (i) {
+          children: List.generate(13, (i) {
             if (_activatedIndices.contains(i)) {
               return _buildView(i);
             }

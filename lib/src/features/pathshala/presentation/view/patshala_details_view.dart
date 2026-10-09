@@ -712,7 +712,7 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
                 ),
               ),
               _pillButton(
-                onPressed: () => AppSidebarNavigation.navigateToIndex(context, 3),
+                onPressed: () => AppSidebarNavigation.navigateToIndex(context, 4),
                 icon: Icons.person_add_alt,
                 label: 'নতুন শিক্ষক বরাদ্দ করুন',
                 filled: false,

@@ -8,6 +8,12 @@ export 'get_user_account.dart';
 
 export 'list_user_roles.dart';
 
+export 'list_user_accounts.dart';
+
+export 'list_roles.dart';
+
+export 'list_permissions.dart';
+
 export 'login_with_email.dart';
 
 export 'logout.dart';

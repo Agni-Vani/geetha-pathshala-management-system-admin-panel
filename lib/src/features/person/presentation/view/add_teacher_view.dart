@@ -23,7 +23,7 @@ class AddTeacherView extends StatefulWidget {
 class _AddTeacherViewState extends State<AddTeacherView> {
   static const _genders = ['Male', 'Female', 'Other'];
 
-  final int _selectedIndex = 5;
+  final int _selectedIndex = 6;
 
   final _nameController = TextEditingController();
   final _subjectController = TextEditingController();

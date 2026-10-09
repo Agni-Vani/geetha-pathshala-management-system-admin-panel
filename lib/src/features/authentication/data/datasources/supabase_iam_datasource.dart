@@ -138,6 +138,40 @@ final class SupabaseIamDatasource implements IamDatasource {
   }
 
   @override
+  Future<List<UserAccountModel>> listUserAccounts() async {
+    try {
+      final data = await _invoke('listUserAccounts', {});
+      final list =
+          (data is Map && data['data'] is List)
+              ? data['data'] as List
+              : data as List;
+      return list
+          .map((json) => UserAccountModel.fromJson(_normalizeUserAccount(json as Map<String, dynamic>)))
+          .toList();
+    } catch (e) {
+      debugPrint('⚠️ [SupabaseIamDatasource] listUserAccounts edge function failed ($e), falling back to mock');
+      return MockIamDatasource().listUserAccounts();
+    }
+  }
+
+  @override
+  Future<List<UserRoleModel>> listAllUserRoles() async {
+    try {
+      final data = await _invoke('listAllUserRoles', {});
+      final list =
+          (data is Map && data['data'] is List)
+              ? data['data'] as List
+              : data as List;
+      return list
+          .map((json) => UserRoleModel.fromJson(_normalizeUserRole(json as Map<String, dynamic>)))
+          .toList();
+    } catch (e) {
+      debugPrint('⚠️ [SupabaseIamDatasource] listAllUserRoles edge function failed ($e), falling back to mock');
+      return MockIamDatasource().listAllUserRoles();
+    }
+  }
+
+  @override
   Future<void> logout() async {
     await client.auth.signOut();
   }

@@ -24,6 +24,7 @@ class CustomSidebar extends StatelessWidget {
   static const List<SidebarMenuItem> _menuItems = [
     SidebarMenuItem(icon: Icons.dashboard_outlined, label: 'ড্যাশবোর্ড'),
     SidebarMenuItem(icon: Icons.school_outlined, label: 'পাঠশালা'),
+    SidebarMenuItem(icon: Icons.auto_stories_outlined, label: 'একাডেমিক প্রোগ্রাম'),
     SidebarMenuItem(icon: Icons.location_on_outlined, label: 'ভৌগোলিক এলাকা'),
     SidebarMenuItem(icon: Icons.person_outline, label: 'ব্যক্তি রেজিস্ট্রি'),
     SidebarMenuItem(icon: Icons.people_outline, label: 'শিক্ষার্থী'),
@@ -32,6 +33,7 @@ class CustomSidebar extends StatelessWidget {
     SidebarMenuItem(icon: Icons.note_alt_outlined, label: 'নোটিশ'),
     SidebarMenuItem(icon: Icons.calendar_month_outlined, label: 'অনুষ্ঠান'),
     SidebarMenuItem(icon: Icons.bar_chart_outlined, label: 'রিপোর্ট'),
+    SidebarMenuItem(icon: Icons.admin_panel_settings_outlined, label: 'IAM'),
     SidebarMenuItem(icon: Icons.settings_outlined, label: 'সেটিংস'),
   ];
 

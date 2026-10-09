@@ -10,6 +10,8 @@ abstract class IamDatasource {
   Future<List<RoleModel>> listRoles();
   Future<List<PermissionModel>> listPermissions();
   Future<UserAccountModel> loginWithEmail(LoginParams params);
+  Future<List<UserAccountModel>> listUserAccounts();
+  Future<List<UserRoleModel>> listAllUserRoles();
   Future<void> logout();
   Future<UserAccountModel?> getCurrentUserAccount();
 }

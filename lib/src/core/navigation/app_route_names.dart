@@ -2,6 +2,7 @@ abstract final class AppRouteNames {
   static const login = '/login';
   static const dashboard = '/dashboard';
   static const pathshalas = '/pathshalas';
+  static const academicPrograms = '/academic-programs';
   static const areas = '/areas';
   static const peopleRegistry = '/people-registry';
   static const students = '/students';
@@ -10,5 +11,6 @@ abstract final class AppRouteNames {
   static const notices = '/notices';
   static const events = '/events';
   static const reports = '/reports';
+  static const iam = '/iam';
   static const settings = '/settings';
 }

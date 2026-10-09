@@ -25,6 +25,12 @@ abstract interface class IamRepository {
   /// Lists all permissions defined in the system.
   AsyncRequest<List<Permission>> listPermissions();
 
+  /// Lists all user accounts.
+  AsyncRequest<List<UserAccount>> listUserAccounts();
+
+  /// Lists all user role assignments.
+  AsyncRequest<List<UserRole>> listAllUserRoles();
+
   /// Authenticates a user by email and password.
   AsyncRequest<UserAccount> loginWithEmail(LoginParams params);
 

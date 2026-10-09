@@ -15,7 +15,7 @@ class AreasView extends StatefulWidget {
 }
 
 class _AreasViewState extends State<AreasView> {
-  final int _selectedIndex = 2;
+  final int _selectedIndex = 3;
 
   void _onSidebarItemSelected(int index) {
     if (index == _selectedIndex) return;

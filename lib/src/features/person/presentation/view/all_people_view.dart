@@ -33,7 +33,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
   late final SnackbarNotifier snackbarNotifier;
   final TextEditingController _searchController = TextEditingController();
 
-  final int _selectedIndex = 3;
+  final int _selectedIndex = 4;
 
   String? _searchQuery;
   PersonStatus? _statusFilter;

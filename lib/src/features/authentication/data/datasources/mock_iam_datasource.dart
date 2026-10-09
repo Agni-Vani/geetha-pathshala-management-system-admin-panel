@@ -136,6 +136,18 @@ final class MockIamDatasource implements IamDatasource {
   }
 
   @override
+  Future<List<UserAccountModel>> listUserAccounts() async {
+    await _simulateProcessing();
+    return List.unmodifiable(_userAccounts);
+  }
+
+  @override
+  Future<List<UserRoleModel>> listAllUserRoles() async {
+    await _simulateProcessing();
+    return List.unmodifiable(_userRoles);
+  }
+
+  @override
   Future<void> logout() async {
     await _simulateProcessing();
     _currentAuthenticatedUserAccountId = null;

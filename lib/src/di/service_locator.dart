@@ -9,6 +9,7 @@ import '../features/attendance/presentation/controller/attendance_controller.dar
 import '../features/authentication/data/authentication_data.dart';
 import '../features/authentication/domain/authentication_domain.dart';
 import '../features/authentication/presentation/controller/auth_controller.dart';
+import '../features/authentication/presentation/controller/iam_controller.dart';
 import '../features/classes/data/classes_data.dart';
 import '../features/classes/domain/classes_domain.dart';
 import '../features/classes/presentation/controller/academic_programs_controller.dart';
@@ -220,6 +221,15 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
   sl.registerLazySingleton(
     () => GetCurrentUserAccount(repository: sl<IamRepository>()),
   );
+  sl.registerLazySingleton(
+    () => ListUserAccounts(repository: sl<IamRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ListRoles(repository: sl<IamRepository>()),
+  );
+  sl.registerLazySingleton(
+    () => ListPermissions(repository: sl<IamRepository>()),
+  );
 
   // Students Use Cases
   sl.registerLazySingleton(
@@ -334,6 +344,17 @@ Future<void> setupServiceLocator({bool useMockData = true}) async {
       logoutUseCase: sl<Logout>(),
       getCurrentUserAccount: sl<GetCurrentUserAccount>(),
       listUserRoles: sl<ListUserRoles>(),
+    ),
+  );
+  sl.registerFactory(
+    () => IamController(
+      listUserAccountsUseCase: sl<ListUserAccounts>(),
+      listRolesUseCase: sl<ListRoles>(),
+      listPermissionsUseCase: sl<ListPermissions>(),
+      assignUserRoleUseCase: sl<AssignUserRole>(),
+      iamRepository: sl<IamRepository>(),
+      searchPeopleUseCase: sl<SearchPeople>(),
+      listPathshalasUseCase: sl<ListPathshalas>(),
     ),
   );
   sl.registerFactory(
