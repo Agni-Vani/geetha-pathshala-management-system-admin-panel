@@ -129,7 +129,7 @@ class _AssignPathshalaAdminDialogState
       );
       if (mounted) {
         setState(() {
-          _pathshalas = result.data ?? [];
+          _pathshalas = List<Pathshala>.from(result.data ?? []);
           if (_selectedPathshalaId == null && _pathshalas.isNotEmpty) {
             _selectedPathshalaId = _pathshalas.first.id;
           }
@@ -154,7 +154,7 @@ class _AssignPathshalaAdminDialogState
         );
         if (mounted) {
           setState(() {
-            _people = pResult.data ?? [];
+            _people = List<Person>.from(pResult.data ?? []);
             _isLoadingPeople = false;
           });
         }
@@ -372,10 +372,7 @@ class _AssignPathshalaAdminDialogState
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Text(
-                                  _pathshalas.firstWhere(
-                                    (p) => p.id == widget.initialPathshalaId,
-                                    orElse: () => _pathshalas.first,
-                                  ).name,
+                                  (_pathshalas.where((p) => p.id == widget.initialPathshalaId).firstOrNull ?? _pathshalas.first).name,
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
