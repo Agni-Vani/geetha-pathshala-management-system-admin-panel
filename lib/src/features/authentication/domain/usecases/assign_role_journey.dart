@@ -3,8 +3,7 @@ import '../../../../core/usecases/base_usecase.dart';
 import '../params/params.dart';
 import '../repositories/repositories.dart';
 
-final class AssignRoleJourney
-    implements AsyncUsecase<Map<String, dynamic>, AssignRoleJourneyParams> {
+final class AssignRoleJourney implements AsyncUsecase<Map<String, dynamic>, AssignRoleJourneyParams> {
   final IamRepository repository;
 
   const AssignRoleJourney({required this.repository});
