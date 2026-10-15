@@ -237,6 +237,9 @@ Future<void> setupServiceLocator({bool useMockData = false}) async {
   sl.registerLazySingleton(
     () => ResetUserPassword(repository: sl<IamRepository>()),
   );
+  sl.registerLazySingleton(
+    () => AssignRoleJourney(repository: sl<IamRepository>()),
+  );
 
   // Students Use Cases
   sl.registerLazySingleton(

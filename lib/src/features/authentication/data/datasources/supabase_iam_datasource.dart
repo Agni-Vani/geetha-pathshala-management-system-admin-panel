@@ -201,6 +201,12 @@ final class SupabaseIamDatasource implements IamDatasource {
     });
   }
 
+  @override
+  Future<Map<String, dynamic>> assignRoleJourney(AssignRoleJourneyParams params) async {
+    final data = await _invoke('assignRoleJourney', params.toJson());
+    return Map<String, dynamic>.from(data as Map);
+  }
+
   Map<String, dynamic> _normalizeUserAccount(Map<String, dynamic> json) {
     return {
       'id': json['id']?.toString() ?? '',

@@ -1,4 +1,5 @@
 export 'login_params.dart';
+export 'assign_role_journey_params.dart';
 
 /// Input parameter for checking user authorization on a specific permission code and scope.
 final class CheckPermissionParams {

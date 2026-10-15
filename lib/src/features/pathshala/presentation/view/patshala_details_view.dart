@@ -4,7 +4,7 @@ import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/di.dart';
-import '../../../authentication/presentation/widgets/assign_pathshala_admin_dialog.dart';
+import '../../../authentication/presentation/view/role_assignment_journey_view.dart';
 import '../../../classes/presentation/view/academic_programs_view.dart';
 import '../../../classes/presentation/view/class_schedule_view.dart';
 import '../../../classes/presentation/widgets/add_pathshala_class_dialog.dart';
@@ -730,10 +730,14 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
   }
 
   void _openAssignAdminDialog() {
-    AssignPathshalaAdminDialog.show(
-      context,
-      initialPathshalaId: widget.pathshala.id,
-      onSuccess: _loadDetails,
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => RoleAssignmentJourneyView(
+          initialPathshalaId: widget.pathshala.id,
+          initialRoleType: 'PATHSHALA_ADMIN',
+          onSuccess: _loadDetails,
+        ),
+      ),
     );
   }
 

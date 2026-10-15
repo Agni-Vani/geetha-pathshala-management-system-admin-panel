@@ -8,8 +8,7 @@ import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart'
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
 import '../controller/iam_controller.dart';
-import '../widgets/assign_pathshala_admin_dialog.dart';
-import '../widgets/assign_role_dialog.dart';
+import 'role_assignment_journey_view.dart';
 
 class IamView extends StatefulWidget {
   final IamController? controller;
@@ -234,9 +233,13 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
 
                               final createAdminBtn = InkWell(
                                 borderRadius: AppSizes.bigRectangleTileRadius,
-                                onTap: () => AssignPathshalaAdminDialog.show(
-                                  context,
-                                  onSuccess: _controller.loadData,
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => RoleAssignmentJourneyView(
+                                      initialRoleType: 'PATHSHALA_ADMIN',
+                                      onSuccess: _controller.loadData,
+                                    ),
+                                  ),
                                 ),
                                 child: Container(
                                   alignment: isNarrow ? Alignment.center : null,
@@ -278,9 +281,12 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
 
                               final assignBtn = InkWell(
                                 borderRadius: AppSizes.bigRectangleTileRadius,
-                                onTap: () => AssignRoleDialog.show(
-                                  context,
-                                  controller: _controller,
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => RoleAssignmentJourneyView(
+                                      onSuccess: _controller.loadData,
+                                    ),
+                                  ),
                                 ),
                                 child: Container(
                                   alignment: isNarrow ? Alignment.center : null,
@@ -837,10 +843,12 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
 
                       final actionButton = InkWell(
                         borderRadius: BorderRadius.circular(6),
-                        onTap: () => AssignRoleDialog.show(
-                          context,
-                          controller: _controller,
-                          initialUser: user,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => RoleAssignmentJourneyView(
+                              onSuccess: _controller.loadData,
+                            ),
+                          ),
                         ),
                         child: Container(
                           padding: const EdgeInsets.symmetric(

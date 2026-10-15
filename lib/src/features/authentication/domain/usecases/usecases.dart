@@ -22,3 +22,5 @@ export 'create_pathshala_admin.dart';
 
 export 'reset_user_password.dart';
 
+export 'assign_role_journey.dart';
+

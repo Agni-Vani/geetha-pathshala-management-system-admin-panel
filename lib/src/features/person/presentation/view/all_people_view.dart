@@ -10,9 +10,7 @@ import '../controller/list_people_controller.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_field_decoration.dart';
 import 'add_person_view.dart';
-import '../widgets/assign_teacher_dialog.dart';
-import '../widgets/admit_student_dialog.dart';
-import '../../../authentication/presentation/widgets/assign_pathshala_admin_dialog.dart';
+import '../../../authentication/presentation/view/role_assignment_journey_view.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_empty_state.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
@@ -751,22 +749,34 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           if (action == 'edit') {
             _openEditPerson(person);
           } else if (action == 'assign_teacher') {
-            AssignTeacherDialog.show(
-              context,
-              person: person,
-              onSuccess: _refreshList,
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => RoleAssignmentJourneyView(
+                  initialPerson: person,
+                  initialRoleType: 'TEACHER',
+                  onSuccess: _refreshList,
+                ),
+              ),
             );
           } else if (action == 'admit_student') {
-            AdmitStudentDialog.show(
-              context,
-              person: person,
-              onSuccess: _refreshList,
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => RoleAssignmentJourneyView(
+                  initialPerson: person,
+                  initialRoleType: 'STUDENT',
+                  onSuccess: _refreshList,
+                ),
+              ),
             );
           } else if (action == 'assign_admin') {
-            AssignPathshalaAdminDialog.show(
-              context,
-              initialPerson: person,
-              onSuccess: _refreshList,
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => RoleAssignmentJourneyView(
+                  initialPerson: person,
+                  initialRoleType: 'PATHSHALA_ADMIN',
+                  onSuccess: _refreshList,
+                ),
+              ),
             );
           } else if (action == 'toggle') {
             _togglePersonStatus(person);

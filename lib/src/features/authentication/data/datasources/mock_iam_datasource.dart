@@ -218,6 +218,52 @@ final class MockIamDatasource implements IamDatasource {
     );
   }
 
+  @override
+  Future<Map<String, dynamic>> assignRoleJourney(AssignRoleJourneyParams params) async {
+    await _simulateProcessing();
+    final personId = params.personId ?? 'mock-person-${DateTime.now().millisecondsSinceEpoch}';
+    final userAccountId = 'mock-account-${DateTime.now().millisecondsSinceEpoch}';
+
+    if (params.enableLogin && params.email != null) {
+      _userAccounts.add(
+        UserAccountModel(
+          id: userAccountId,
+          personId: personId,
+          authUserId: 'mock-auth-${DateTime.now().millisecondsSinceEpoch}',
+          email: params.email!,
+          status: AccountStatus.active,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
+      );
+
+      _userRoles.add(
+        UserRoleModel(
+          id: 'mock-role-${DateTime.now().millisecondsSinceEpoch}',
+          userAccountId: userAccountId,
+          roleId: 'role-${params.roleType.toLowerCase()}',
+          roleCode: params.roleType,
+          scopeOrganizationId: null,
+          scopePathshalaId: params.pathshalaId,
+          effectiveFrom: params.effectiveFrom,
+          effectiveTo: null,
+          grantedByUserId: null,
+          status: UserRoleStatus.active,
+        ),
+      );
+    }
+
+    return {
+      'success': true,
+      'roleType': params.roleType,
+      'personId': personId,
+      'userAccountId': userAccountId,
+      'email': params.email,
+      'pathshalaId': params.pathshalaId,
+      'message': '${params.roleType} role assigned successfully',
+    };
+  }
+
   Future<void> _simulateProcessing() async {
     if (processingDelay > Duration.zero) {
       await Future.delayed(processingDelay);

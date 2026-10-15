@@ -45,4 +45,7 @@ abstract interface class IamRepository {
 
   /// Resets a user account password.
   AsyncRequest<void> resetUserPassword(ResetUserPasswordParams params);
+
+  /// Executes the multi-step role assignment journey (resolving person, auth, IAM, and role scopes).
+  AsyncRequest<Map<String, dynamic>> assignRoleJourney(AssignRoleJourneyParams params);
 }

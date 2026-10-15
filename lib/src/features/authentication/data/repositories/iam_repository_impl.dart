@@ -81,6 +81,11 @@ final class IamRepositoryImpl with ErrorHandler implements IamRepository {
     return _request(() => datasource.resetUserPassword(params));
   }
 
+  @override
+  AsyncRequest<Map<String, dynamic>> assignRoleJourney(AssignRoleJourneyParams params) {
+    return _request(() => datasource.assignRoleJourney(params));
+  }
+
   AsyncRequest<T> _request<T>(Future<T> Function() request) {
     return asyncTryCatch<T>(
       tryFunc: () async {
