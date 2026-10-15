@@ -7,10 +7,15 @@ import '../../../../di/service_locator.dart';
 import '../../../../features/authentication/presentation/controller/auth_controller.dart';
 
 class SidebarMenuItem {
+  final int index;
   final IconData icon;
   final String label;
 
-  const SidebarMenuItem({required this.icon, required this.label});
+  const SidebarMenuItem({
+    required this.index,
+    required this.icon,
+    required this.label,
+  });
 }
 
 class CustomSidebar extends StatelessWidget {
@@ -19,22 +24,28 @@ class CustomSidebar extends StatelessWidget {
   final VoidCallback? onLogout;
   final bool isCollapsed;
 
-  const CustomSidebar({super.key, required this.selectedIndex, required this.onItemSelected, this.onLogout, this.isCollapsed = false});
+  const CustomSidebar({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemSelected,
+    this.onLogout,
+    this.isCollapsed = false,
+  });
 
   static const List<SidebarMenuItem> _menuItems = [
-    SidebarMenuItem(icon: Icons.dashboard_outlined, label: 'ড্যাশবোর্ড'),
-    SidebarMenuItem(icon: Icons.school_outlined, label: 'পাঠশালা'),
-    SidebarMenuItem(icon: Icons.auto_stories_outlined, label: 'একাডেমিক প্রোগ্রাম'),
-    SidebarMenuItem(icon: Icons.location_on_outlined, label: 'ভৌগোলিক এলাকা'),
-    SidebarMenuItem(icon: Icons.person_outline, label: 'ব্যক্তি রেজিস্ট্রি'),
-    SidebarMenuItem(icon: Icons.people_outline, label: 'শিক্ষার্থী'),
-    SidebarMenuItem(icon: Icons.badge_outlined, label: 'শিক্ষক'),
-    SidebarMenuItem(icon: Icons.how_to_reg_outlined, label: 'উপস্থিতি'),
-    SidebarMenuItem(icon: Icons.note_alt_outlined, label: 'নোটিশ'),
-    SidebarMenuItem(icon: Icons.calendar_month_outlined, label: 'অনুষ্ঠান'),
-    SidebarMenuItem(icon: Icons.bar_chart_outlined, label: 'রিপোর্ট'),
-    SidebarMenuItem(icon: Icons.admin_panel_settings_outlined, label: 'IAM'),
-    SidebarMenuItem(icon: Icons.settings_outlined, label: 'সেটিংস'),
+    SidebarMenuItem(index: 0, icon: Icons.dashboard_outlined, label: 'ড্যাশবোর্ড'),
+    SidebarMenuItem(index: 1, icon: Icons.school_outlined, label: 'পাঠশালা'),
+    SidebarMenuItem(index: 2, icon: Icons.auto_stories_outlined, label: 'একাডেমিক প্রোগ্রাম'),
+    SidebarMenuItem(index: 3, icon: Icons.location_on_outlined, label: 'ভৌগোলিক এলাকা'),
+    SidebarMenuItem(index: 4, icon: Icons.person_outline, label: 'ব্যক্তি রেজিস্ট্রি'),
+    // SidebarMenuItem(index: 5, icon: Icons.people_outline, label: 'শিক্ষার্থী'),
+    // SidebarMenuItem(index: 6, icon: Icons.badge_outlined, label: 'শিক্ষক'),
+    // SidebarMenuItem(index: 7, icon: Icons.how_to_reg_outlined, label: 'উপস্থিতি'),
+    SidebarMenuItem(index: 8, icon: Icons.note_alt_outlined, label: 'নোটিশ'),
+    SidebarMenuItem(index: 9, icon: Icons.calendar_month_outlined, label: 'অনুষ্ঠান'),
+    // SidebarMenuItem(index: 10, icon: Icons.bar_chart_outlined, label: 'রিপোর্ট'),
+    SidebarMenuItem(index: 11, icon: Icons.admin_panel_settings_outlined, label: 'IAM'),
+    SidebarMenuItem(index: 12, icon: Icons.settings_outlined, label: 'সেটিংস'),
   ];
 
   @override
@@ -140,9 +151,9 @@ class CustomSidebar extends StatelessWidget {
                     return _SidebarMenuTile(
                       icon: item.icon,
                       label: item.label,
-                      isSelected: selectedIndex == index,
+                      isSelected: selectedIndex == item.index,
                       isCollapsed: isCollapsed,
-                      onTap: () => onItemSelected(index),
+                      onTap: () => onItemSelected(item.index),
                       colors: colors,
                     );
                   },
