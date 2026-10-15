@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
+import '../../../../core/shared/widget/custom_widgets/pinned_header_card_page.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
-import '../../../../core/constants/app_sizes.dart';
 
 class _ReportType {
   final IconData icon;
@@ -68,41 +68,38 @@ class _ReportsViewState extends State<ReportsView> {
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
+      showBackgroundImage: false,
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              padding: AppSizes.pagePadding(context),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 640;
-                  final crossAxisCount = constraints.maxWidth < 640
-                      ? 1
-                      : constraints.maxWidth < 1000
-                          ? 2
-                          : 4;
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isNarrow = constraints.maxWidth < 640;
+                final crossAxisCount = constraints.maxWidth < 640
+                    ? 1
+                    : constraints.maxWidth < 1000
+                        ? 2
+                        : 4;
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(colors, isNarrow),
-                      SizedBox(height: AppSizes.sectionGap(context)),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 20,
-                          mainAxisExtent: 190,
-                        ),
-                        itemCount: _reportTypes.length,
-                        itemBuilder: (context, index) => _buildReportCard(colors, _reportTypes[index]),
+                return PinnedHeaderCardPage(
+                  header: _buildHeader(colors, isNarrow),
+                  card: SingleChildScrollView(
+                    padding: EdgeInsets.all(PinnedHeaderCardPage.cardInset(context)),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 20,
+                        mainAxisSpacing: 20,
+                        mainAxisExtent: 190,
                       ),
-                    ],
-                  );
-                },
-              ),
+                      itemCount: _reportTypes.length,
+                      itemBuilder: (context, index) => _buildReportCard(colors, _reportTypes[index]),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           Container(
@@ -139,13 +136,9 @@ class _ReportsViewState extends State<ReportsView> {
       ],
     );
 
-    final dateRange = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: colors.tileColor,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: colors.borderColor),
-      ),
+    // Plain text on the header surface — no chip behind it.
+    final dateRange = Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -167,7 +160,8 @@ class _ReportsViewState extends State<ReportsView> {
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [titleBlock, const SizedBox(height: 16), dateRange]);
     }
 
-    return Row(children: [Expanded(child: titleBlock), const SizedBox(width: 16), dateRange]);
+    // The date range rests on the same line as the bottom of the description.
+    return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [Expanded(child: titleBlock), const SizedBox(width: 16), dateRange]);
   }
 
   Widget _buildReportCard(AppColors colors, _ReportType report) {

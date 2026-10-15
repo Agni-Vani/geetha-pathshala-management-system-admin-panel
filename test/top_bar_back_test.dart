@@ -51,14 +51,19 @@ void main() {
     expect(find.text('গীতা পাঠশালা'), findsOneWidget);
   });
 
-  testWidgets('pops back from a pushed screen', (tester) async {
+  testWidgets('a pushed screen shows its heading and pops back from its '
+      'breadcrumb', (tester) async {
     await _boot(tester, AppRouteNames.pathshalas);
     await tester.tap(find.text('Add New Pathshala').first, warnIfMissed: false);
     await tester.pumpAndSettle();
     while (tester.takeException() != null) {}
     expect(find.byType(AllPatshalaView), findsNothing);
 
-    await tester.tap(find.byIcon(Icons.keyboard_double_arrow_left));
+    // The heading takes the back chip's slot in the top bar.
+    expect(find.byIcon(Icons.keyboard_double_arrow_left), findsNothing);
+    expect(find.text('Add New Pathshala'), findsOneWidget);
+
+    await tester.tap(find.text('পাঠশালা'));
     await tester.pumpAndSettle();
     while (tester.takeException() != null) {}
 

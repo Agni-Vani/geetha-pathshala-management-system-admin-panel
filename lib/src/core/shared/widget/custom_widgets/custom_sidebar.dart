@@ -46,10 +46,32 @@ class CustomSidebar extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colors.drawerColor,
-        border: Border(right: BorderSide(color: colors.dividerColor)),
       ),
       child: Stack(
         children: [
+          Positioned(
+            top: 0,
+            bottom: 0,
+            right: 0,
+            width: 1,
+            child: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      colors.dividerColor.withValues(alpha: .15),
+                      colors.dividerColor.withValues(alpha: .65),
+                      colors.dividerColor.withValues(alpha: .65),
+                      colors.dividerColor.withValues(alpha: .15),
+                    ],
+                    stops: const [0, .15, .85, 1],
+                  ),
+                ),
+              ),
+            ),
+          ),
           // Lotus resting at the foot of the sidebar, faded almost to a
           // watermark and dissolved into the panel at its top edge so it never
           // competes with the menu labels.
@@ -66,14 +88,23 @@ class CustomSidebar extends StatelessWidget {
                   stops: [0, 0.6],
                 ).createShader(bounds),
                 blendMode: BlendMode.dstIn,
-                child: Opacity(
-                  opacity: 0.16,
-                  child: Image.asset(
-                    Assets.lotusImage,
-                    height: 300,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.bottomCenter,
+                child: ShaderMask(
+                  shaderCallback: (bounds) => const LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Colors.white, Colors.white, Colors.transparent],
+                    stops: [0, .65, 1],
+                  ).createShader(bounds),
+                  blendMode: BlendMode.dstIn,
+                  child: Opacity(
+                    opacity: 0.16,
+                    child: Image.asset(
+                      Assets.lotusImage,
+                      height: 300,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      alignment: Alignment.bottomCenter,
+                    ),
                   ),
                 ),
               ),
@@ -154,7 +185,7 @@ class CustomSidebar extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                             decoration: BoxDecoration(
                               color: colors.tileColor,
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: AppSizes.rectangleButtonRadius,
                               border: Border.all(color: colors.borderColor),
                             ),
                             child: Row(

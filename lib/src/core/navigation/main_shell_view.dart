@@ -95,6 +95,21 @@ class _MainShellViewState extends State<MainShellView> {
       selectedIndex: _selectedIndex,
       onItemSelected: _onItemSelected,
       topBarTitle: 'Overview',
+      // These pages paint the illustration themselves, below their header:
+      // pathshalas, people registry, students, teachers, attendance, notices,
+      // events, reports and IAM.
+      showBackgroundImage: !const {
+        1,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+      }.contains(_selectedIndex),
+      showTopBarBack: false,
       body: ShellScope(
         selectedIndex: _selectedIndex,
         onItemSelected: _onItemSelected,

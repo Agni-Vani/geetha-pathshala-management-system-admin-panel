@@ -47,6 +47,19 @@ class ResponsiveAppShell extends StatelessWidget {
   final VoidCallback? onTopBarBack;
   final Widget body;
 
+  /// Whether the shared background illustration is painted behind [body].
+  final bool showBackgroundImage;
+
+  /// The heading of a pushed page (add / edit…), shown in the mobile top bar.
+  /// Pages that pass one should drop their in-body heading while [hasTopBar]
+  /// is true. Top-level pages leave it null and get the app's name.
+  final String? pageTitle;
+
+  /// Whether the top bar may offer a back chip. The shell hosting the
+  /// top-level tabs turns it off: those are peers reached from the sidebar,
+  /// so "back" there would leave the app's main screen altogether.
+  final bool showTopBarBack;
+
   const ResponsiveAppShell({
     super.key,
     required this.selectedIndex,
@@ -55,7 +68,14 @@ class ResponsiveAppShell extends StatelessWidget {
     this.onLogout,
     this.onTopBarBack,
     required this.body,
+    this.showBackgroundImage = true,
+    this.pageTitle,
+    this.showTopBarBack = true,
   });
+
+  /// Whether the shell currently shows its top bar (mobile widths only).
+  static bool hasTopBar(BuildContext context) =>
+      MediaQuery.sizeOf(context).width < mobileBreakpoint;
 
   /// The top bar's back chip, or null when there is nothing to go back to.
   ///
@@ -64,6 +84,7 @@ class ResponsiveAppShell extends StatelessWidget {
   /// and the top bar shows the app's name in its place. Screens pushed on top
   /// (add / edit / details) get a working back chip.
   VoidCallback? _resolveBackAction(BuildContext context) {
+    if (!showTopBarBack) return null;
     if (!Navigator.of(context).canPop()) return null;
     return onTopBarBack ?? () => Navigator.of(context).maybePop();
   }
@@ -134,10 +155,17 @@ class ResponsiveAppShell extends StatelessWidget {
                                   CustomTopBar(
                                     title: topBarTitle,
                                     onBack: backAction,
+                                    pageTitle: pageTitle,
                                     onMenuTap: () =>
                                         Scaffold.of(innerContext).openDrawer(),
                                   ),
-                                Expanded(child: AppBackground(child: body)),
+                                Expanded(
+                                  child: AppBackground(
+                                    blendWithSidebar: true,
+                                    showImage: showBackgroundImage,
+                                    child: body,
+                                  ),
+                                ),
                               ],
                             );
                           },

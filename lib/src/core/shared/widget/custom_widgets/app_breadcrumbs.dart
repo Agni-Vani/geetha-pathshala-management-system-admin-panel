@@ -9,11 +9,7 @@ class BreadcrumbItem {
   final IconData? icon;
   final VoidCallback? onTap;
 
-  const BreadcrumbItem({
-    required this.label,
-    this.icon,
-    this.onTap,
-  });
+  const BreadcrumbItem({required this.label, this.icon, this.onTap});
 
   /// Factory helper for root home / dashboard crumb.
   static BreadcrumbItem home(BuildContext context) {
@@ -111,22 +107,20 @@ class _BreadcrumbSegmentState extends State<_BreadcrumbSegment> {
       mainAxisSize: MainAxisSize.min,
       children: [
         if (widget.item.icon != null) ...[
-          Icon(
-            widget.item.icon,
-            size: 14,
-            color: textColor,
-          ),
+          Icon(widget.item.icon, size: 14, color: textColor),
           const SizedBox(width: 4),
         ],
-        Text(
-          widget.item.label,
-          style: TextStyle(
-            fontSize: 12.5,
-            fontWeight: widget.isCurrent ? FontWeight.w600 : FontWeight.w500,
-            color: textColor,
-            decoration: (_isHovered && isClickable)
-                ? TextDecoration.underline
-                : TextDecoration.none,
+        Flexible(
+          child: Text(
+            widget.item.label,
+            style: TextStyle(
+              fontSize: 12.5,
+              fontWeight: widget.isCurrent ? FontWeight.w600 : FontWeight.w500,
+              color: textColor,
+              decoration: (_isHovered && isClickable)
+                  ? TextDecoration.underline
+                  : TextDecoration.none,
+            ),
           ),
         ),
       ],

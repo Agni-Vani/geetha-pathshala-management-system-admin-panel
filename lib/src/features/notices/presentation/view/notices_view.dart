@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_status_badge.dart';
+import '../../../../core/shared/widget/custom_widgets/pinned_header_card_page.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -41,11 +41,22 @@ class _NoticesViewState extends State<NoticesView> {
   String _formatDate(DateTime? date) {
     if (date == null) return '';
     final months = [
-      'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
-      'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
+      'জানুয়ারি',
+      'ফেব্রুয়ারি',
+      'মার্চ',
+      'এপ্রিল',
+      'মে',
+      'জুন',
+      'জুলাই',
+      'আগস্ট',
+      'সেপ্টেম্বর',
+      'অক্টোবর',
+      'নভেম্বর',
+      'ডিসেম্বর',
     ];
     final bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    String bn(int num) => num.toString().split('').map((c) => bnDigits[int.parse(c)]).join();
+    String bn(int num) =>
+        num.toString().split('').map((c) => bnDigits[int.parse(c)]).join();
     return '${bn(date.day)} ${months[date.month - 1]}, ${bn(date.year)}';
   }
 
@@ -76,7 +87,9 @@ class _NoticesViewState extends State<NoticesView> {
         return AlertDialog(
           backgroundColor: colors.backgroundColor,
           surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Row(
             children: [
               const Icon(Icons.delete_outline, color: Colors.red),
@@ -106,7 +119,9 @@ class _NoticesViewState extends State<NoticesView> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               onPressed: () async {
                 Navigator.of(ctx).pop();
@@ -116,7 +131,10 @@ class _NoticesViewState extends State<NoticesView> {
                   snackbarNotifier: snackbar,
                 );
               },
-              child: const Text('মুছে ফেলুন', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text(
+                'মুছে ফেলুন',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -133,44 +151,54 @@ class _NoticesViewState extends State<NoticesView> {
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
+      showBackgroundImage: false,
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
           final notices = _controller.notices;
-          final isLoading = _controller.processStatusNotifier.status is ProcessLoading;
+          final isLoading =
+              _controller.processStatusNotifier.status is ProcessLoading;
 
           return Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  padding: AppSizes.pagePadding(context),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isNarrow = constraints.maxWidth < 640;
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 640;
+                    final cardInset = PinnedHeaderCardPage.cardInset(context);
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeader(colors, isNarrow),
-                          SizedBox(height: AppSizes.sectionGap(context)),
-                          if (isLoading && notices.isEmpty)
-                            const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(40.0),
-                                child: CircularProgressIndicator(),
-                              ),
-                            )
-                          else if (notices.isEmpty)
-                            _buildEmptyState(colors)
-                          else
-                            for (final notice in notices) ...[
-                              _buildNoticeCard(colors, notice),
-                              const SizedBox(height: 16),
-                            ],
+                    return PinnedHeaderCardPage(
+                      header: _buildHeader(colors, isNarrow),
+                      card: CustomScrollView(
+                        slivers: [
+                          SliverPadding(
+                            padding: EdgeInsets.all(cardInset),
+                            sliver: notices.isEmpty
+                                ? SliverFillRemaining(
+                                    hasScrollBody: false,
+                                    child: Center(
+                                      child: isLoading
+                                          ? const Padding(
+                                              padding: EdgeInsets.all(40),
+                                              child:
+                                                  CircularProgressIndicator(),
+                                            )
+                                          : _buildEmptyState(colors),
+                                    ),
+                                  )
+                                : SliverList.list(
+                                    children: [
+                                      for (final notice in notices) ...[
+                                        _buildNoticeCard(colors, notice),
+                                        const SizedBox(height: 16),
+                                      ],
+                                    ],
+                                  ),
+                          ),
                         ],
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
               Container(
@@ -192,23 +220,31 @@ class _NoticesViewState extends State<NoticesView> {
 
   Widget _buildEmptyState(AppColors colors) {
     return Center(
+      heightFactor: 1,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 48),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.campaign_outlined, size: 56, color: colors.hintColor.withValues(alpha: 0.5)),
+            Icon(
+              Icons.campaign_outlined,
+              size: 56,
+              color: colors.hintColor.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 12),
             Text(
               'কোন নোটিশ পাওয়া যায়নি',
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.w500,
                 color: colors.textColor,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'নতুন নোটিশ যুক্ত করতে উপরের "Add Notice" বোতামে চাপুন।',
+              textAlign: TextAlign.center,
               style: TextStyle(fontSize: 13, color: colors.hintColor),
             ),
           ],
@@ -224,10 +260,7 @@ class _NoticesViewState extends State<NoticesView> {
         AppBreadcrumbs(
           items: [
             BreadcrumbItem.home(context),
-            const BreadcrumbItem(
-              label: 'নোটিশ',
-              icon: Icons.note_alt_outlined,
-            ),
+            const BreadcrumbItem(label: 'নোটিশ', icon: Icons.note_alt_outlined),
           ],
         ),
         Text(
@@ -263,6 +296,8 @@ class _NoticesViewState extends State<NoticesView> {
     }
 
     return Row(
+      // The button rests on the same line as the bottom of the description.
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(child: titleBlock),
         const SizedBox(width: 16),
@@ -276,7 +311,9 @@ class _NoticesViewState extends State<NoticesView> {
 
     String? targetName;
     if (notice.pathshalaId != null && _controller.pathshalas.isNotEmpty) {
-      final found = _controller.pathshalas.where((p) => p.id == notice.pathshalaId);
+      final found = _controller.pathshalas.where(
+        (p) => p.id == notice.pathshalaId,
+      );
       if (found.isNotEmpty) {
         targetName = found.first.name;
       }
@@ -333,9 +370,14 @@ class _NoticesViewState extends State<NoticesView> {
                           CustomStatusBadge(label: badgeLabel, tone: badgeTone),
                           if (targetName != null)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 2,
+                              ),
                               decoration: BoxDecoration(
-                                color: colors.primaryColor.withValues(alpha: 0.08),
+                                color: colors.primaryColor.withValues(
+                                  alpha: 0.08,
+                                ),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(

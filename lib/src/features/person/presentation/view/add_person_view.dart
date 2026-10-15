@@ -12,6 +12,7 @@ import 'package:geetha_pathshala_management_web/src/di/di.dart';
 import '../../domain/person_domain.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_field_decoration.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_date_field.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_form_field.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_section_divider.dart';
@@ -153,8 +154,9 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
 
   final int _selectedIndex = 4;
   late final SnackbarNotifier snackbarNotifier;
-  final ProcessStatusNotifier _processStatusNotifier =
-      ProcessStatusNotifier(initialStatus: ProcessEnabled());
+  final ProcessStatusNotifier _processStatusNotifier = ProcessStatusNotifier(
+    initialStatus: ProcessEnabled(),
+  );
 
   final _legalNameController = TextEditingController();
   final _preferredNameController = TextEditingController();
@@ -215,12 +217,16 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
       setState(() {
         _isLoadingExistingData = false;
         final eduRes = results[0];
-        if (eduRes is SuccessRepoCall<List<PersonEducation>> && eduRes.data != null) {
+        if (eduRes is SuccessRepoCall<List<PersonEducation>> &&
+            eduRes.data != null) {
           _educations.clear();
-          _educations.addAll(eduRes.data!.map(EditableEducationItem.fromEntity));
+          _educations.addAll(
+            eduRes.data!.map(EditableEducationItem.fromEntity),
+          );
         }
         final expRes = results[1];
-        if (expRes is SuccessRepoCall<List<PersonWorkExperience>> && expRes.data != null) {
+        if (expRes is SuccessRepoCall<List<PersonWorkExperience>> &&
+            expRes.data != null) {
           _workExperiences.clear();
           _workExperiences.addAll(
             expRes.data!.map(EditableWorkExperienceItem.fromEntity),
@@ -260,29 +266,35 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
       try {
         final client = Supabase.instance.client;
         final fileExt = picked.name.split('.').last.toLowerCase();
-        final safeExt = (fileExt == 'png' || fileExt == 'webp') ? fileExt : 'jpg';
-        final fileName = '${DateTime.now().millisecondsSinceEpoch}_${picked.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_')}';
+        final safeExt = (fileExt == 'png' || fileExt == 'webp')
+            ? fileExt
+            : 'jpg';
+        final fileName =
+            '${DateTime.now().millisecondsSinceEpoch}_${picked.name.replaceAll(RegExp(r'[^a-zA-Z0-9._-]'), '_')}';
         final storagePath = 'avatars/$fileName';
         final mimeType = safeExt == 'png'
             ? 'image/png'
             : (safeExt == 'webp' ? 'image/webp' : 'image/jpeg');
 
-        await client.storage.from('person-photos').uploadBinary(
+        await client.storage
+            .from('person-photos')
+            .uploadBinary(
               storagePath,
               bytes,
-              fileOptions: FileOptions(
-                contentType: mimeType,
-                upsert: true,
-              ),
+              fileOptions: FileOptions(contentType: mimeType, upsert: true),
             );
 
-        final publicUrl = client.storage.from('person-photos').getPublicUrl(storagePath);
+        final publicUrl = client.storage
+            .from('person-photos')
+            .getPublicUrl(storagePath);
         if (mounted) {
           setState(() {
             _photoUrl = publicUrl;
             _isUploadingPhoto = false;
           });
-          snackbarNotifier.notifySuccess(message: 'Photo uploaded successfully.');
+          snackbarNotifier.notifySuccess(
+            message: 'Photo uploaded successfully.',
+          );
         }
       } catch (storageError) {
         if (mounted) {
@@ -463,10 +475,18 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.errorColor,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -479,7 +499,9 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
           setState(() {
             _educations.removeAt(index);
           });
-          snackbarNotifier.notifySuccess(message: 'Educational qualification deleted successfully.');
+          snackbarNotifier.notifySuccess(
+            message: 'Educational qualification deleted successfully.',
+          );
         } else {
           snackbarNotifier.notifyError(message: response.message);
         }
@@ -531,10 +553,18 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: colors.errorColor,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
         ],
       ),
@@ -547,7 +577,9 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
           setState(() {
             _workExperiences.removeAt(index);
           });
-          snackbarNotifier.notifySuccess(message: 'Work experience deleted successfully.');
+          snackbarNotifier.notifySuccess(
+            message: 'Work experience deleted successfully.',
+          );
         } else {
           snackbarNotifier.notifyError(message: response.message);
         }
@@ -556,61 +588,65 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
   }
 
   Widget _buildPhotoUploader(AppColors colors) {
-    final hasPhoto = (_pickedImageBytes != null) ||
+    final hasPhoto =
+        _pickedImageBytes != null ||
         (_photoUrl != null && _photoUrl!.trim().isNotEmpty);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isVeryNarrow = constraints.maxWidth < 420;
-
-        final avatarWidget = Stack(
+        final isCompact = constraints.maxWidth < 420 * textScale;
+        final isWide = constraints.maxWidth >= 820 * textScale;
+        final placeholder = Icon(
+          Icons.person_outline_rounded,
+          size: 40,
+          color: colors.primaryColor,
+        );
+        // Phones get a round avatar with a camera badge; wider layouts keep
+        // the rounded square beside the text.
+        final previewSize = isCompact ? 104.0 : 88.0;
+        final previewRadius = isCompact ? previewSize / 2 : 20.0;
+        final preview = Stack(
           alignment: Alignment.center,
+          clipBehavior: Clip.none,
           children: [
             Container(
-              width: 76,
-              height: 76,
+              width: previewSize,
+              height: previewSize,
+              padding: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: colors.softAccentColor.withValues(alpha: 0.3),
-                border: Border.all(
-                  color: colors.primaryColor.withValues(alpha: 0.3),
-                  width: 2,
-                ),
-              ),
-              child: ClipOval(
-                child: _pickedImageBytes != null
-                    ? Image.memory(
-                        _pickedImageBytes!,
-                        width: 76,
-                        height: 76,
-                        fit: BoxFit.cover,
+                color: isCompact
+                    ? colors.backgroundColor
+                    : colors.primaryColor.withValues(alpha: .1),
+                borderRadius: BorderRadius.circular(previewRadius),
+                border: isCompact
+                    ? Border.all(
+                        color: colors.primaryColor.withValues(alpha: .45),
+                        width: 1.5,
                       )
-                    : (_photoUrl != null && _photoUrl!.trim().isNotEmpty)
-                        ? Image.network(
-                            _photoUrl!,
-                            width: 76,
-                            height: 76,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Icon(
-                              Icons.person_outline,
-                              size: 40,
-                              color: colors.primaryColor.withValues(alpha: 0.7),
-                            ),
-                          )
-                        : Icon(
-                            Icons.person_outline,
-                            size: 40,
-                            color: colors.primaryColor.withValues(alpha: 0.7),
-                          ),
+                    : null,
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(previewRadius - 4),
+                child: _pickedImageBytes != null
+                    ? Image.memory(_pickedImageBytes!, fit: BoxFit.cover)
+                    : hasPhoto
+                    ? Image.network(
+                        _photoUrl!,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => placeholder,
+                      )
+                    : placeholder,
               ),
             ),
             if (_isUploadingPhoto)
               Container(
-                width: 76,
-                height: 76,
+                width: previewSize,
+                height: previewSize,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withValues(alpha: 0.45),
+                  color: Colors.black.withValues(alpha: .45),
+                  borderRadius: BorderRadius.circular(previewRadius),
                 ),
                 child: const Center(
                   child: SizedBox(
@@ -623,119 +659,196 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
                   ),
                 ),
               ),
-          ],
-        );
-
-        final controlsWidget = Column(
-          crossAxisAlignment:
-              isVeryNarrow ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Profile Photo (প্রোফাইল ছবি)',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: colors.textColor,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Upload a clear passport or portrait photo (JPG, PNG or WebP)',
-              textAlign: isVeryNarrow ? TextAlign.center : TextAlign.start,
-              style: TextStyle(
-                fontSize: 12,
-                color: colors.hintColor,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 10,
-              runSpacing: 8,
-              alignment:
-                  isVeryNarrow ? WrapAlignment.center : WrapAlignment.start,
-              children: [
-                OutlinedButton.icon(
-                  onPressed: _isUploadingPhoto ? null : _pickAndUploadPhoto,
-                  icon: Icon(
-                    hasPhoto
-                        ? Icons.photo_camera_outlined
-                        : Icons.upload_outlined,
-                    size: 15,
-                    color: colors.primaryColor,
+            if (isCompact && !_isUploadingPhoto)
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Material(
+                  color: colors.primaryColor,
+                  shape: CircleBorder(
+                    side: BorderSide(color: colors.backgroundColor, width: 2),
                   ),
-                  label: Text(
-                    hasPhoto ? 'Change Photo' : 'Upload Photo',
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      fontWeight: FontWeight.w600,
-                      color: colors.primaryColor,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: colors.primaryColor.withValues(alpha: 0.4),
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 9,
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: _pickAndUploadPhoto,
+                    child: SizedBox(
+                      width: 34,
+                      height: 34,
+                      child: Icon(
+                        Icons.photo_camera_rounded,
+                        size: 17,
+                        color: colors.buttonContentColor,
+                      ),
                     ),
                   ),
                 ),
-                if (hasPhoto)
-                  TextButton.icon(
-                    onPressed: _isUploadingPhoto ? null : _removePhoto,
-                    icon: const Icon(
-                      Icons.delete_outline,
-                      size: 15,
-                      color: Colors.redAccent,
-                    ),
-                    label: const Text(
-                      'Remove',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                    style: TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 9,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+              ),
           ],
         );
-
-        return Container(
-          margin: const EdgeInsets.only(bottom: 24),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: colors.softAccentColor.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: colors.dividerColor.withValues(alpha: 0.6),
+        final details = Column(
+          crossAxisAlignment: isCompact
+              ? CrossAxisAlignment.center
+              : CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Profile Photo (প্রোফাইল ছবি)',
+              textAlign: isCompact ? TextAlign.center : TextAlign.start,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: colors.textColor,
+              ),
+            ),
+            SizedBox(height: isCompact ? 4 : 6),
+            Text(
+              'Use a clear passport or portrait photo.',
+              textAlign: isCompact ? TextAlign.center : TextAlign.start,
+              style: TextStyle(
+                fontSize: 12,
+                height: 1.5,
+                color: colors.hintColor,
+              ),
+            ),
+            SizedBox(height: isCompact ? 10 : 8),
+            if (isCompact)
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                alignment: WrapAlignment.center,
+                children: [
+                  for (final format in const ['JPG', 'PNG', 'WebP'])
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.primaryColor.withValues(alpha: .1),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        format,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: colors.primaryColor,
+                        ),
+                      ),
+                    ),
+                ],
+              )
+            else
+              Text(
+                'JPG · PNG · WebP',
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w500,
+                  color: colors.hintColor,
+                ),
+              ),
+          ],
+        );
+        final uploadButton = ElevatedButton.icon(
+          onPressed: _isUploadingPhoto ? null : _pickAndUploadPhoto,
+          icon: Icon(
+            hasPhoto ? Icons.photo_camera_outlined : Icons.upload_rounded,
+            size: 18,
+          ),
+          label: Text(
+            _isUploadingPhoto
+                ? 'Uploading…'
+                : hasPhoto
+                ? 'Change Photo'
+                : 'Upload Photo',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: colors.primaryColor,
+            foregroundColor: colors.buttonContentColor,
+            elevation: 0,
+            minimumSize: const Size(0, 44),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
             ),
           ),
-          child: isVeryNarrow
+        );
+        final removeButton = TextButton.icon(
+          onPressed: _isUploadingPhoto ? null : _removePhoto,
+          icon: const Icon(Icons.delete_outline_rounded, size: 17),
+          label: const Text('Remove'),
+          style: TextButton.styleFrom(
+            foregroundColor: colors.errorColor,
+            minimumSize: const Size(0, 44),
+          ),
+        );
+        // On phones the buttons span the card; elsewhere they sit inline.
+        final actions = isCompact
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  uploadButton,
+                  if (hasPhoto) ...[const SizedBox(height: 4), removeButton],
+                ],
+              )
+            : Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [uploadButton, if (hasPhoto) removeButton],
+              );
+
+        return Container(
+          width: double.infinity,
+          margin: const EdgeInsets.only(bottom: 24),
+          padding: isCompact
+              ? const EdgeInsets.fromLTRB(16, 22, 16, 16)
+              : const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: isCompact
+                ? Color.alphaBlend(
+                    colors.primaryColor.withValues(alpha: .05),
+                    colors.backgroundColor,
+                  )
+                : isDark
+                ? colors.backgroundColor
+                : const Color(0xFFF7F9FA),
+            borderRadius: BorderRadius.circular(16),
+            border: isCompact
+                ? Border.all(color: colors.primaryColor.withValues(alpha: .2))
+                : null,
+          ),
+          child: isCompact
               ? Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    avatarWidget,
+                    preview,
                     const SizedBox(height: 14),
-                    controlsWidget,
+                    details,
+                    const SizedBox(height: 18),
+                    actions,
                   ],
                 )
               : Row(
                   children: [
-                    avatarWidget,
-                    const SizedBox(width: 18),
-                    Expanded(child: controlsWidget),
+                    preview,
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: isWide
+                          ? details
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                details,
+                                const SizedBox(height: 14),
+                                actions,
+                              ],
+                            ),
+                    ),
+                    if (isWide) ...[
+                      const SizedBox(width: 24),
+                      SizedBox(width: 180 * textScale, child: actions),
+                    ],
                   ],
                 ),
         );
@@ -786,16 +899,20 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
           borderRadius: BorderRadius.circular(8),
           onTap: onAdd,
           child: Container(
-            height: 38,
+            // Stacked under the title on phones, the button spans the row
+            // with its icon and label centred.
+            width: isNarrow ? double.infinity : null,
+            height: isNarrow ? 44 : 38,
             padding: const EdgeInsets.symmetric(horizontal: 14),
             decoration: BoxDecoration(
               border: Border.all(color: colors.primaryColor),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: isNarrow ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add, size: 16, color: colors.primaryColor),
+                Icon(Icons.add_rounded, size: 18, color: colors.primaryColor),
                 const SizedBox(width: 6),
                 Flexible(
                   child: Text(
@@ -817,11 +934,7 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
         if (isNarrow) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              header,
-              const SizedBox(height: 12),
-              button,
-            ],
+            children: [header, const SizedBox(height: 12), button],
           );
         }
 
@@ -834,6 +947,327 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
           ],
         );
       },
+    );
+  }
+
+  // ---------------------------------------------------------------------
+  // Shared look for the "add education" / "add experience" dialogs.
+  // ---------------------------------------------------------------------
+
+  InputDecoration _dialogDecoration(
+    BuildContext context, {
+    String? hint,
+    IconData? prefix,
+    IconData? suffix,
+  }) {
+    final colors = AppColors.context(context);
+    OutlineInputBorder border(Color color, [double width = 1]) =>
+        OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: color, width: width),
+        );
+    final idle = border(colors.ornamentColor.withValues(alpha: .85));
+    return AppFieldDecoration.build(
+      context,
+      hint: hint,
+      prefix: prefix,
+      suffix: suffix,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    ).copyWith(
+      fillColor: colors.cardSurfaceColor,
+      border: idle,
+      enabledBorder: idle,
+      disabledBorder: border(colors.ornamentColor.withValues(alpha: .4)),
+      focusedBorder: border(colors.primaryColor, 1.5),
+      errorBorder: border(colors.errorColor),
+      focusedErrorBorder: border(colors.errorColor, 1.5),
+    );
+  }
+
+  /// A field with its label sitting above it (instead of floating on the
+  /// border), which keeps a dense form easy to scan.
+  Widget _dialogField(
+    BuildContext context, {
+    required String label,
+    required Widget child,
+    bool isRequired = false,
+  }) {
+    final colors = AppColors.context(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text.rich(
+          TextSpan(
+            text: label,
+            children: [
+              if (isRequired)
+                TextSpan(
+                  text: ' *',
+                  style: TextStyle(color: colors.errorColor),
+                ),
+            ],
+          ),
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: colors.textColor,
+          ),
+        ),
+        const SizedBox(height: 6),
+        child,
+      ],
+    );
+  }
+
+  /// Two fields side by side, stacking when the dialog is too narrow.
+  Widget _dialogPair(Widget first, Widget second) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 420) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [first, const SizedBox(height: 14), second],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: first),
+            const SizedBox(width: 12),
+            Expanded(child: second),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _dialogToggle(
+    BuildContext context, {
+    required String label,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    final colors = AppColors.context(context);
+    final radius = BorderRadius.circular(12);
+    return Material(
+      color: value
+          ? colors.primaryColor.withValues(alpha: .1)
+          : colors.softAccentColor.withValues(alpha: .35),
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(
+          color: value
+              ? colors.primaryColor.withValues(alpha: .5)
+              : colors.ornamentColor.withValues(alpha: .6),
+        ),
+      ),
+      child: InkWell(
+        borderRadius: radius,
+        onTap: () => onChanged(!value),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: value ? colors.primaryColor : Colors.transparent,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: value ? colors.primaryColor : colors.hintColor,
+                    width: 1.5,
+                  ),
+                ),
+                child: value
+                    ? const Icon(
+                        Icons.check_rounded,
+                        size: 15,
+                        color: Colors.white,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13.5,
+                    fontWeight: FontWeight.w600,
+                    color: value ? colors.maroonColor : colors.textColor,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Dialog frame: icon + title header, scrollable form body, pinned actions.
+  Widget _formDialog(
+    BuildContext dialogContext, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required GlobalKey<FormState> formKey,
+    required List<Widget> fields,
+    required String submitLabel,
+    required VoidCallback onSubmit,
+  }) {
+    final colors = AppColors.context(dialogContext);
+    final actionColor = colors.buttonColor;
+    final divider = Divider(
+      height: 1,
+      color: colors.ornamentColor.withValues(alpha: .5),
+    );
+    final cancel = OutlinedButton(
+      onPressed: () => Navigator.pop(dialogContext),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(0, 46),
+        foregroundColor: colors.maroonColor,
+        backgroundColor: colors.dialogBackgroundColor,
+        side: BorderSide(color: colors.ornamentColor),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+      child: const Text('Cancel'),
+    );
+    final submit = ElevatedButton.icon(
+      onPressed: onSubmit,
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(0, 46),
+        elevation: 0,
+        backgroundColor: actionColor,
+        surfaceTintColor: Colors.transparent,
+        foregroundColor: colors.buttonContentColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+      ),
+      icon: const Icon(Icons.add_rounded, size: 18),
+      label: Text(submitLabel, maxLines: 1, overflow: TextOverflow.ellipsis),
+    );
+
+    return Dialog(
+      backgroundColor: colors.dialogBackgroundColor,
+      surfaceTintColor: Colors.transparent,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: colors.ornamentColor.withValues(alpha: .6)),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 560),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 18, 12, 16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: actionColor,
+                      borderRadius: BorderRadius.circular(13),
+                    ),
+                    child: Icon(
+                      icon,
+                      color: colors.buttonContentColor,
+                      size: 22,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            fontSize: 17,
+                            height: 1.3,
+                            fontWeight: FontWeight.w700,
+                            color: colors.textColor,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            height: 1.4,
+                            color: colors.hintColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    tooltip: 'Close',
+                    onPressed: () => Navigator.pop(dialogContext),
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    style: IconButton.styleFrom(
+                      foregroundColor: colors.hintColor,
+                      backgroundColor: colors.softAccentColor.withValues(
+                        alpha: .5,
+                      ),
+                      minimumSize: const Size(38, 38),
+                      padding: const EdgeInsets.all(8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            divider,
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var i = 0; i < fields.length; i++) ...[
+                        if (i > 0) const SizedBox(height: 14),
+                        fields[i],
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            divider,
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 14, 20, 18),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  if (constraints.maxWidth < 360) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [submit, const SizedBox(height: 8), cancel],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      Expanded(child: cancel),
+                      const SizedBox(width: 12),
+                      Expanded(flex: 2, child: submit),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -862,246 +1296,196 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
     final resultCtrl = TextEditingController();
     final remarksCtrl = TextEditingController();
     bool isOngoing = false;
+    final fieldStyle = TextStyle(fontSize: 14, color: colors.textColor);
 
     showDialog(
       context: context,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: colors.backgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Row(
-                children: [
-                  Icon(Icons.school, color: colors.primaryColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Add Educational Qualification',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: colors.textColor,
+            return _formDialog(
+              ctx,
+              icon: Icons.school_rounded,
+              title: 'Add Educational Qualification',
+              subtitle: 'শিক্ষাগত যোগ্যতার তথ্য যোগ করুন',
+              formKey: formKey,
+              submitLabel: 'Add Qualification',
+              fields: [
+                _dialogField(
+                  context,
+                  label: 'Academic Level',
+                  isRequired: true,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: selectedLevel,
+                    isExpanded: true,
+                    style: fieldStyle,
+                    borderRadius: BorderRadius.circular(12),
+                    dropdownColor: colors.dialogBackgroundColor,
+                    icon: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: colors.hintColor,
+                    ),
+                    decoration: _dialogDecoration(
+                      context,
+                      prefix: Icons.school_outlined,
+                    ),
+                    items: academicLevels
+                        .map(
+                          (lvl) => DropdownMenuItem(
+                            value: lvl,
+                            child: Text(lvl, overflow: TextOverflow.ellipsis),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setDialogState(() => selectedLevel = val);
+                      }
+                    },
+                  ),
+                ),
+                _dialogField(
+                  context,
+                  label: 'Institution Name',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: institutionCtrl,
+                    style: fieldStyle,
+                    decoration: _dialogDecoration(
+                      context,
+                      hint: 'e.g. Dhaka High School, University of Dhaka',
+                      prefix: Icons.account_balance_outlined,
+                    ),
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Institution name is required'
+                        : null,
+                  ),
+                ),
+                _dialogPair(
+                  _dialogField(
+                    context,
+                    label: 'Discipline / Group',
+                    child: TextFormField(
+                      controller: disciplineCtrl,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: 'e.g. Science, Arts',
+                      ),
                     ),
                   ),
-                ],
-              ),
-              content: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        DropdownButtonFormField<String>(
-                          initialValue: selectedLevel,
-                          decoration: InputDecoration(
-                            labelText: 'Academic Level *',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          items: academicLevels
-                              .map(
-                                (lvl) => DropdownMenuItem(
-                                  value: lvl,
-                                  child: Text(lvl),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (val) {
-                            if (val != null) {
-                              setDialogState(() => selectedLevel = val);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 14),
-                        TextFormField(
-                          controller: institutionCtrl,
-                          decoration: InputDecoration(
-                            labelText: 'Institution Name *',
-                            hintText:
-                                'e.g. Dhaka High School, University of Dhaka',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          validator: (v) =>
-                              (v == null || v.trim().isEmpty)
-                                  ? 'Institution name is required'
-                                  : null,
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: disciplineCtrl,
-                                decoration: InputDecoration(
-                                  labelText: 'Discipline / Group',
-                                  hintText: 'e.g. Science, Arts, General',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: boardCtrl,
-                                decoration: InputDecoration(
-                                  labelText: 'Board / University',
-                                  hintText:
-                                      'e.g. Dhaka Board, National University',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: startYearCtrl,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  labelText: 'Start Year',
-                                  hintText: 'e.g. 2018',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: passingYearCtrl,
-                                enabled: !isOngoing,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  labelText: 'Passing Year',
-                                  hintText: isOngoing ? 'Ongoing' : 'e.g. 2022',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text(
-                            'Currently Studying Here (অধ্যয়নরত)',
-                          ),
-                          value: isOngoing,
-                          activeColor: colors.primaryColor,
-                          onChanged: (val) {
-                            setDialogState(() {
-                              isOngoing = val ?? false;
-                              if (isOngoing) passingYearCtrl.clear();
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: resultCtrl,
-                                decoration: InputDecoration(
-                                  labelText: 'Result / Grade / GPA',
-                                  hintText: 'e.g. GPA 5.0, 1st Div',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: remarksCtrl,
-                                decoration: InputDecoration(
-                                  labelText: 'Remarks',
-                                  hintText: 'Optional notes',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+                  _dialogField(
+                    context,
+                    label: 'Board / University',
+                    child: TextFormField(
+                      controller: boardCtrl,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: 'e.g. Dhaka Board',
+                      ),
                     ),
                   ),
                 ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(color: colors.hintColor),
-                  ),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                _dialogPair(
+                  _dialogField(
+                    context,
+                    label: 'Start Year',
+                    child: TextFormField(
+                      controller: startYearCtrl,
+                      keyboardType: TextInputType.number,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: 'e.g. 2018',
+                        prefix: Icons.calendar_today_outlined,
+                      ),
                     ),
                   ),
-                  onPressed: () {
-                    if (formKey.currentState?.validate() ?? false) {
-                      setState(() {
-                        _educations.add(
-                          EditableEducationItem(
-                            academicLevel: selectedLevel,
-                            institutionName: institutionCtrl.text.trim(),
-                            disciplineOrGroup: disciplineCtrl.text.trim().isEmpty
-                                ? null
-                                : disciplineCtrl.text.trim(),
-                            governingBoard: boardCtrl.text.trim().isEmpty
-                                ? null
-                                : boardCtrl.text.trim(),
-                            startYear: int.tryParse(startYearCtrl.text.trim()),
-                            passingYear: isOngoing
-                                ? null
-                                : int.tryParse(passingYearCtrl.text.trim()),
-                            isOngoing: isOngoing,
-                            resultOrScore: resultCtrl.text.trim().isEmpty
-                                ? null
-                                : resultCtrl.text.trim(),
-                            remarks: remarksCtrl.text.trim().isEmpty
-                                ? null
-                                : remarksCtrl.text.trim(),
-                          ),
-                        );
-                      });
-                      Navigator.pop(ctx);
-                    }
+                  _dialogField(
+                    context,
+                    label: 'Passing Year',
+                    child: TextFormField(
+                      controller: passingYearCtrl,
+                      enabled: !isOngoing,
+                      keyboardType: TextInputType.number,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: isOngoing ? 'Ongoing' : 'e.g. 2022',
+                        prefix: Icons.event_available_outlined,
+                      ),
+                    ),
+                  ),
+                ),
+                _dialogToggle(
+                  context,
+                  label: 'Currently Studying Here (অধ্যয়নরত)',
+                  value: isOngoing,
+                  onChanged: (val) {
+                    setDialogState(() {
+                      isOngoing = val;
+                      if (isOngoing) passingYearCtrl.clear();
+                    });
                   },
-                  child: const Text(
-                    'Add Qualification',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                ),
+                _dialogPair(
+                  _dialogField(
+                    context,
+                    label: 'Result / Grade / GPA',
+                    child: TextFormField(
+                      controller: resultCtrl,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: 'e.g. GPA 5.0, 1st Div',
+                      ),
+                    ),
+                  ),
+                  _dialogField(
+                    context,
+                    label: 'Remarks',
+                    child: TextFormField(
+                      controller: remarksCtrl,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: 'Optional notes',
+                      ),
                     ),
                   ),
                 ),
               ],
+              onSubmit: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  setState(() {
+                    _educations.add(
+                      EditableEducationItem(
+                        academicLevel: selectedLevel,
+                        institutionName: institutionCtrl.text.trim(),
+                        disciplineOrGroup: disciplineCtrl.text.trim().isEmpty
+                            ? null
+                            : disciplineCtrl.text.trim(),
+                        governingBoard: boardCtrl.text.trim().isEmpty
+                            ? null
+                            : boardCtrl.text.trim(),
+                        startYear: int.tryParse(startYearCtrl.text.trim()),
+                        passingYear: isOngoing
+                            ? null
+                            : int.tryParse(passingYearCtrl.text.trim()),
+                        isOngoing: isOngoing,
+                        resultOrScore: resultCtrl.text.trim().isEmpty
+                            ? null
+                            : resultCtrl.text.trim(),
+                        remarks: remarksCtrl.text.trim().isEmpty
+                            ? null
+                            : remarksCtrl.text.trim(),
+                      ),
+                    );
+                  });
+                  Navigator.pop(ctx);
+                }
+              },
             );
           },
         );
@@ -1112,12 +1496,7 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
   void _showAddWorkExperienceDialog() {
     final formKey = GlobalKey<FormState>();
     final colors = AppColors.context(context);
-    final engagementTypes = [
-      'full_time',
-      'part_time',
-      'volunteer',
-      'contract',
-    ];
+    final engagementTypes = ['full_time', 'part_time', 'volunteer', 'contract'];
     final engagementLabels = {
       'full_time': 'Full-time (পূর্ণকালীন)',
       'part_time': 'Part-time (খণ্ডকালীন)',
@@ -1134,289 +1513,241 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
     DateTime startDate = DateTime.now();
     DateTime? endDate;
     bool isOngoing = true;
+    final fieldStyle = TextStyle(fontSize: 14, color: colors.textColor);
+    String formatDate(DateTime d) =>
+        '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
     showDialog(
       context: context,
       builder: (ctx) {
         return StatefulBuilder(
           builder: (context, setDialogState) {
-            return AlertDialog(
-              backgroundColor: colors.backgroundColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              title: Row(
-                children: [
-                  Icon(Icons.work, color: colors.primaryColor),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Add Work / Volunteer Experience',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: colors.textColor,
-                    ),
-                  ),
-                ],
-              ),
-              content: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 520),
-                child: SingleChildScrollView(
-                  child: Form(
-                    key: formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextFormField(
-                          controller: orgCtrl,
-                          decoration: InputDecoration(
-                            labelText: 'Organization / Institution Name *',
-                            hintText:
-                                'e.g. Geetha Pathshala Trust, Govt High School',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          validator: (v) =>
-                              (v == null || v.trim().isEmpty)
-                                  ? 'Organization name is required'
-                                  : null,
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: roleCtrl,
-                                decoration: InputDecoration(
-                                  labelText: 'Role / Designation *',
-                                  hintText: 'e.g. Teacher, Volunteer, Officer',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                validator: (v) =>
-                                    (v == null || v.trim().isEmpty)
-                                        ? 'Role is required'
-                                        : null,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: DropdownButtonFormField<String>(
-                                initialValue: selectedType,
-                                decoration: InputDecoration(
-                                  labelText: 'Engagement Type',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                items: engagementTypes
-                                    .map(
-                                      (type) => DropdownMenuItem(
-                                        value: type,
-                                        child: Text(
-                                          engagementLabels[type] ?? type,
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (val) {
-                                  if (val != null) {
-                                    setDialogState(() => selectedType = val);
-                                  }
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: TextFormField(
-                                controller: deptCtrl,
-                                decoration: InputDecoration(
-                                  labelText: 'Department / Unit',
-                                  hintText: 'e.g. Academic, Youth, Admin',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: TextFormField(
-                                controller: locationCtrl,
-                                decoration: InputDecoration(
-                                  labelText: 'Location / City',
-                                  hintText: 'e.g. Dhaka, Rangpur',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: InkWell(
-                                onTap: () async {
-                                  final picked = await showDatePicker(
-                                    context: context,
-                                    initialDate: startDate,
-                                    firstDate: DateTime(1970),
-                                    lastDate: DateTime.now().add(
-                                      const Duration(days: 365),
-                                    ),
-                                  );
-                                  if (picked != null) {
-                                    setDialogState(() => startDate = picked);
-                                  }
-                                },
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: 'Start Date *',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    '${startDate.year}-${startDate.month.toString().padLeft(2, '0')}-${startDate.day.toString().padLeft(2, '0')}',
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: InkWell(
-                                onTap: isOngoing
-                                    ? null
-                                    : () async {
-                                        final picked = await showDatePicker(
-                                          context: context,
-                                          initialDate:
-                                              endDate ?? DateTime.now(),
-                                          firstDate: startDate,
-                                          lastDate: DateTime.now().add(
-                                            const Duration(days: 365),
-                                          ),
-                                        );
-                                        if (picked != null) {
-                                          setDialogState(() => endDate = picked);
-                                        }
-                                      },
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: 'End Date',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    isOngoing
-                                        ? 'Present / Ongoing (বর্তমান)'
-                                        : (endDate != null
-                                            ? '${endDate!.year}-${endDate!.month.toString().padLeft(2, '0')}-${endDate!.day.toString().padLeft(2, '0')}'
-                                            : 'Select End Date'),
-                                    style: TextStyle(
-                                      color: isOngoing
-                                          ? colors.hintColor
-                                          : colors.textColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        CheckboxListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: const Text(
-                            'Currently Working Here (বর্তমানে কর্মরত)',
-                          ),
-                          value: isOngoing,
-                          activeColor: colors.primaryColor,
-                          onChanged: (val) {
-                            setDialogState(() {
-                              isOngoing = val ?? false;
-                              if (isOngoing) endDate = null;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: respCtrl,
-                          maxLines: 2,
-                          decoration: InputDecoration(
-                            labelText: 'Responsibilities / Notes',
-                            hintText: 'Brief summary of key duties',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+            Widget dateField({
+              required String text,
+              required bool muted,
+              required VoidCallback? onTap,
+            }) => InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: onTap,
+              child: InputDecorator(
+                decoration: _dialogDecoration(
+                  context,
+                  prefix: Icons.calendar_today_outlined,
+                ).copyWith(enabled: onTap != null),
+                child: Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: fieldStyle.copyWith(
+                    color: muted ? colors.hintColor : colors.textColor,
                   ),
                 ),
               ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: Text(
-                    'Cancel',
-                    style: TextStyle(color: colors.hintColor),
+            );
+
+            return _formDialog(
+              ctx,
+              icon: Icons.work_rounded,
+              title: 'Add Work / Volunteer Experience',
+              subtitle: 'কাজ বা স্বেচ্ছাসেবার অভিজ্ঞতা যোগ করুন',
+              formKey: formKey,
+              submitLabel: 'Add Experience',
+              fields: [
+                _dialogField(
+                  context,
+                  label: 'Organization / Institution Name',
+                  isRequired: true,
+                  child: TextFormField(
+                    controller: orgCtrl,
+                    style: fieldStyle,
+                    decoration: _dialogDecoration(
+                      context,
+                      hint: 'e.g. Geetha Pathshala Trust, Govt High School',
+                      prefix: Icons.apartment_outlined,
+                    ),
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Organization name is required'
+                        : null,
                   ),
                 ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: colors.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                _dialogPair(
+                  _dialogField(
+                    context,
+                    label: 'Role / Designation',
+                    isRequired: true,
+                    child: TextFormField(
+                      controller: roleCtrl,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: 'e.g. Teacher, Volunteer',
+                      ),
+                      validator: (v) => (v == null || v.trim().isEmpty)
+                          ? 'Role is required'
+                          : null,
                     ),
                   ),
-                  onPressed: () {
-                    if (formKey.currentState?.validate() ?? false) {
-                      setState(() {
-                        _workExperiences.add(
-                          EditableWorkExperienceItem(
-                            organizationName: orgCtrl.text.trim(),
-                            roleOrDesignation: roleCtrl.text.trim(),
-                            departmentOrUnit: deptCtrl.text.trim().isEmpty
-                                ? null
-                                : deptCtrl.text.trim(),
-                            engagementType: selectedType,
-                            location: locationCtrl.text.trim().isEmpty
-                                ? null
-                                : locationCtrl.text.trim(),
-                            startDate: startDate,
-                            endDate: isOngoing ? null : endDate,
-                            isOngoing: isOngoing,
-                            responsibilities: respCtrl.text.trim().isEmpty
-                                ? null
-                                : respCtrl.text.trim(),
+                  _dialogField(
+                    context,
+                    label: 'Engagement Type',
+                    child: DropdownButtonFormField<String>(
+                      initialValue: selectedType,
+                      isExpanded: true,
+                      style: fieldStyle,
+                      borderRadius: BorderRadius.circular(12),
+                      dropdownColor: colors.dialogBackgroundColor,
+                      icon: Icon(
+                        Icons.keyboard_arrow_down_rounded,
+                        color: colors.hintColor,
+                      ),
+                      decoration: _dialogDecoration(context),
+                      items: engagementTypes
+                          .map(
+                            (type) => DropdownMenuItem(
+                              value: type,
+                              child: Text(
+                                engagementLabels[type] ?? type,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          )
+                          .toList(),
+                      onChanged: (val) {
+                        if (val != null) {
+                          setDialogState(() => selectedType = val);
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                _dialogPair(
+                  _dialogField(
+                    context,
+                    label: 'Department / Unit',
+                    child: TextFormField(
+                      controller: deptCtrl,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: 'e.g. Academic, Youth',
+                      ),
+                    ),
+                  ),
+                  _dialogField(
+                    context,
+                    label: 'Location / City',
+                    child: TextFormField(
+                      controller: locationCtrl,
+                      style: fieldStyle,
+                      decoration: _dialogDecoration(
+                        context,
+                        hint: 'e.g. Dhaka, Rangpur',
+                      ),
+                    ),
+                  ),
+                ),
+                _dialogPair(
+                  _dialogField(
+                    context,
+                    label: 'Start Date',
+                    isRequired: true,
+                    child: dateField(
+                      text: formatDate(startDate),
+                      muted: false,
+                      onTap: () async {
+                        final picked = await showDatePicker(
+                          context: context,
+                          initialDate: startDate,
+                          firstDate: DateTime(1970),
+                          lastDate: DateTime.now().add(
+                            const Duration(days: 365),
                           ),
                         );
-                      });
-                      Navigator.pop(ctx);
-                    }
+                        if (picked != null) {
+                          setDialogState(() => startDate = picked);
+                        }
+                      },
+                    ),
+                  ),
+                  _dialogField(
+                    context,
+                    label: 'End Date',
+                    child: dateField(
+                      text: isOngoing
+                          ? 'Present / Ongoing (বর্তমান)'
+                          : (endDate != null
+                                ? formatDate(endDate!)
+                                : 'Select End Date'),
+                      muted: isOngoing || endDate == null,
+                      onTap: isOngoing
+                          ? null
+                          : () async {
+                              final picked = await showDatePicker(
+                                context: context,
+                                initialDate: endDate ?? DateTime.now(),
+                                firstDate: startDate,
+                                lastDate: DateTime.now().add(
+                                  const Duration(days: 365),
+                                ),
+                              );
+                              if (picked != null) {
+                                setDialogState(() => endDate = picked);
+                              }
+                            },
+                    ),
+                  ),
+                ),
+                _dialogToggle(
+                  context,
+                  label: 'Currently Working Here (বর্তমানে কর্মরত)',
+                  value: isOngoing,
+                  onChanged: (val) {
+                    setDialogState(() {
+                      isOngoing = val;
+                      if (isOngoing) endDate = null;
+                    });
                   },
-                  child: const Text(
-                    'Add Experience',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                ),
+                _dialogField(
+                  context,
+                  label: 'Responsibilities / Notes',
+                  child: TextFormField(
+                    controller: respCtrl,
+                    maxLines: 3,
+                    style: fieldStyle,
+                    decoration: _dialogDecoration(
+                      context,
+                      hint: 'Brief summary of key duties',
                     ),
                   ),
                 ),
               ],
+              onSubmit: () {
+                if (formKey.currentState?.validate() ?? false) {
+                  setState(() {
+                    _workExperiences.add(
+                      EditableWorkExperienceItem(
+                        organizationName: orgCtrl.text.trim(),
+                        roleOrDesignation: roleCtrl.text.trim(),
+                        departmentOrUnit: deptCtrl.text.trim().isEmpty
+                            ? null
+                            : deptCtrl.text.trim(),
+                        engagementType: selectedType,
+                        location: locationCtrl.text.trim().isEmpty
+                            ? null
+                            : locationCtrl.text.trim(),
+                        startDate: startDate,
+                        endDate: isOngoing ? null : endDate,
+                        isOngoing: isOngoing,
+                        responsibilities: respCtrl.text.trim().isEmpty
+                            ? null
+                            : respCtrl.text.trim(),
+                      ),
+                    );
+                  });
+                  Navigator.pop(ctx);
+                }
+              },
             );
           },
         );
@@ -1466,8 +1797,9 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
             height: 50,
             width: 200,
             generalText: _isEditing ? 'Update Person' : 'Save Person',
-            loadingText:
-                _isEditing ? 'Updating Information' : 'Saving Information',
+            loadingText: _isEditing
+                ? 'Updating Information'
+                : 'Saving Information',
             errorText: _isEditing
                 ? 'Error Updating Information'
                 : 'Error Saving Information',
@@ -1485,710 +1817,690 @@ class _AddPersonRegistryViewState extends State<AddPersonRegistryView> {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final fieldColor = isDark ? colors.backgroundColor : Colors.white;
+    final fieldBorderColor = colors.primaryColor.withValues(alpha: .3);
 
     return ResponsiveAppShell(
       selectedIndex: _selectedIndex,
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
-      onTopBarBack: () => Navigator.of(context).maybePop(),
+      // The top bar shows the app's name; the breadcrumbs lead back.
+      showTopBarBack: false,
       body: Column(
         children: [
           Expanded(
-            child: Container(
-              color: colors.tileColor,
-              child: Scrollbar(
+            child: Scrollbar(
+              controller: _formScrollController,
+              thumbVisibility: true,
+              thickness: 6,
+              radius: const Radius.circular(3),
+              child: SingleChildScrollView(
                 controller: _formScrollController,
-                thumbVisibility: true,
-                thickness: 6,
-                radius: const Radius.circular(3),
-                child: SingleChildScrollView(
-                  controller: _formScrollController,
-                  padding: AppSizes.pagePadding(context).copyWith(bottom: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppBreadcrumbs(
-                        items: [
-                          BreadcrumbItem.home(context),
-                          BreadcrumbItem(
-                            label: 'ব্যক্তি রেজিস্ট্রি',
-                            icon: Icons.person_outline,
-                            onTap: () => Navigator.of(context).maybePop(),
-                          ),
-                          BreadcrumbItem(
-                            label: _isEditing
-                                ? 'ব্যক্তি তথ্য সম্পাদন'
-                                : 'নতুন ব্যক্তি নিবন্ধন',
+                padding: AppSizes.pagePadding(context).copyWith(bottom: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppBreadcrumbs(
+                      items: [
+                        BreadcrumbItem.home(context),
+                        BreadcrumbItem(
+                          label: 'ব্যক্তি রেজিস্ট্রি',
+                          icon: Icons.person_outline,
+                          onTap: () => Navigator.of(context).maybePop(),
+                        ),
+                        BreadcrumbItem(
+                          label: _isEditing
+                              ? 'ব্যক্তি তথ্য সম্পাদন'
+                              : 'নতুন ব্যক্তি নিবন্ধন',
+                        ),
+                      ],
+                    ),
+                    Text(
+                      _isEditing ? 'Edit Person' : 'Add New Person',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: colors.primaryColor,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _isEditing
+                          ? 'ব্যক্তির তথ্য এবং শিক্ষাগত যোগ্যতা ও কাজের অভিজ্ঞতা সম্পাদন ও পরিচালনা করুন।'
+                          : 'Register a new person in the community directory with optional education and experience.',
+                      style: TextStyle(color: colors.hintColor),
+                    ),
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(top: 16),
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        color: isDark ? const Color(0xFF13201F) : Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
                           ),
                         ],
                       ),
-                      Text(
-                        _isEditing ? 'Edit Person' : 'Add New Person',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: colors.primaryColor,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _isEditing
-                            ? 'ব্যক্তির তথ্য এবং শিক্ষাগত যোগ্যতা ও কাজের অভিজ্ঞতা সম্পাদন ও পরিচালনা করুন।'
-                            : 'Register a new person in the community directory with optional education and experience.',
-                        style: TextStyle(color: colors.hintColor),
-                      ),
-                      Container(
-                        width: double.infinity,
-                        margin: const EdgeInsets.only(top: 16),
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          color: colors.backgroundColor,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildPhotoUploader(colors),
+                            _fieldRow([
+                              CustomFormField(
+                                fillColor: fieldColor,
+                                enabledBorderColor: fieldBorderColor,
+                                label: 'Legal Name',
+                                hint: 'e.g. Radha Krishna Das',
+                                isRequired: true,
+                                controller: _legalNameController,
+                              ),
+                              CustomFormField(
+                                fillColor: fieldColor,
+                                enabledBorderColor: fieldBorderColor,
+                                label: 'Preferred Name',
+                                hint: 'e.g. Radhe',
+                                controller: _preferredNameController,
+                              ),
+                            ]),
+                            const SizedBox(height: 24),
+                            const CustomSectionDivider(),
+                            const SizedBox(height: 24),
+
+                            // 2. Personal Details
+                            const CustomSectionHeader(
+                              icon: Icons.event_outlined,
+                              title: 'Personal Details',
                             ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // 1. General Information
-                              const CustomSectionHeader(
-                                icon: Icons.badge_outlined,
-                                title: 'General Information',
+                            const SizedBox(height: 12),
+                            Divider(color: colors.dividerColor),
+                            const SizedBox(height: 20),
+                            _fieldRow([
+                              CustomDateField(
+                                fillColor: fieldColor,
+                                enabledBorderColor: fieldBorderColor,
+                                label: 'Date of Birth',
+                                value: _dateOfBirth,
+                                onChanged: (d) =>
+                                    setState(() => _dateOfBirth = d),
                               ),
-                              const SizedBox(height: 12),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 20),
-                              _buildPhotoUploader(colors),
-                              _fieldRow([
-                                CustomFormField(
-                                  label: 'Legal Name',
-                                  hint: 'e.g. Radha Krishna Das',
-                                  isRequired: true,
-                                  controller: _legalNameController,
-                                ),
-                                CustomFormField(
-                                  label: 'Preferred Name',
-                                  hint: 'e.g. Radhe',
-                                  controller: _preferredNameController,
-                                ),
-                              ]),
-                              const SizedBox(height: 24),
-                              const CustomSectionDivider(),
-                              const SizedBox(height: 24),
-
-                              // 2. Personal Details
-                              const CustomSectionHeader(
-                                icon: Icons.event_outlined,
-                                title: 'Personal Details',
+                              CustomFormField.dropdown(
+                                fillColor: fieldColor,
+                                enabledBorderColor: fieldBorderColor,
+                                label: 'Gender',
+                                hint: 'Select Gender',
+                                items: _genders,
+                                value: _gender,
+                                onChanged: (g) => setState(() => _gender = g),
                               ),
-                              const SizedBox(height: 12),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 20),
-                              _fieldRow([
-                                CustomDateField(
-                                  label: 'Date of Birth',
-                                  value: _dateOfBirth,
-                                  onChanged: (d) =>
-                                      setState(() => _dateOfBirth = d),
-                                ),
+                              if (_isEditing)
                                 CustomFormField.dropdown(
-                                  label: 'Gender',
-                                  hint: 'Select Gender',
-                                  items: _genders,
-                                  value: _gender,
-                                  onChanged: (g) =>
-                                      setState(() => _gender = g),
+                                  fillColor: fieldColor,
+                                  enabledBorderColor: fieldBorderColor,
+                                  label: 'Status (অবস্থা)',
+                                  hint: 'Select Status',
+                                  items: const ['Active', 'Inactive'],
+                                  value: _status == PersonStatus.active
+                                      ? 'Active'
+                                      : 'Inactive',
+                                  onChanged: (s) {
+                                    setState(() {
+                                      _status = (s == 'Inactive')
+                                          ? PersonStatus.inactive
+                                          : PersonStatus.active;
+                                    });
+                                  },
                                 ),
-                                if (_isEditing)
-                                  CustomFormField.dropdown(
-                                    label: 'Status (অবস্থা)',
-                                    hint: 'Select Status',
-                                    items: const ['Active', 'Inactive'],
-                                    value: _status == PersonStatus.active
-                                        ? 'Active'
-                                        : 'Inactive',
-                                    onChanged: (s) {
-                                      setState(() {
-                                        _status = (s == 'Inactive')
-                                            ? PersonStatus.inactive
-                                            : PersonStatus.active;
-                                      });
-                                    },
-                                  ),
-                              ]),
-                              const SizedBox(height: 24),
-                              const CustomSectionDivider(),
-                              const SizedBox(height: 24),
+                            ]),
+                            const SizedBox(height: 24),
+                            const CustomSectionDivider(),
+                            const SizedBox(height: 24),
 
-                              // 3. Contact Information
-                              const CustomSectionHeader(
-                                icon: Icons.contact_phone_outlined,
-                                title: 'Contact Information',
+                            // 3. Contact Information
+                            const CustomSectionHeader(
+                              icon: Icons.contact_phone_outlined,
+                              title: 'Contact Information',
+                            ),
+                            const SizedBox(height: 12),
+                            Divider(color: colors.dividerColor),
+                            const SizedBox(height: 20),
+                            _fieldRow([
+                              CustomFormField(
+                                fillColor: fieldColor,
+                                enabledBorderColor: fieldBorderColor,
+                                label: 'Primary Phone',
+                                hint: '+880 1XXX-XXXXXX',
+                                prefixIcon: Icons.call_outlined,
+                                keyboardType: TextInputType.phone,
+                                controller: _primaryPhoneController,
                               ),
-                              const SizedBox(height: 12),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 20),
-                              _fieldRow([
-                                CustomFormField(
-                                  label: 'Primary Phone',
-                                  hint: '+880 1XXX-XXXXXX',
-                                  prefixIcon: Icons.call_outlined,
-                                  keyboardType: TextInputType.phone,
-                                  controller: _primaryPhoneController,
-                                ),
-                                CustomFormField(
-                                  label: 'Primary Email',
-                                  hint: 'name@example.com',
-                                  prefixIcon: Icons.mail_outline,
-                                  keyboardType: TextInputType.emailAddress,
-                                  controller: _primaryEmailController,
-                                ),
-                              ]),
-                              const SizedBox(height: 24),
-                              const CustomSectionDivider(),
-                              const SizedBox(height: 24),
+                              CustomFormField(
+                                fillColor: fieldColor,
+                                enabledBorderColor: fieldBorderColor,
+                                label: 'Primary Email',
+                                hint: 'name@example.com',
+                                prefixIcon: Icons.mail_outline,
+                                keyboardType: TextInputType.emailAddress,
+                                controller: _primaryEmailController,
+                              ),
+                            ]),
+                            const SizedBox(height: 24),
+                            const CustomSectionDivider(),
+                            const SizedBox(height: 24),
 
-                              // 4. Educational Qualifications (Multiple)
-                              _sectionHeaderWithAction(
-                                icon: Icons.school_outlined,
-                                title:
-                                    'Educational Qualifications (শিক্ষাগত যোগ্যতা) [ঐচ্ছিক]',
-                                buttonLabel: '+ Add Qualification',
-                                onAdd: _showAddEducationDialog,
-                                colors: colors,
-                              ),
-                              const SizedBox(height: 12),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 16),
-                              if (_isLoadingExistingData)
-                                Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 24,
-                                    ),
-                                    child: CircularProgressIndicator(
-                                      color: colors.primaryColor,
-                                    ),
-                                  ),
-                                )
-                              else if (_educations.isEmpty)
-                                Container(
-                                  width: double.infinity,
+                            // 4. Educational Qualifications (Multiple)
+                            _sectionHeaderWithAction(
+                              icon: Icons.school_outlined,
+                              title:
+                                  'Educational Qualifications (শিক্ষাগত যোগ্যতা) [ঐচ্ছিক]',
+                              buttonLabel: 'Add Qualification',
+                              onAdd: _showAddEducationDialog,
+                              colors: colors,
+                            ),
+                            const SizedBox(height: 12),
+                            Divider(color: colors.dividerColor),
+                            const SizedBox(height: 16),
+                            if (_isLoadingExistingData)
+                              Center(
+                                child: Padding(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
+                                    vertical: 24,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color: colors.softAccentColor.withValues(
-                                      alpha: 0.2,
+                                  child: CircularProgressIndicator(
+                                    color: colors.primaryColor,
+                                  ),
+                                ),
+                              )
+                            else if (_educations.isEmpty)
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colors.softAccentColor.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: colors.ornamentColor.withValues(
+                                      alpha: 0.4,
                                     ),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: colors.ornamentColor.withValues(
-                                        alpha: 0.4,
-                                      ),
-                                    ),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.info_outline,
-                                        size: 18,
-                                        color: colors.hintColor,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'কোনো শিক্ষাগত যোগ্যতা এখনও যোগ করা হয়নি। একাধিক ডিগ্রি বা শ্রেণি যোগ করতে "+ যোগ্যতা যোগ করুন" বোতামে চাপুন।',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: colors.hintColor,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                )
-                              else
-                                Column(
+                                ),
+                                child: Row(
                                   children: [
-                                    for (
-                                      int i = 0;
-                                      i < _educations.length;
-                                      i++
-                                    ) ...[
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                          bottom: 10,
-                                        ),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: colors.backgroundColor,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          border: Border.all(
-                                            color: colors.dividerColor,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                color: colors.softAccentColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Icon(
-                                                Icons.school,
-                                                size: 20,
-                                                color: colors.primaryColor,
-                                              ),
-                                            ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Flexible(
-                                                        child: Text(
-                                                          _educations[i]
-                                                              .academicLevel,
-                                                          style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 14,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      const SizedBox(width: 8),
-                                                      Container(
-                                                        padding:
-                                                            const EdgeInsets.symmetric(
-                                                              horizontal: 8,
-                                                              vertical: 2,
-                                                            ),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                              color: _educations[i]
-                                                                      .isOngoing
-                                                                  ? Colors.blue
-                                                                      .withValues(
-                                                                        alpha:
-                                                                            0.15,
-                                                                      )
-                                                                  : Colors.green
-                                                                      .withValues(
-                                                                        alpha:
-                                                                            0.15,
-                                                                      ),
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    4,
-                                                                  ),
-                                                            ),
-                                                        child: Text(
-                                                          _educations[i]
-                                                                  .isOngoing
-                                                              ? 'Ongoing (অধ্যয়নরত)'
-                                                              : 'Passed ${_educations[i].passingYear ?? ''}',
-                                                          style: TextStyle(
-                                                            fontSize: 11,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            color: _educations[i]
-                                                                    .isOngoing
-                                                                ? Colors
-                                                                    .blue[800]
-                                                                : Colors
-                                                                    .green[800],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      if (_educations[i].id ==
-                                                              null &&
-                                                          _isEditing) ...[
-                                                        const SizedBox(
-                                                          width: 8,
-                                                        ),
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 6,
-                                                                vertical: 2,
-                                                              ),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                color: Colors
-                                                                    .orange
-                                                                    .withValues(
-                                                                      alpha:
-                                                                          0.15,
-                                                                    ),
-                                                                borderRadius:
-                                                                    BorderRadius.circular(
-                                                                      4,
-                                                                    ),
-                                                              ),
-                                                          child: const Text(
-                                                            'Draft (নতুন)',
-                                                            style: TextStyle(
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors.orange,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ],
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    _educations[i]
-                                                        .institutionName,
-                                                    style: TextStyle(
-                                                      fontSize: 13,
-                                                      color: colors.textColor,
-                                                    ),
-                                                  ),
-                                                  if (_educations[i]
-                                                              .disciplineOrGroup !=
-                                                          null ||
-                                                      _educations[i]
-                                                              .governingBoard !=
-                                                          null ||
-                                                      _educations[i]
-                                                              .resultOrScore !=
-                                                          null) ...[
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      [
-                                                        if (_educations[i]
-                                                                .disciplineOrGroup !=
-                                                            null)
-                                                          'Dept: ${_educations[i].disciplineOrGroup}',
-                                                        if (_educations[i]
-                                                                .governingBoard !=
-                                                            null)
-                                                          'Board: ${_educations[i].governingBoard}',
-                                                        if (_educations[i]
-                                                                .resultOrScore !=
-                                                            null)
-                                                          'Result: ${_educations[i].resultOrScore}',
-                                                      ].join(' • '),
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: colors.hintColor,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ],
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.delete_outline,
-                                                color: colors.errorColor,
-                                                size: 20,
-                                              ),
-                                              tooltip: _educations[i].id != null
-                                                  ? 'Delete Qualification'
-                                                  : 'Remove Qualification',
-                                              onPressed: () =>
-                                                  _handleDeleteEducation(i),
-                                            ),
-                                          ],
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 18,
+                                      color: colors.hintColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'কোনো শিক্ষাগত যোগ্যতা এখনও যোগ করা হয়নি। একাধিক ডিগ্রি বা শ্রেণি যোগ করতে "Add Qualification" বোতামে চাপুন।',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: colors.hintColor,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ],
                                 ),
-                              const SizedBox(height: 24),
-                              const CustomSectionDivider(),
-                              const SizedBox(height: 24),
-
-                              // 5. Work & Volunteer Experience (Multiple)
-                              _sectionHeaderWithAction(
-                                icon: Icons.work_outline,
-                                title:
-                                    'Work & Volunteer Experience (কাজের অভিজ্ঞতা) [ঐচ্ছিক]',
-                                buttonLabel: '+ Add Experience',
-                                onAdd: _showAddWorkExperienceDialog,
-                                colors: colors,
-                              ),
-                              const SizedBox(height: 12),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 16),
-                              if (_isLoadingExistingData)
-                                Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 24,
-                                    ),
-                                    child: CircularProgressIndicator(
-                                      color: colors.primaryColor,
-                                    ),
-                                  ),
-                                )
-                              else if (_workExperiences.isEmpty)
-                                Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 14,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: colors.softAccentColor.withValues(
-                                      alpha: 0.2,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: colors.ornamentColor.withValues(
-                                        alpha: 0.4,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        Icons.info_outline,
-                                        size: 18,
-                                        color: colors.hintColor,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          'কোনো কাজের অভিজ্ঞতা এখনও যোগ করা হয়নি। একাধিক অভিজ্ঞতা যোগ করতে "+ অভিজ্ঞতা যোগ করুন" বোতামে চাপুন।',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: colors.hintColor,
-                                          ),
+                              )
+                            else
+                              Column(
+                                children: [
+                                  for (
+                                    int i = 0;
+                                    i < _educations.length;
+                                    i++
+                                  ) ...[
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: colors.backgroundColor,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: colors.dividerColor,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                )
-                              else
-                                Column(
-                                  children: [
-                                    for (
-                                      int i = 0;
-                                      i < _workExperiences.length;
-                                      i++
-                                    ) ...[
-                                      Container(
-                                        margin: const EdgeInsets.only(
-                                          bottom: 10,
-                                        ),
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          color: colors.backgroundColor,
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          border: Border.all(
-                                            color: colors.dividerColor,
-                                          ),
-                                        ),
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.all(8),
-                                              decoration: BoxDecoration(
-                                                color: colors.softAccentColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Icon(
-                                                Icons.business_center,
-                                                size: 20,
-                                                color: colors.primaryColor,
-                                              ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: colors.softAccentColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
-                                            const SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Row(
-                                                    children: [
-                                                      Flexible(
-                                                        child: Text(
-                                                          _workExperiences[i]
-                                                              .roleOrDesignation,
-                                                          style: const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 14,
-                                                          ),
+                                            child: Icon(
+                                              Icons.school,
+                                              size: 20,
+                                              color: colors.primaryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Flexible(
+                                                      child: Text(
+                                                        _educations[i]
+                                                            .academicLevel,
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 14,
                                                         ),
                                                       ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 2,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            _educations[i]
+                                                                .isOngoing
+                                                            ? Colors.blue
+                                                                  .withValues(
+                                                                    alpha: 0.15,
+                                                                  )
+                                                            : Colors.green
+                                                                  .withValues(
+                                                                    alpha: 0.15,
+                                                                  ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                      ),
+                                                      child: Text(
+                                                        _educations[i].isOngoing
+                                                            ? 'Ongoing (অধ্যয়নরত)'
+                                                            : 'Passed ${_educations[i].passingYear ?? ''}',
+                                                        style: TextStyle(
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color:
+                                                              _educations[i]
+                                                                  .isOngoing
+                                                              ? Colors.blue[800]
+                                                              : Colors
+                                                                    .green[800],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    if (_educations[i].id ==
+                                                            null &&
+                                                        _isEditing) ...[
                                                       const SizedBox(width: 8),
                                                       Container(
                                                         padding:
                                                             const EdgeInsets.symmetric(
-                                                              horizontal: 8,
+                                                              horizontal: 6,
                                                               vertical: 2,
                                                             ),
-                                                        decoration:
-                                                            BoxDecoration(
-                                                              color: colors
-                                                                  .primaryColor
-                                                                  .withValues(
-                                                                    alpha: 0.1,
-                                                                  ),
-                                                              borderRadius:
-                                                                  BorderRadius.circular(
-                                                                    4,
-                                                                  ),
-                                                            ),
-                                                        child: Text(
-                                                          _workExperiences[i]
-                                                              .engagementType
-                                                              .replaceAll(
-                                                                '_',
-                                                                ' ',
-                                                              )
-                                                              .toUpperCase(),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.orange
+                                                              .withValues(
+                                                                alpha: 0.15,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                        child: const Text(
+                                                          'Draft (নতুন)',
                                                           style: TextStyle(
-                                                            fontSize: 11,
+                                                            fontSize: 10,
                                                             fontWeight:
-                                                                FontWeight.w600,
-                                                            color: colors
-                                                                .primaryColor,
+                                                                FontWeight.bold,
+                                                            color:
+                                                                Colors.orange,
                                                           ),
                                                         ),
                                                       ),
-                                                      if (_workExperiences[i]
-                                                                  .id ==
-                                                              null &&
-                                                          _isEditing) ...[
-                                                        const SizedBox(
-                                                          width: 8,
-                                                        ),
-                                                        Container(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 6,
-                                                                vertical: 2,
-                                                              ),
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                color: Colors
-                                                                    .orange
-                                                                    .withValues(
-                                                                      alpha:
-                                                                          0.15,
-                                                                    ),
-                                                                borderRadius:
-                                                                    BorderRadius.circular(
-                                                                      4,
-                                                                    ),
-                                                              ),
-                                                          child: const Text(
-                                                            'Draft (নতুন)',
-                                                            style: TextStyle(
-                                                              fontSize: 10,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color:
-                                                                  Colors.orange,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ],
                                                     ],
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  _educations[i]
+                                                      .institutionName,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: colors.textColor,
                                                   ),
+                                                ),
+                                                if (_educations[i]
+                                                            .disciplineOrGroup !=
+                                                        null ||
+                                                    _educations[i]
+                                                            .governingBoard !=
+                                                        null ||
+                                                    _educations[i]
+                                                            .resultOrScore !=
+                                                        null) ...[
                                                   const SizedBox(height: 4),
                                                   Text(
-                                                    _workExperiences[i]
-                                                        .organizationName,
-                                                    style: TextStyle(
-                                                      fontSize: 13,
-                                                      color: colors.textColor,
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 4),
-                                                  Text(
-                                                    '${_workExperiences[i].startDate.year}-${_workExperiences[i].startDate.month.toString().padLeft(2, '0')} → ${_workExperiences[i].isOngoing ? 'Present (বর্তমান)' : (_workExperiences[i].endDate != null ? '${_workExperiences[i].endDate!.year}-${_workExperiences[i].endDate!.month.toString().padLeft(2, '0')}' : '')}',
+                                                    [
+                                                      if (_educations[i]
+                                                              .disciplineOrGroup !=
+                                                          null)
+                                                        'Dept: ${_educations[i].disciplineOrGroup}',
+                                                      if (_educations[i]
+                                                              .governingBoard !=
+                                                          null)
+                                                        'Board: ${_educations[i].governingBoard}',
+                                                      if (_educations[i]
+                                                              .resultOrScore !=
+                                                          null)
+                                                        'Result: ${_educations[i].resultOrScore}',
+                                                    ].join(' • '),
                                                     style: TextStyle(
                                                       fontSize: 12,
                                                       color: colors.hintColor,
                                                     ),
                                                   ),
-                                                  if (_workExperiences[i]
-                                                              .responsibilities !=
-                                                          null &&
-                                                      _workExperiences[i]
-                                                          .responsibilities!
-                                                          .isNotEmpty) ...[
-                                                    const SizedBox(height: 4),
-                                                    Text(
-                                                      _workExperiences[i]
-                                                          .responsibilities!,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: TextStyle(
-                                                        fontSize: 12,
-                                                        color: colors.hintColor,
-                                                      ),
-                                                    ),
-                                                  ],
                                                 ],
-                                              ),
+                                              ],
                                             ),
-                                            IconButton(
-                                              icon: Icon(
-                                                Icons.delete_outline,
-                                                color: colors.errorColor,
-                                                size: 20,
-                                              ),
-                                              tooltip: _workExperiences[i].id !=
-                                                      null
-                                                  ? 'Delete Experience'
-                                                  : 'Remove Experience',
-                                              onPressed: () =>
-                                                  _handleDeleteWorkExperience(
-                                                    i,
-                                                  ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.delete_outline,
+                                              color: colors.errorColor,
+                                              size: 20,
                                             ),
-                                          ],
+                                            tooltip: _educations[i].id != null
+                                                ? 'Delete Qualification'
+                                                : 'Remove Qualification',
+                                            onPressed: () =>
+                                                _handleDeleteEducation(i),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            const SizedBox(height: 24),
+                            const CustomSectionDivider(),
+                            const SizedBox(height: 24),
+
+                            // 5. Work & Volunteer Experience (Multiple)
+                            _sectionHeaderWithAction(
+                              icon: Icons.work_outline,
+                              title:
+                                  'Work & Volunteer Experience (কাজের অভিজ্ঞতা) [ঐচ্ছিক]',
+                              buttonLabel: 'Add Experience',
+                              onAdd: _showAddWorkExperienceDialog,
+                              colors: colors,
+                            ),
+                            const SizedBox(height: 12),
+                            Divider(color: colors.dividerColor),
+                            const SizedBox(height: 16),
+                            if (_isLoadingExistingData)
+                              Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 24,
+                                  ),
+                                  child: CircularProgressIndicator(
+                                    color: colors.primaryColor,
+                                  ),
+                                ),
+                              )
+                            else if (_workExperiences.isEmpty)
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 14,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colors.softAccentColor.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: colors.ornamentColor.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 18,
+                                      color: colors.hintColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'কোনো কাজের অভিজ্ঞতা এখনও যোগ করা হয়নি। একাধিক অভিজ্ঞতা যোগ করতে "Add Experience" বোতামে চাপুন।',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: colors.hintColor,
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ],
                                 ),
-                              const SizedBox(height: 28),
-                              Divider(color: colors.dividerColor),
-                              const SizedBox(height: 18),
-                              _buildFormActions(),
-                            ],
-                          ),
+                              )
+                            else
+                              Column(
+                                children: [
+                                  for (
+                                    int i = 0;
+                                    i < _workExperiences.length;
+                                    i++
+                                  ) ...[
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 10),
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        color: colors.backgroundColor,
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: colors.dividerColor,
+                                        ),
+                                      ),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(8),
+                                            decoration: BoxDecoration(
+                                              color: colors.softAccentColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Icon(
+                                              Icons.business_center,
+                                              size: 20,
+                                              color: colors.primaryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Flexible(
+                                                      child: Text(
+                                                        _workExperiences[i]
+                                                            .roleOrDesignation,
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 14,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 8,
+                                                            vertical: 2,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: colors
+                                                            .primaryColor
+                                                            .withValues(
+                                                              alpha: 0.1,
+                                                            ),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              4,
+                                                            ),
+                                                      ),
+                                                      child: Text(
+                                                        _workExperiences[i]
+                                                            .engagementType
+                                                            .replaceAll(
+                                                              '_',
+                                                              ' ',
+                                                            )
+                                                            .toUpperCase(),
+                                                        style: TextStyle(
+                                                          fontSize: 11,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color: colors
+                                                              .primaryColor,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    if (_workExperiences[i]
+                                                                .id ==
+                                                            null &&
+                                                        _isEditing) ...[
+                                                      const SizedBox(width: 8),
+                                                      Container(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 6,
+                                                              vertical: 2,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.orange
+                                                              .withValues(
+                                                                alpha: 0.15,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                4,
+                                                              ),
+                                                        ),
+                                                        child: const Text(
+                                                          'Draft (নতুন)',
+                                                          style: TextStyle(
+                                                            fontSize: 10,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            color:
+                                                                Colors.orange,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  _workExperiences[i]
+                                                      .organizationName,
+                                                  style: TextStyle(
+                                                    fontSize: 13,
+                                                    color: colors.textColor,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text(
+                                                  '${_workExperiences[i].startDate.year}-${_workExperiences[i].startDate.month.toString().padLeft(2, '0')} → ${_workExperiences[i].isOngoing ? 'Present (বর্তমান)' : (_workExperiences[i].endDate != null ? '${_workExperiences[i].endDate!.year}-${_workExperiences[i].endDate!.month.toString().padLeft(2, '0')}' : '')}',
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: colors.hintColor,
+                                                  ),
+                                                ),
+                                                if (_workExperiences[i]
+                                                            .responsibilities !=
+                                                        null &&
+                                                    _workExperiences[i]
+                                                        .responsibilities!
+                                                        .isNotEmpty) ...[
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    _workExperiences[i]
+                                                        .responsibilities!,
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: colors.hintColor,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.delete_outline,
+                                              color: colors.errorColor,
+                                              size: 20,
+                                            ),
+                                            tooltip:
+                                                _workExperiences[i].id != null
+                                                ? 'Delete Experience'
+                                                : 'Remove Experience',
+                                            onPressed: () =>
+                                                _handleDeleteWorkExperience(i),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            const SizedBox(height: 28),
+                            Divider(color: colors.dividerColor),
+                            const SizedBox(height: 18),
+                            _buildFormActions(),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

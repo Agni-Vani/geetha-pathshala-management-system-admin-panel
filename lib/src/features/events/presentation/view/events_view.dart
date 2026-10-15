@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/constants/assets.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
+import '../../../../core/shared/widget/custom_widgets/pinned_header_card_page.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -55,11 +55,22 @@ class _EventsViewState extends State<EventsView> {
 
   String _formatDate(DateTime date) {
     final months = [
-      'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
-      'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
+      'জানুয়ারি',
+      'ফেব্রুয়ারি',
+      'মার্চ',
+      'এপ্রিল',
+      'মে',
+      'জুন',
+      'জুলাই',
+      'আগস্ট',
+      'সেপ্টেম্বর',
+      'অক্টোবর',
+      'নভেম্বর',
+      'ডিসেম্বর',
     ];
     final bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    String bn(int num) => num.toString().split('').map((c) => bnDigits[int.parse(c)]).join();
+    String bn(int num) =>
+        num.toString().split('').map((c) => bnDigits[int.parse(c)]).join();
     return '${bn(date.day)} ${months[date.month - 1]}, ${bn(date.year)}';
   }
 
@@ -79,7 +90,9 @@ class _EventsViewState extends State<EventsView> {
         return AlertDialog(
           backgroundColor: colors.backgroundColor,
           surfaceTintColor: Colors.transparent,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           title: Row(
             children: [
               const Icon(Icons.delete_outline, color: Colors.red),
@@ -109,7 +122,9 @@ class _EventsViewState extends State<EventsView> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               onPressed: () async {
                 Navigator.of(ctx).pop();
@@ -119,7 +134,10 @@ class _EventsViewState extends State<EventsView> {
                   snackbarNotifier: snackbar,
                 );
               },
-              child: const Text('মুছে ফেলুন', style: TextStyle(fontWeight: FontWeight.bold)),
+              child: const Text(
+                'মুছে ফেলুন',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         );
@@ -136,58 +154,58 @@ class _EventsViewState extends State<EventsView> {
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
+      showBackgroundImage: false,
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
           final events = _controller.events;
-          final isLoading = _controller.processStatusNotifier.status is ProcessLoading;
+          final isLoading =
+              _controller.processStatusNotifier.status is ProcessLoading;
 
           return Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  padding: AppSizes.pagePadding(context),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isNarrow = constraints.maxWidth < 640;
-                      final crossAxisCount = constraints.maxWidth < 640
-                          ? 1
-                          : constraints.maxWidth < 1000
-                          ? 2
-                          : 3;
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 640;
+                    final crossAxisCount = constraints.maxWidth < 640
+                        ? 1
+                        : constraints.maxWidth < 1000
+                        ? 2
+                        : 3;
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeader(colors, isNarrow),
-                          SizedBox(height: AppSizes.sectionGap(context)),
-                          if (isLoading && events.isEmpty)
-                            const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(40.0),
-                                child: CircularProgressIndicator(),
+                    return PinnedHeaderCardPage(
+                      header: _buildHeader(colors, isNarrow),
+                      card: SingleChildScrollView(
+                        padding: EdgeInsets.all(
+                          PinnedHeaderCardPage.cardInset(context),
+                        ),
+                        child: isLoading && events.isEmpty
+                            ? const Center(
+                                child: Padding(
+                                  padding: EdgeInsets.all(40.0),
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                            : events.isEmpty
+                            ? _buildEmptyState(colors)
+                            : GridView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                gridDelegate:
+                                    SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: crossAxisCount,
+                                      crossAxisSpacing: 20,
+                                      mainAxisSpacing: 20,
+                                      mainAxisExtent: 260,
+                                    ),
+                                itemCount: events.length,
+                                itemBuilder: (context, index) =>
+                                    _buildEventCard(colors, events[index]),
                               ),
-                            )
-                          else if (events.isEmpty)
-                            _buildEmptyState(colors)
-                          else
-                            GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                crossAxisSpacing: 20,
-                                mainAxisSpacing: 20,
-                                mainAxisExtent: 260,
-                              ),
-                              itemCount: events.length,
-                              itemBuilder: (context, index) =>
-                                  _buildEventCard(colors, events[index]),
-                            ),
-                        ],
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  },
                 ),
               ),
               Container(
@@ -213,7 +231,11 @@ class _EventsViewState extends State<EventsView> {
         padding: const EdgeInsets.symmetric(vertical: 48),
         child: Column(
           children: [
-            Icon(Icons.event_outlined, size: 56, color: colors.hintColor.withValues(alpha: 0.5)),
+            Icon(
+              Icons.event_outlined,
+              size: 56,
+              color: colors.hintColor.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 12),
             Text(
               'কোন অনুষ্ঠান পাওয়া যায়নি',
@@ -280,6 +302,8 @@ class _EventsViewState extends State<EventsView> {
     }
 
     return Row(
+      // The button rests on the same line as the bottom of the description.
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(child: titleBlock),
         const SizedBox(width: 16),
@@ -340,7 +364,9 @@ class _EventsViewState extends State<EventsView> {
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: colors.primaryColor.withValues(alpha: 0.12),
+                    backgroundColor: colors.primaryColor.withValues(
+                      alpha: 0.12,
+                    ),
                     child: Icon(iconData, color: colors.primaryColor, size: 20),
                   ),
                   const Spacer(),
@@ -387,7 +413,11 @@ class _EventsViewState extends State<EventsView> {
                 runSpacing: 4,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  _metaChip(colors, Icons.calendar_today_outlined, _formatDate(event.eventDate)),
+                  _metaChip(
+                    colors,
+                    Icons.calendar_today_outlined,
+                    _formatDate(event.eventDate),
+                  ),
                   if (event.time.isNotEmpty)
                     _metaChip(colors, Icons.schedule_outlined, event.time),
                 ],

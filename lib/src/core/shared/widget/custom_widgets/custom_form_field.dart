@@ -16,6 +16,8 @@ class CustomFormField extends StatelessWidget {
   final String? value;
   final ValueChanged<String?>? onChanged;
   final ValueChanged<String>? onTextChanged;
+  final Color? fillColor;
+  final Color? enabledBorderColor;
 
   const CustomFormField({
     super.key,
@@ -27,6 +29,8 @@ class CustomFormField extends StatelessWidget {
     this.controller,
     this.keyboardType,
     this.onTextChanged,
+    this.fillColor,
+    this.enabledBorderColor,
   })  : isDropdown = false,
         items = const [],
         value = null,
@@ -40,6 +44,8 @@ class CustomFormField extends StatelessWidget {
     this.items = const [],
     this.value,
     this.onChanged,
+    this.fillColor,
+    this.enabledBorderColor,
   })  : prefixIcon = null,
         maxLines = 1,
         isDropdown = true,
@@ -54,6 +60,14 @@ class CustomFormField extends StatelessWidget {
       context,
       hint: hint,
       prefix: prefixIcon,
+    ).copyWith(
+      fillColor: fillColor,
+      enabledBorder: enabledBorderColor == null
+          ? null
+          : OutlineInputBorder(
+              borderRadius: AppFieldDecoration.borderRadius,
+              borderSide: BorderSide(color: enabledBorderColor!),
+            ),
     );
 
     return Column(
@@ -64,7 +78,7 @@ class CustomFormField extends StatelessWidget {
             text: label,
             style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
               color: colors.textColor,
             ),
             children: [
@@ -80,6 +94,11 @@ class CustomFormField extends StatelessWidget {
         if (isDropdown)
           DropdownButtonFormField<String>(
             isExpanded: true,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: colors.textColor,
+            ),
             initialValue: (value != null && items.toSet().contains(value)) ? value : null,
             items: items
                 .toSet()
@@ -97,7 +116,11 @@ class CustomFormField extends StatelessWidget {
             maxLines: maxLines,
             keyboardType: keyboardType,
             onChanged: onTextChanged,
-            style: TextStyle(fontSize: 13, color: colors.textColor),
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w400,
+              color: colors.textColor,
+            ),
             decoration: decoration,
           ),
       ],

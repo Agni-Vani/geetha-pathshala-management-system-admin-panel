@@ -36,6 +36,7 @@ class CustomPathshalaCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
       clipBehavior: Clip.antiAlias,
@@ -51,195 +52,223 @@ class CustomPathshalaCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          // Illustration covers the whole card and a radial mask anchored at
-          // the bottom-right corner fades it out with distance: strongest in
-          // that corner, still faintly readable up at the top. Masking rather
-          // than sizing the image to a corner is what keeps its edges from
-          // showing as straight lines.
-          Positioned.fill(
-            child: IgnorePointer(
-              child: ShaderMask(
-                shaderCallback: (bounds) => const RadialGradient(
-                  center: Alignment.bottomRight,
-                  // Reaches past the card so the far corners keep a trace of
-                  // the image instead of clearing to nothing.
-                  radius: 1.5,
-                  colors: [Colors.white, Colors.transparent],
-                  stops: [0, 1],
-                ).createShader(bounds),
-                blendMode: BlendMode.dstIn,
-                child: Opacity(
-                  opacity: 0.26,
-                  child: Image.asset(
-                    Assets.gurukulImage,
-                    fit: BoxFit.cover,
-                    alignment: Alignment.bottomCenter,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: onView,
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            children: [
+              // Illustration covers the whole card and a radial mask anchored at
+              // the bottom-right corner fades it out with distance: strongest in
+              // that corner, still faintly readable up at the top. Masking rather
+              // than sizing the image to a corner is what keeps its edges from
+              // showing as straight lines.
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: ShaderMask(
+                    shaderCallback: (bounds) => const RadialGradient(
+                      center: Alignment.bottomRight,
+                      // Reaches past the card so the far corners keep a trace of
+                      // the image instead of clearing to nothing.
+                      radius: 1.5,
+                      colors: [Colors.white, Colors.transparent],
+                      stops: [0, 1],
+                    ).createShader(bounds),
+                    blendMode: BlendMode.dstIn,
+                    child: Opacity(
+                      opacity: isDark ? .1 : .26,
+                      child: Image.asset(
+                        Assets.gurukulImage,
+                        fit: BoxFit.cover,
+                        alignment: Alignment.bottomCenter,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-          Positioned(
-            bottom: 6,
-            left: 10,
-            child: Text(
-              '❖',
-              style: TextStyle(
-                fontSize: 11,
-                color: colors.primaryColor.withValues(alpha: 0.35),
+              Positioned(
+                bottom: 6,
+                left: 10,
+                child: Text(
+                  '❖',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: colors.primaryColor.withValues(alpha: 0.35),
+                  ),
+                ),
               ),
-            ),
-          ),
-          Positioned(
-            bottom: 6,
-            right: 10,
-            child: Text(
-              '❖',
-              style: TextStyle(
-                fontSize: 11,
-                color: colors.primaryColor.withValues(alpha: 0.35),
+              Positioned(
+                bottom: 6,
+                right: 10,
+                child: Text(
+                  '❖',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: colors.primaryColor.withValues(alpha: 0.35),
+                  ),
+                ),
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+              Padding(
+                padding: const EdgeInsets.all(18),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 4,
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 170),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isActive
+                                          ? (isDark
+                                                ? const Color(0xFF173A25)
+                                                : const Color(0xFFE6F4EA))
+                                          : colors.softGrey,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      isActive ? 'Active' : 'Inactive',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: isActive
+                                            ? (isDark
+                                                  ? const Color(0xFF81C995)
+                                                  : const Color(0xFF1E7B34))
+                                            : colors.hintColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          decoration: BoxDecoration(
-                            color: isActive
-                                ? const Color(0xFFE6F4EA)
-                                : colors.tileColor,
-                            borderRadius: BorderRadius.circular(20),
+                          const SizedBox(height: 14),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: colors.maroonColor,
+                                child: Text(
+                                  'ॐ',
+                                  style: GoogleFonts.notoSansDevanagari(
+                                    color: isDark
+                                        ? colors.onMaroonColor
+                                        : _omGlyphColor,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    height: 1,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    name,
+                                    overflow: TextOverflow.visible,
+                                    style: GoogleFonts.yatraOne(
+                                      fontSize: 17,
+                                      color: colors.textColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          child: Text(
-                            isActive ? 'Active' : 'Inactive',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                          const SizedBox(height: 6),
+                          Text(
+                            'Code: $code',
+                            overflow: TextOverflow.visible,
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: isActive
-                                  ? const Color(0xFF1E7B34)
-                                  : colors.hintColor,
+                              color: colors.primaryColor,
                             ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.location_on_outlined,
+                                size: 16,
+                                color: colors.hintColor,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  location,
+                                  overflow: TextOverflow.visible,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: colors.textColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (studentsCount != null ||
+                              teachersCount != null) ...[
+                            const SizedBox(height: 14),
+                            Row(
+                              children: [
+                                if (studentsCount != null)
+                                  Expanded(
+                                    child: _StatChip(
+                                      icon: Icons.people_outline,
+                                      count: studentsCount!,
+                                      label: 'Students',
+                                      colors: colors,
+                                    ),
+                                  ),
+                                if (studentsCount != null &&
+                                    teachersCount != null)
+                                  const SizedBox(width: 8),
+                                if (teachersCount != null)
+                                  Expanded(
+                                    child: _StatChip(
+                                      icon: Icons.groups_outlined,
+                                      count: teachersCount!,
+                                      label: 'Teachers',
+                                      colors: colors,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ],
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    _CardActions(
+                      colors: colors,
+                      onView: onView,
+                      onEdit: onEdit,
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CircleAvatar(
-                      radius: 20,
-                      backgroundColor: colors.maroonColor,
-                      child: Text(
-                        'ॐ',
-                        style: GoogleFonts.notoSansDevanagari(
-                          color: _omGlyphColor,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          height: 1,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 2),
-                        child: Text(
-                          name,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.yatraOne(
-                            fontSize: 17,
-                            color: colors.textColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'Code: $code',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: colors.primaryColor,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: 16,
-                      color: colors.hintColor,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        location,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 13, color: colors.textColor),
-                      ),
-                    ),
-                  ],
-                ),
-                if (studentsCount != null || teachersCount != null) ...[
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      if (studentsCount != null)
-                        Expanded(
-                          child: _StatChip(
-                            icon: Icons.people_outline,
-                            count: studentsCount!,
-                            label: 'Students',
-                            colors: colors,
-                          ),
-                        ),
-                      if (studentsCount != null && teachersCount != null)
-                        const SizedBox(width: 8),
-                      if (teachersCount != null)
-                        Expanded(
-                          child: _StatChip(
-                            icon: Icons.groups_outlined,
-                            count: teachersCount!,
-                            label: 'Teachers',
-                            colors: colors,
-                          ),
-                        ),
-                    ],
-                  ),
-                ],
-                const Spacer(),
-                const SizedBox(height: 16),
-                _CardActions(colors: colors, onView: onView, onEdit: onEdit),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -267,12 +296,15 @@ class _CardActions extends StatelessWidget {
       label: 'Edit',
       onPressed: onEdit,
       foregroundColor: colors.primaryColor,
+      backgroundColor: colors.backgroundColor,
       borderColor: colors.primaryColor,
     );
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        if (constraints.maxWidth < _stackedActionsBreakpoint) {
+        if (constraints.maxWidth <
+            _stackedActionsBreakpoint *
+                (MediaQuery.textScalerOf(context).scale(13) / 13)) {
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -324,7 +356,9 @@ class _ActionButton extends StatelessWidget {
         // in a narrow card; the content is what should shrink here.
         minimumSize: const Size(0, 40),
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-        shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
+        shape: const RoundedRectangleBorder(
+          borderRadius: AppSizes.rectangleButtonRadius,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

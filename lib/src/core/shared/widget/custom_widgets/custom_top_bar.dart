@@ -10,7 +10,10 @@ class CustomTopBar extends StatelessWidget {
   final VoidCallback? onProfileTap;
   final VoidCallback? onMenuTap;
 
-  const CustomTopBar({super.key, required this.title, this.onBack, this.onNotificationTap, this.onProfileTap, this.onMenuTap});
+  /// The current page's heading, shown in place of the app's name.
+  final String? pageTitle;
+
+  const CustomTopBar({super.key, required this.title, this.onBack, this.onNotificationTap, this.onProfileTap, this.onMenuTap, this.pageTitle});
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +29,9 @@ class CustomTopBar extends StatelessWidget {
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final isVeryCompact = constraints.maxWidth < 640;
+                // A page heading takes the back chip's slot; such pages are
+                // left through their breadcrumbs instead.
+                final showBack = onBack != null && pageTitle == null;
 
                 return Row(
                   children: [
@@ -42,7 +48,7 @@ class CustomTopBar extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                     ],
-                    if (onBack == null)
+                    if (!showBack && pageTitle == null)
                       // Without a back chip this corner would sit empty, so
                       // the app's name takes the slot instead.
                       Flexible(
@@ -53,7 +59,7 @@ class CustomTopBar extends StatelessWidget {
                           style: TextStyle(color: colors.primaryColor, fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                       ),
-                    if (onBack != null)
+                    if (showBack)
                       InkWell(
                         onTap: onBack,
                         borderRadius: AppSizes.rectangleButtonRadius,
@@ -72,6 +78,15 @@ class CustomTopBar extends StatelessWidget {
                               ],
                             ],
                           ),
+                        ),
+                      ),
+                    if (pageTitle != null)
+                      Expanded(
+                        child: Text(
+                          pageTitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(color: colors.textColor, fontWeight: FontWeight.w700, fontSize: 18, height: 1.35),
                         ),
                       ),
                     if (!isVeryCompact) ...[

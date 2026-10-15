@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
@@ -12,6 +14,7 @@ class GeographicAreasController extends ChangeNotifier {
   final CreateDistrict createDistrict;
   final ListUpazilas listUpazilas;
   final CreateUpazila createUpazila;
+  final Duration upazilaLoadTimeout;
 
   GeographicAreasController({
     required this.listDivisions,
@@ -20,10 +23,12 @@ class GeographicAreasController extends ChangeNotifier {
     required this.createDistrict,
     required this.listUpazilas,
     required this.createUpazila,
+    this.upazilaLoadTimeout = const Duration(seconds: 15),
   });
 
-  final ProcessStatusNotifier processStatusNotifier =
-      ProcessStatusNotifier(initialStatus: ProcessEnabled());
+  final ProcessStatusNotifier processStatusNotifier = ProcessStatusNotifier(
+    initialStatus: ProcessEnabled(),
+  );
 
   List<Division> _allDivisions = [];
   List<Division> get allDivisions => _allDivisions;
@@ -51,8 +56,12 @@ class GeographicAreasController extends ChangeNotifier {
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
 
+  int _upazilaRequestVersion = 0;
   bool _isLoadingUpazilas = false;
   bool get isLoadingUpazilas => _isLoadingUpazilas;
+  String? _upazilasError;
+  String? get upazilasError => _upazilasError;
+  bool _disposed = false;
 
   /// Loads divisions and districts from the repository.
   Future<void> load({SnackbarNotifier? snackbarNotifier}) async {
@@ -64,40 +73,33 @@ class GeographicAreasController extends ChangeNotifier {
       request: () => listDivisions.call(),
       errorSnackbarNotifier: snackbarNotifier,
     );
+    if (_disposed) return;
     if (divResult != null) {
       _allDivisions = divResult;
     }
 
     // 2. Load districts
     final result = await handleFutureRequest(
-      request: () => listDistricts.call(
-        ListDistrictsParams(division: _selectedDivisionFilter),
-      ),
+      // Keep the full registry so changing a local filter never loses districts.
+      request: () => listDistricts.call(),
       successSnackbarNotifier: null,
       errorSnackbarNotifier: snackbarNotifier,
       processStatusNotifier: processStatusNotifier,
     );
+    if (_disposed) return;
 
     if (result != null) {
       _allDistricts = result;
       processStatusNotifier.setEnabled();
 
-      // If previously selected district is still in the list, keep it; otherwise select the first.
-      if (_allDistricts.isNotEmpty) {
-        if (_selectedDistrict == null ||
-            !_allDistricts.any((d) => d.id == _selectedDistrict!.id)) {
-          await selectDistrict(_allDistricts.first, snackbarNotifier: snackbarNotifier);
-        } else {
-          await loadUpazilasForDistrict(_selectedDistrict!.id, snackbarNotifier: snackbarNotifier);
-        }
-      } else {
-        _selectedDistrict = null;
-        _upazilas = [];
-      }
+      await _syncSelectedDistrict(
+        reloadUpazilas: true,
+        snackbarNotifier: snackbarNotifier,
+      );
     } else {
       processStatusNotifier.setEnabled();
     }
-    notifyListeners();
+    if (!_disposed) notifyListeners();
   }
 
   /// Sets the currently active district and fetches its upazilas.
@@ -105,31 +107,81 @@ class GeographicAreasController extends ChangeNotifier {
     District district, {
     SnackbarNotifier? snackbarNotifier,
   }) async {
+    if (!_filteredDistricts().any((visible) => visible.id == district.id)) {
+      return;
+    }
     _selectedDistrict = district;
-    notifyListeners();
-    await loadUpazilasForDistrict(district.id, snackbarNotifier: snackbarNotifier);
+    await loadUpazilasForDistrict(
+      district.id,
+      snackbarNotifier: snackbarNotifier,
+    );
   }
 
-  /// Loads upazilas belonging to the specified district.
+  /// Loads only the current district; older requests cannot replace its results.
   Future<void> loadUpazilasForDistrict(
     String districtId, {
     SnackbarNotifier? snackbarNotifier,
   }) async {
+    if (_disposed || _selectedDistrict?.id != districtId) return;
+    final requestVersion = ++_upazilaRequestVersion;
+    _upazilas = [];
+    _upazilasError = null;
     _isLoadingUpazilas = true;
     notifyListeners();
 
-    final result = await handleFutureRequest(
-      request: () => listUpazilas.call(
-        ListUpazilasParams(districtId: districtId),
-      ),
-      errorSnackbarNotifier: snackbarNotifier,
-    );
-
-    _isLoadingUpazilas = false;
-    if (result != null) {
-      _upazilas = result;
+    List<Upazila> result = [];
+    String? loadError;
+    try {
+      final response = await listUpazilas
+          .call(ListUpazilasParams(districtId: districtId))
+          .timeout(upazilaLoadTimeout);
+      if (response.success) {
+        result = response.data ?? [];
+      } else {
+        loadError =
+            'উপজেলার তথ্য আনা যায়নি। সংযোগ যাচাই করে আবার চেষ্টা করুন।';
+      }
+    } on TimeoutException {
+      loadError =
+          'তথ্য আনতে বেশি সময় লাগছে। সংযোগ যাচাই করে আবার চেষ্টা করুন।';
+    } catch (_) {
+      loadError = 'উপজেলার তথ্য আনা যায়নি। সংযোগ যাচাই করে আবার চেষ্টা করুন।';
     }
+
+    if (_disposed ||
+        requestVersion != _upazilaRequestVersion ||
+        _selectedDistrict?.id != districtId) {
+      return;
+    }
+    _isLoadingUpazilas = false;
+    _upazilas = result;
+    _upazilasError = loadError;
     notifyListeners();
+  }
+
+  Future<void> _syncSelectedDistrict({
+    bool reloadUpazilas = false,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    final visible = _filteredDistricts();
+    final selected =
+        visible
+            .where((district) => district.id == _selectedDistrict?.id)
+            .firstOrNull ??
+        visible.firstOrNull;
+    if (selected == null) {
+      ++_upazilaRequestVersion;
+      _selectedDistrict = null;
+      _upazilas = [];
+      _upazilasError = null;
+      _isLoadingUpazilas = false;
+      notifyListeners();
+    } else if (_selectedDistrict?.id != selected.id || reloadUpazilas) {
+      await selectDistrict(selected, snackbarNotifier: snackbarNotifier);
+    } else {
+      _selectedDistrict = selected;
+      notifyListeners();
+    }
   }
 
   /// Adds a new division and refreshes the division list.
@@ -142,10 +194,7 @@ class GeographicAreasController extends ChangeNotifier {
 
     final result = await handleFutureRequest(
       request: () => createDivision.call(
-        CreateDivisionParams(
-          name: name.trim(),
-          status: 'active',
-        ),
+        CreateDivisionParams(name: name.trim(), status: 'active'),
       ),
       errorSnackbarNotifier: snackbarNotifier,
       processStatusNotifier: processStatusNotifier,
@@ -217,7 +266,10 @@ class GeographicAreasController extends ChangeNotifier {
     _isLoadingUpazilas = false;
     if (result != null) {
       snackbarNotifier?.notifySuccess(message: 'উপজেলা সফলভাবে তৈরি হয়েছে।');
-      await loadUpazilasForDistrict(districtId, snackbarNotifier: snackbarNotifier);
+      await loadUpazilasForDistrict(
+        districtId,
+        snackbarNotifier: snackbarNotifier,
+      );
       return true;
     }
     notifyListeners();
@@ -225,15 +277,21 @@ class GeographicAreasController extends ChangeNotifier {
   }
 
   /// Sets division filter for district list.
-  void setDivisionFilter(String? division) {
+  Future<void> setDivisionFilter(
+    String? division, {
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
     _selectedDivisionFilter = division;
-    notifyListeners();
+    await _syncSelectedDistrict(snackbarNotifier: snackbarNotifier);
   }
 
   /// Sets text search query for district list.
-  void setSearchQuery(String query) {
+  Future<void> setSearchQuery(
+    String query, {
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
     _searchQuery = query.trim().toLowerCase();
-    notifyListeners();
+    await _syncSelectedDistrict(snackbarNotifier: snackbarNotifier);
   }
 
   List<District> _filteredDistricts() {
@@ -250,5 +308,12 @@ class GeographicAreasController extends ChangeNotifier {
       }
       return true;
     }).toList();
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    ++_upazilaRequestVersion;
+    super.dispose();
   }
 }

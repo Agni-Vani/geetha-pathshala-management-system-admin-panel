@@ -7,13 +7,13 @@ class DTextTheme {
   static TextTheme lightTextTheme = TextTheme(
     displayLarge: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 57,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w500,
       color: AppColors.light().textColor,
       overflow: TextOverflow.ellipsis,
     ),
     displayMedium: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 45,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: AppColors.light().textColor,
       overflow: TextOverflow.ellipsis,
     ),
@@ -25,13 +25,13 @@ class DTextTheme {
     ),
     headlineLarge: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 32,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w500,
       color: AppColors.light().textColor,
       overflow: TextOverflow.ellipsis,
     ),
     headlineMedium: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 28,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: AppColors.light().textColor,
       overflow: TextOverflow.ellipsis,
     ),
@@ -43,13 +43,13 @@ class DTextTheme {
     ),
     titleLarge: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 20,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w500,
       color: AppColors.light().textColor,
       overflow: TextOverflow.ellipsis,
     ),
     titleMedium: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 16,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w400,
       color: AppColors.light().textColor,
       overflow: TextOverflow.ellipsis,
     ),
@@ -79,7 +79,7 @@ class DTextTheme {
     ),
     labelLarge: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 14,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w500,
       color: AppColors.light().textColor,
       overflow: TextOverflow.ellipsis,
     ),
@@ -101,13 +101,13 @@ class DTextTheme {
   static TextTheme get darkTextTheme => TextTheme(
     displayLarge: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 57,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w500,
       color: AppColors.dark().textColor,
       overflow: TextOverflow.ellipsis,
     ),
     displayMedium: const TextStyle(fontFamily: 'Roboto').copyWith(
       fontSize: 45,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: AppColors.dark().textColor,
       overflow: TextOverflow.ellipsis,
     ),
@@ -119,13 +119,13 @@ class DTextTheme {
     ),
     headlineLarge: const TextStyle().copyWith(
       fontSize: 32,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w500,
       color: AppColors.dark().textColor,
       overflow: TextOverflow.ellipsis,
     ),
     headlineMedium: const TextStyle().copyWith(
       fontSize: 28,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       color: AppColors.dark().textColor,
       overflow: TextOverflow.ellipsis,
     ),
@@ -137,13 +137,13 @@ class DTextTheme {
     ),
     titleLarge: const TextStyle().copyWith(
       fontSize: 20,
-      fontWeight: FontWeight.w800,
+      fontWeight: FontWeight.w500,
       color: AppColors.dark().textColor,
       overflow: TextOverflow.ellipsis,
     ),
     titleMedium: const TextStyle().copyWith(
       fontSize: 16,
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w400,
       color: AppColors.dark().textColor,
       overflow: TextOverflow.ellipsis,
     ),
@@ -173,7 +173,7 @@ class DTextTheme {
     ),
     labelLarge: const TextStyle().copyWith(
       fontSize: 14,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.w500,
       color: AppColors.dark().textColor,
       overflow: TextOverflow.ellipsis,
     ),

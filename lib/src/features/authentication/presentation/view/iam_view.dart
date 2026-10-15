@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
+import '../../../../core/shared/widget/app_background.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -25,6 +26,78 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
 
   static const int _selectedIndex = 11;
+
+  // The background illustration starts right under the tab bar, as on the
+  // pathshala list; these locate it after layout.
+  // Lazy so a hot reload that adds them to a live state still works.
+  late final GlobalKey _contentKey = GlobalKey();
+  late final GlobalKey _tabBarKey = GlobalKey();
+
+  // The tab contents card stretches to the bottom of the viewport; its
+  // minimum height is whatever the header above it leaves free.
+  late final GlobalKey _listCardKey = GlobalKey();
+  double? _listCardMinHeight;
+
+  /// Below this viewport height the header can no longer stay pinned.
+  static const double _pinnedHeaderMinHeight = 620;
+
+  /// The card holding the active tab's contents. With [scrolls] it fills the
+  /// space it is given and scrolls inside; otherwise it grows with its
+  /// contents (at least down to the viewport's bottom) and the page scrolls.
+  Widget _contentsCard(AppColors colors, {required bool scrolls}) {
+    final padding = EdgeInsets.all(AppSizes.isCompact(context) ? 12 : 20);
+    final tab = AnimatedBuilder(
+      animation: _tabController,
+      builder: (context, _) => _tabController.index == 0
+          ? _buildUsersTab(colors)
+          : _buildRolesTab(colors),
+    );
+    return Container(
+      key: _listCardKey,
+      width: double.infinity,
+      clipBehavior: Clip.antiAlias,
+      constraints: scrolls
+          ? null
+          : BoxConstraints(minHeight: _listCardMinHeight ?? 0),
+      padding: scrolls ? null : padding,
+      decoration: BoxDecoration(
+        color: _cardSurfaceColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: colors.ornamentColor.withValues(alpha: .6)),
+        boxShadow: [
+          BoxShadow(
+            color: colors.shadowColor.withValues(alpha: .06),
+            blurRadius: 28,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: scrolls
+          ? SingleChildScrollView(padding: padding, child: tab)
+          : tab,
+    );
+  }
+
+  void _measureListCard(double viewportHeight) {
+    final content =
+        _contentKey.currentContext?.findRenderObject() as RenderBox?;
+    final card = _listCardKey.currentContext?.findRenderObject() as RenderBox?;
+    if (content == null || card == null) return;
+    if (!content.hasSize || !card.hasSize) return;
+    final top = card.localToGlobal(Offset.zero, ancestor: content).dy;
+    final minHeight =
+        (viewportHeight - AppSizes.pagePadding(context).vertical - top).clamp(
+          0.0,
+          double.infinity,
+        );
+    if (((_listCardMinHeight ?? 0) - minHeight).abs() > .5) {
+      setState(() => _listCardMinHeight = minHeight);
+    }
+  }
+
+  Color get _cardSurfaceColor => Theme.of(context).brightness == Brightness.dark
+      ? const Color(0xFF13201F)
+      : Colors.white;
 
   @override
   void initState() {
@@ -58,222 +131,312 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
+      showBackgroundImage: false,
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              padding: AppSizes.pagePadding(context),
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (context, _) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Breadcrumbs
-                      AppBreadcrumbs(
-                        items: [
-                          BreadcrumbItem.home(context),
-                          const BreadcrumbItem(
-                            label: 'IAM (Identity & Access Management)',
-                            icon: Icons.admin_panel_settings_outlined,
+            child: IllustrationBelowAnchor(
+              contentKey: _contentKey,
+              anchorKey: _tabBarKey,
+              contentTop: AppSizes.pagePadding(context).top,
+              child: LayoutBuilder(
+                builder: (context, viewport) {
+                  // With room to spare the header stays put and only the
+                  // card's contents scroll. A short viewport (landscape
+                  // phone) cannot fit the header and a usable card, so the
+                  // whole page scrolls there instead.
+                  final pinHeader =
+                      viewport.maxHeight >= _pinnedHeaderMinHeight;
+                  if (!pinHeader) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) _measureListCard(viewport.maxHeight);
+                    });
+                  }
+                  final content = AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, _) {
+                      return Column(
+                        key: _contentKey,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Breadcrumbs
+                          AppBreadcrumbs(
+                            items: [
+                              BreadcrumbItem.home(context),
+                              const BreadcrumbItem(
+                                label: 'IAM (Identity & Access Management)',
+                                icon: Icons.admin_panel_settings_outlined,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
+                          const SizedBox(height: 8),
 
-                      // Header & Action
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          final isNarrow = constraints.maxWidth < 600;
+                          // Header & Action
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final isNarrow = constraints.maxWidth < 600;
 
-                          final titleCol = Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+                              final titleCol = Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  Wrap(
+                                    spacing: 10,
+                                    runSpacing: 6,
+                                    crossAxisAlignment:
+                                        WrapCrossAlignment.center,
+                                    children: [
+                                      Text(
+                                        'IAM',
+                                        style: TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: colors.primaryColor,
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: colors.primaryColor.withValues(
+                                            alpha: 0.1,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                          border: Border.all(
+                                            color: colors.primaryColor
+                                                .withValues(alpha: 0.3),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Identity & Access Management',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                            color: colors.primaryColor,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'IAM',
+                                    'সিস্টেম ব্যবহারকারী, ভূমিকা (Roles) এবং অ্যাক্সেস অনুমতি পরিচালনা করুন।',
                                     style: TextStyle(
-                                      fontSize: 28,
-                                      fontWeight: FontWeight.bold,
+                                      color: colors.hintColor,
+                                      fontSize: 13.5,
+                                    ),
+                                  ),
+                                ],
+                              );
+
+                              final createAdminBtn = InkWell(
+                                borderRadius: AppSizes.bigRectangleTileRadius,
+                                onTap: () => AssignPathshalaAdminDialog.show(
+                                  context,
+                                  onSuccess: _controller.loadData,
+                                ),
+                                child: Container(
+                                  alignment: isNarrow ? Alignment.center : null,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _cardSurfaceColor,
+                                    borderRadius:
+                                        AppSizes.bigRectangleTileRadius,
+                                    border: Border.all(
                                       color: colors.primaryColor,
                                     ),
                                   ),
-                                  const SizedBox(width: 10),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 3,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: colors.primaryColor.withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(6),
-                                      border: Border.all(
-                                        color: colors.primaryColor.withValues(alpha: 0.3),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Identity & Access Management',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.add_rounded,
                                         color: colors.primaryColor,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        child: Text(
+                                          'পাঠশালা প্রশাসক তৈরি',
+                                          style: TextStyle(
+                                            color: colors.primaryColor,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+
+                              final assignBtn = InkWell(
+                                borderRadius: AppSizes.bigRectangleTileRadius,
+                                onTap: () => AssignRoleDialog.show(
+                                  context,
+                                  controller: _controller,
+                                ),
+                                child: Container(
+                                  alignment: isNarrow ? Alignment.center : null,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: colors.primaryColor,
+                                    // Matches the outlined button's border so the
+                                    // pair measures the same.
+                                    border: Border.all(
+                                      color: colors.primaryColor,
+                                    ),
+                                    borderRadius:
+                                        AppSizes.bigRectangleTileRadius,
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(
+                                        Icons.add_rounded,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Flexible(
+                                        child: Text(
+                                          'নতুন ভূমিকা বরাদ্দ',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+
+                              final actions = Wrap(
+                                spacing: 10,
+                                runSpacing: 10,
+                                children: [createAdminBtn, assignBtn],
+                              );
+
+                              if (isNarrow) {
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    titleCol,
+                                    const SizedBox(height: 14),
+                                    // Stacked under the title the two buttons
+                                    // share the row equally, at one height.
+                                    IntrinsicHeight(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Expanded(child: createAdminBtn),
+                                          const SizedBox(width: 10),
+                                          Expanded(child: assignBtn),
+                                        ],
                                       ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'সিস্টেম ব্যবহারকারী, ভূমিকা (Roles) এবং অ্যাক্সেস অনুমতি পরিচালনা করুন।',
-                                style: TextStyle(color: colors.hintColor, fontSize: 13.5),
-                              ),
-                            ],
-                          );
+                                  ],
+                                );
+                              }
 
-                          final createAdminBtn = InkWell(
-                            borderRadius: AppSizes.bigRectangleTileRadius,
-                            onTap: () => AssignPathshalaAdminDialog.show(
-                              context,
-                              onSuccess: _controller.loadData,
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.tileColor,
-                                borderRadius: AppSizes.bigRectangleTileRadius,
-                                border: Border.all(color: colors.primaryColor),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
+                              return Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Icon(Icons.admin_panel_settings_outlined, color: colors.primaryColor, size: 18),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'পাঠশালা প্রশাসক তৈরি',
-                                    style: TextStyle(
-                                      color: colors.primaryColor,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
+                                  Expanded(child: titleCol),
+                                  Flexible(child: actions),
                                 ],
-                              ),
-                            ),
-                          );
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 12),
 
-                          final assignBtn = InkWell(
-                            borderRadius: AppSizes.bigRectangleTileRadius,
-                            onTap: () => AssignRoleDialog.show(
-                              context,
-                              controller: _controller,
-                            ),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 10,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.primaryColor,
-                                borderRadius: AppSizes.bigRectangleTileRadius,
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.add_moderator_outlined, color: Colors.white, size: 18),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'নতুন ভূমিকা বরাদ্দ',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
+                          // Metrics Cards
+                          _buildMetrics(colors),
+                          const SizedBox(height: 20),
 
-                          final actions = Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: [
-                              createAdminBtn,
-                              assignBtn,
-                            ],
-                          );
-
-                          if (isNarrow) {
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                titleCol,
-                                const SizedBox(height: 14),
-                                actions,
+                          // Tab Bar Switcher — flat on the header surface, closed
+                          // by a divider the illustration starts under.
+                          SizedBox(
+                            key: _tabBarKey,
+                            width: double.infinity,
+                            child: TabBar(
+                              controller: _tabController,
+                              dividerColor: colors.dividerColor.withValues(
+                                alpha: .7,
+                              ),
+                              // No ripple or hover wash on tap.
+                              splashFactory: NoSplash.splashFactory,
+                              overlayColor: const WidgetStatePropertyAll(
+                                Colors.transparent,
+                              ),
+                              // A line under the selected tab's own label.
+                              indicator: UnderlineTabIndicator(
+                                borderSide: BorderSide(
+                                  color: colors.primaryColor,
+                                  width: 2.5,
+                                ),
+                              ),
+                              indicatorSize: TabBarIndicatorSize.label,
+                              labelColor: colors.primaryColor,
+                              unselectedLabelColor: colors.hintColor,
+                              labelPadding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
+                              ),
+                              unselectedLabelStyle: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 13,
+                              ),
+                              tabs: [
+                                _tab(
+                                  Icons.people_outline,
+                                  'ব্যবহারকারী ও বরাদ্দকৃত ভূমিকা',
+                                ),
+                                _tab(
+                                  Icons.security_outlined,
+                                  'সিস্টেম রোল ও অনুমতি',
+                                ),
                               ],
-                            );
-                          }
-
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(child: titleCol),
-                              actions,
-                            ],
-                          );
-                        },
-                      ),
-                      const SizedBox(height: 20),
-
-                      // Metrics Cards
-                      _buildMetrics(colors),
-                      const SizedBox(height: 24),
-
-                      // Tab Bar Switcher
-                      Container(
-                        decoration: BoxDecoration(
-                          color: colors.tileColor,
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: colors.borderColor),
-                        ),
-                        child: TabBar(
-                          controller: _tabController,
-                          indicatorColor: colors.primaryColor,
-                          labelColor: colors.primaryColor,
-                          unselectedLabelColor: colors.hintColor,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          labelStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                          tabs: const [
-                            Tab(
-                              icon: Icon(Icons.people_outline, size: 18),
-                              text: 'ব্যবহারকারী ও বরাদ্দকৃত ভূমিকা',
                             ),
-                            Tab(
-                              icon: Icon(Icons.security_outlined, size: 18),
-                              text: 'সিস্টেম রোল ও অনুমতি',
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 20),
+                          ),
+                          const SizedBox(height: 20),
 
-                      // Tab Contents
-                      AnimatedBuilder(
-                        animation: _tabController,
-                        builder: (context, _) {
-                          if (_tabController.index == 0) {
-                            return _buildUsersTab(colors);
-                          } else {
-                            return _buildRolesTab(colors);
-                          }
-                        },
-                      ),
-                    ],
+                          if (pinHeader)
+                            Expanded(
+                              child: _contentsCard(colors, scrolls: true),
+                            )
+                          else
+                            _contentsCard(colors, scrolls: false),
+                        ],
+                      );
+                    },
+                  );
+                  if (pinHeader) {
+                    return Padding(
+                      padding: AppSizes.pagePadding(context),
+                      child: content,
+                    );
+                  }
+                  return SingleChildScrollView(
+                    padding: AppSizes.pagePadding(context),
+                    child: content,
                   );
                 },
               ),
@@ -294,14 +457,30 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
     );
   }
 
+  /// A single-line tab: icon beside the label rather than stacked above it,
+  /// which keeps the tab bar short.
+  Widget _tab(IconData icon, String label) {
+    return Tab(
+      height: 34,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMetrics(AppColors colors) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final crossAxisCount = constraints.maxWidth < 640
-            ? 2
-            : constraints.maxWidth < 1000
-                ? 3
-                : 4;
+        // Without card chrome the figures are slim enough to sit four in a
+        // row from tablet widths up, so none is orphaned on a second line.
+        final crossAxisCount = constraints.maxWidth < 640 ? 2 : 4;
 
         final items = [
           _MetricItem(
@@ -312,7 +491,8 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
           ),
           _MetricItem(
             label: 'বরাদ্দকৃত ভূমিকা',
-            value: '${_controller.allUserRoles.where((r) => r.isCurrentlyEffective).length}',
+            value:
+                '${_controller.allUserRoles.where((r) => r.isCurrentlyEffective).length}',
             icon: Icons.assignment_ind_outlined,
             color: Colors.green,
           ),
@@ -335,16 +515,13 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
           runSpacing: 12,
           children: items.map((item) {
             final cardWidth =
-                (constraints.maxWidth - (crossAxisCount - 1) * 12) / crossAxisCount;
+                (constraints.maxWidth - (crossAxisCount - 1) * 12) /
+                crossAxisCount;
 
+            // Plain figures on the page surface — no card behind them.
             return Container(
               width: cardWidth,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: colors.tileColor,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: colors.borderColor),
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
               child: Row(
                 children: [
                   Container(
@@ -370,7 +547,10 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                         ),
                         Text(
                           item.label,
-                          style: TextStyle(fontSize: 12, color: colors.hintColor),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colors.hintColor,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -406,10 +586,17 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                 decoration: InputDecoration(
                   hintText: 'ইমেইল বা নাম খুঁজুন...',
                   hintStyle: TextStyle(fontSize: 13, color: colors.hintColor),
-                  prefixIcon: Icon(Icons.search, size: 18, color: colors.hintColor),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    size: 18,
+                    color: colors.hintColor,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 0,
+                    horizontal: 12,
+                  ),
                   filled: true,
-                  fillColor: colors.tileColor,
+                  fillColor: _cardSurfaceColor,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide(color: colors.borderColor),
@@ -423,21 +610,23 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
             );
 
             final roleFilter = Container(
+              width: isNarrow ? double.infinity : 240,
               height: 40,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: colors.tileColor,
+                color: _cardSurfaceColor,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: colors.borderColor),
               ),
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String?>(
+                  isExpanded: true,
                   value: _controller.selectedRoleFilter,
                   hint: Text(
                     'সকল ভূমিকা',
                     style: TextStyle(fontSize: 13, color: colors.hintColor),
                   ),
-                  dropdownColor: colors.backgroundColor,
+                  dropdownColor: _cardSurfaceColor,
                   items: [
                     DropdownMenuItem(
                       value: null,
@@ -446,13 +635,20 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                         style: TextStyle(fontSize: 13, color: colors.textColor),
                       ),
                     ),
-                    ..._controller.roles.map((r) => DropdownMenuItem(
-                          value: r.code,
-                          child: Text(
-                            r.name,
-                            style: TextStyle(fontSize: 13, color: colors.textColor),
+                    ..._controller.roles.map(
+                      (r) => DropdownMenuItem(
+                        value: r.code,
+                        child: Text(
+                          r.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: colors.textColor,
                           ),
-                        )),
+                        ),
+                      ),
+                    ),
                   ],
                   onChanged: _controller.setRoleFilter,
                 ),
@@ -471,10 +667,7 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
 
             return Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                searchField,
-                roleFilter,
-              ],
+              children: [searchField, roleFilter],
             );
           },
         ),
@@ -482,13 +675,8 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
 
         // Users List
         if (filteredUsers.isEmpty)
-          Container(
+          Padding(
             padding: const EdgeInsets.all(40),
-            decoration: BoxDecoration(
-              color: colors.tileColor,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: colors.borderColor),
-            ),
             child: Center(
               child: Column(
                 children: [
@@ -505,7 +693,7 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
         else
           Container(
             decoration: BoxDecoration(
-              color: colors.tileColor,
+              color: _cardSurfaceColor,
               borderRadius: BorderRadius.circular(10),
               border: Border.all(color: colors.borderColor),
             ),
@@ -513,14 +701,18 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: filteredUsers.length,
-              separatorBuilder: (_, __) => Divider(height: 1, color: colors.dividerColor),
+              separatorBuilder: (_, __) =>
+                  Divider(height: 1, color: colors.dividerColor),
               itemBuilder: (context, index) {
                 final user = filteredUsers[index];
                 final person = _controller.personMap[user.personId];
                 final roles = _controller.rolesForUser(user.id);
 
                 return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   child: LayoutBuilder(
                     builder: (context, constraints) {
                       final isMobile = constraints.maxWidth < 640;
@@ -529,9 +721,12 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                         children: [
                           CircleAvatar(
                             radius: 18,
-                            backgroundColor: colors.primaryColor.withValues(alpha: 0.15),
+                            backgroundColor: colors.primaryColor.withValues(
+                              alpha: 0.15,
+                            ),
                             child: Text(
-                              (user.email.isNotEmpty ? user.email[0] : 'U').toUpperCase(),
+                              (user.email.isNotEmpty ? user.email[0] : 'U')
+                                  .toUpperCase(),
                               style: TextStyle(
                                 color: colors.primaryColor,
                                 fontWeight: FontWeight.bold,
@@ -544,21 +739,20 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 4,
                                   children: [
-                                    Flexible(
-                                      child: Text(
-                                        person?.displayName ?? user.email,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14,
-                                          color: colors.textColor,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
+                                    Text(
+                                      person?.displayName ?? user.email,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                        color: colors.textColor,
                                       ),
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                     if (person != null) ...[
-                                      const SizedBox(width: 8),
                                       Text(
                                         '(${user.email})',
                                         style: TextStyle(
@@ -583,7 +777,8 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                             ),
                                             decoration: BoxDecoration(
                                               color: colors.borderColor,
-                                              borderRadius: BorderRadius.circular(4),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
                                             ),
                                             child: Text(
                                               'কোনো ভূমিকা নেই',
@@ -592,10 +787,12 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                                 color: colors.hintColor,
                                               ),
                                             ),
-                                          )
+                                          ),
                                         ]
                                       : roles.map((r) {
-                                          final isSuper = r.roleCode.toUpperCase() == 'SUPERADMIN';
+                                          final isSuper =
+                                              r.roleCode.toUpperCase() ==
+                                              'SUPERADMIN';
                                           return Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 8,
@@ -603,13 +800,20 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                             ),
                                             decoration: BoxDecoration(
                                               color: isSuper
-                                                  ? Colors.amber.withValues(alpha: 0.15)
-                                                  : colors.primaryColor.withValues(alpha: 0.1),
-                                              borderRadius: BorderRadius.circular(4),
+                                                  ? Colors.amber.withValues(
+                                                      alpha: 0.15,
+                                                    )
+                                                  : colors.primaryColor
+                                                        .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
                                               border: Border.all(
                                                 color: isSuper
                                                     ? Colors.amber.shade700
-                                                    : colors.primaryColor.withValues(alpha: 0.4),
+                                                    : colors.primaryColor
+                                                          .withValues(
+                                                            alpha: 0.4,
+                                                          ),
                                               ),
                                             ),
                                             child: Text(
@@ -639,15 +843,24 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                           initialUser: user,
                         ),
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
-                            border: Border.all(color: colors.primaryColor.withValues(alpha: 0.4)),
+                            border: Border.all(
+                              color: colors.primaryColor.withValues(alpha: 0.4),
+                            ),
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.edit_outlined, size: 14, color: colors.primaryColor),
+                              Icon(
+                                Icons.edit_outlined,
+                                size: 14,
+                                color: colors.primaryColor,
+                              ),
                               const SizedBox(width: 4),
                               Text(
                                 'ভূমিকা বরাদ্দ',
@@ -720,7 +933,7 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                 return Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: colors.tileColor,
+                    color: _cardSurfaceColor,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(color: colors.borderColor),
                   ),
@@ -746,7 +959,10 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                Wrap(
+                                  spacing: 8,
+                                  runSpacing: 6,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
                                     Text(
                                       role.name,
@@ -756,7 +972,6 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                         color: colors.textColor,
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 6,
@@ -775,14 +990,15 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 6),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 6,
                                         vertical: 2,
                                       ),
                                       decoration: BoxDecoration(
-                                        color: colors.primaryColor.withValues(alpha: 0.1),
+                                        color: colors.primaryColor.withValues(
+                                          alpha: 0.1,
+                                        ),
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
@@ -833,7 +1049,7 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: colors.backgroundColor,
+                              color: _cardSurfaceColor,
                               borderRadius: BorderRadius.circular(4),
                               border: Border.all(color: colors.borderColor),
                             ),
@@ -842,8 +1058,12 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontFamily: 'monospace',
-                                color: code == '*' ? Colors.amber.shade800 : colors.textColor,
-                                fontWeight: code == '*' ? FontWeight.bold : FontWeight.normal,
+                                color: code == '*'
+                                    ? Colors.amber.shade800
+                                    : colors.textColor,
+                                fontWeight: code == '*'
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                               ),
                             ),
                           );

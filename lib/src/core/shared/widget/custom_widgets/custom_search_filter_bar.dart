@@ -14,6 +14,10 @@ class CustomSearchFilterBar extends StatelessWidget {
   /// reuse this bar for its search field alone.
   final bool showFilters;
 
+  /// Drops the bar's own card (inset, surface and shadow) for pages that
+  /// already place it inside a card.
+  final bool flat;
+
   const CustomSearchFilterBar({
     super.key,
     this.searchHint = 'Search by name or code...',
@@ -21,6 +25,7 @@ class CustomSearchFilterBar extends StatelessWidget {
     this.branchHint = 'All Branches',
     this.onSearchChanged,
     this.showFilters = true,
+    this.flat = false,
   });
 
   @override
@@ -68,18 +73,22 @@ class CustomSearchFilterBar extends StatelessWidget {
       width: double.infinity,
       // The bar's own inset adds to the page's section gap below it, so it
       // tightens on a phone along with the page padding.
-      padding: EdgeInsets.all(AppSizes.isCompact(context) ? 12 : 16),
-      decoration: BoxDecoration(
-        color: colors.surfaceColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadowColor,
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      padding: flat
+          ? EdgeInsets.zero
+          : EdgeInsets.all(AppSizes.isCompact(context) ? 12 : 16),
+      decoration: flat
+          ? null
+          : BoxDecoration(
+              color: colors.surfaceColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: colors.shadowColor,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           if (!showFilters) return searchField;

@@ -58,10 +58,9 @@ abstract final class AppSidebarNavigation {
   static Future<void> logout(BuildContext context) async {
     await sl<AuthController>().logout();
     if (context.mounted) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        AppRouteNames.login,
-        (route) => false,
-      );
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(AppRouteNames.login, (route) => false);
     }
   }
 }

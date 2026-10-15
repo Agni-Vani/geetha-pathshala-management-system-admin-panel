@@ -24,4 +24,3 @@ abstract final class AppRouteBuilders {
 }
 
 typedef RegistryRouteBuilders = AppRouteBuilders;
-

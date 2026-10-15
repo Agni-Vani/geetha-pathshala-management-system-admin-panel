@@ -5,6 +5,7 @@ import 'package:geetha_pathshala_management_web/src/di/service_locator.dart';
 import 'package:geetha_pathshala_management_web/src/core/navigation/app_route_builders.dart';
 import 'package:geetha_pathshala_management_web/src/core/navigation/app_route_names.dart';
 import 'package:geetha_pathshala_management_web/src/core/shared/widget/custom_widgets/custom_top_bar.dart';
+import 'package:geetha_pathshala_management_web/src/core/shared/widget/custom_widgets/custom_empty_state.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Pumps every screen at the widths the app has to survive and fails on any
@@ -75,6 +76,108 @@ void main() {
     }
   }
 
+  for (final width in [
+    ..._widths.entries,
+    const MapEntry('marked-mobile', Size(500, 950)),
+  ]) {
+    testWidgets('IAM role cards lay out at ${width.key}', (tester) async {
+      await pumpRoute(tester, AppRouteNames.iam, width.value);
+      // IAM loads the users, roles, permissions and related records in sequence.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 300));
+      }
+      expect(drainOverflows(tester), isEmpty);
+
+      final rolesTab = find.text('সিস্টেম রোল ও অনুমতি');
+      await tester.ensureVisible(rolesTab);
+      await tester.tap(rolesTab);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Scope: PATHSHALA'), findsOneWidget);
+      expect(drainOverflows(tester), isEmpty);
+    });
+  }
+
+  for (final width in [
+    ..._widths.entries,
+    const MapEntry('marked-tablet', Size(1000, 900)),
+    const MapEntry('wrapped-header', Size(1328, 900)),
+    const MapEntry('wide-desktop', Size(1578, 900)),
+  ]) {
+    testWidgets('people empty state lays out at ${width.key}', (tester) async {
+      await pumpRoute(tester, AppRouteNames.peopleRegistry, width.value);
+      final search = tester.getRect(find.byType(TextField));
+      final addButton = tester.getRect(
+        find.byKey(const ValueKey('people-add-person')),
+      );
+      if (width.value.width < 640) {
+        expect(addButton.width, lessThan(search.width * .5));
+        expect(
+          addButton.bottom,
+          lessThan(tester.getTopLeft(find.text('Inactive')).dy),
+        );
+      }
+      final occupation = tester.getRect(find.text('All Occupation').first);
+      final inlineSearch = width.key.contains('desktop');
+      if (inlineSearch) {
+        expect(search.center.dy, closeTo(occupation.center.dy, 2));
+        expect(
+          search.left,
+          closeTo(
+            tester
+                    .getTopRight(
+                      find.byKey(const ValueKey('people-filter-Occupation')),
+                    )
+                    .dx +
+                24,
+            1,
+          ),
+        );
+      } else {
+        expect(search.top, greaterThan(occupation.bottom));
+      }
+      expect(
+        search.bottom,
+        lessThan(tester.getTopLeft(find.byType(Divider).last).dy),
+      );
+      if (inlineSearch) {
+        expect(
+          search.right,
+          closeTo(
+            tester
+                .getTopRight(find.byKey(const ValueKey('people-add-person')))
+                .dx,
+            1,
+          ),
+        );
+      } else {
+        expect(
+          search.left,
+          closeTo(tester.getTopLeft(find.byType(Divider).last).dx, 1),
+        );
+        expect(
+          search.width,
+          closeTo(tester.getSize(find.byType(Divider).last).width, 1),
+        );
+      }
+      final statusTab = find
+          .ancestor(of: find.text('Inactive'), matching: find.byType(InkWell))
+          .first;
+      expect(tester.getSize(statusTab).height, lessThanOrEqualTo(40));
+      await tester.ensureVisible(find.text('Inactive'));
+      await tester.tap(find.text('Inactive'));
+      await tester.pumpAndSettle();
+      expect(find.text('No people in this category'), findsOneWidget);
+      final empty = find.byType(CustomEmptyState);
+      final footer = find.textContaining('All rights reserved');
+      expect(
+        tester.getCenter(empty).dx,
+        closeTo(tester.getCenter(footer).dx, 1),
+      );
+      expect(drainOverflows(tester), isEmpty);
+    });
+  }
+
   testWidgets('content clears the status bar and home indicator', (
     tester,
   ) async {
@@ -115,7 +218,10 @@ void main() {
       await pumpRoute(tester, AppRouteNames.peopleRegistry, width.value);
       drainOverflows(tester);
 
-      await tester.tap(find.text('Add New Person').first, warnIfMissed: false);
+      await tester.tap(
+        find.byKey(const ValueKey('people-add-person')),
+        warnIfMissed: false,
+      );
       await tester.pump(const Duration(milliseconds: 400));
       await tester.pump(const Duration(milliseconds: 400));
 

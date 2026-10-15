@@ -168,7 +168,7 @@ class _AssignTeacherDialogState extends State<AssignTeacherDialog> {
                             'Assign as Teacher',
                             style: TextStyle(
                               fontSize: 18,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               color: colors.textColor,
                             ),
                           ),
@@ -242,7 +242,7 @@ class _AssignTeacherDialogState extends State<AssignTeacherDialog> {
                               widget.person.displayName,
                               style: TextStyle(
                                 fontSize: 14.5,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.w400,
                                 color: colors.textColor,
                               ),
                             ),
@@ -268,7 +268,7 @@ class _AssignTeacherDialogState extends State<AssignTeacherDialog> {
                             widget.person.area!,
                             style: TextStyle(
                               fontSize: 11.5,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w400,
                               color: colors.primaryColor,
                             ),
                           ),
@@ -353,7 +353,7 @@ class _AssignTeacherDialogState extends State<AssignTeacherDialog> {
                           'Cancel',
                           style: TextStyle(
                             fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                             color: colors.hintColor,
                           ),
                         ),
@@ -392,7 +392,7 @@ class _AssignTeacherDialogState extends State<AssignTeacherDialog> {
                                     'Confirm Assignment',
                                     style: TextStyle(
                                       fontSize: 13,
-                                      fontWeight: FontWeight.w600,
+                                      fontWeight: FontWeight.w500,
                                       color: Colors.white,
                                     ),
                                   ),

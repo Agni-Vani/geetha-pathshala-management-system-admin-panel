@@ -154,12 +154,16 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
+    final pageTitle = _isEditing ? 'Edit Pathshala' : 'Add New Pathshala';
+    // On mobile the heading lives in the shell's top bar.
+    final headingInTopBar = ResponsiveAppShell.hasTopBar(context);
 
     return ResponsiveAppShell(
       selectedIndex: _selectedIndex,
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
+      pageTitle: pageTitle,
       body: Column(
         children: [
           Expanded(
@@ -192,24 +196,26 @@ class _AddNewPatshalaViewState extends State<AddNewPatshalaView> {
                           ),
                         ],
                       ),
-                      Text(
-                        _isEditing ? 'Edit Pathshala' : 'Add New Pathshala',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: colors.primaryColor,
+                      if (!headingInTopBar) ...[
+                        Text(
+                          pageTitle,
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.bold,
+                            color: colors.primaryColor,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        _isEditing
-                            ? "Update this study center's registry details."
-                            : "Register a new study center to expand the community's access to ancient wisdom.",
-                        style: TextStyle(color: colors.hintColor),
-                      ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _isEditing
+                              ? "Update this study center's registry details."
+                              : "Register a new study center to expand the community's access to ancient wisdom.",
+                          style: TextStyle(color: colors.hintColor),
+                        ),
+                      ],
                       Container(
                         width: double.infinity,
-                        margin: const EdgeInsets.only(top: 24),
+                        margin: EdgeInsets.only(top: headingInTopBar ? 8 : 24),
                         clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
                           color: colors.backgroundColor,

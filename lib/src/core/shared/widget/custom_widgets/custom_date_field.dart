@@ -8,6 +8,8 @@ class CustomDateField extends StatelessWidget {
   final DateTime? value;
   final ValueChanged<DateTime> onChanged;
   final bool isRequired;
+  final Color? fillColor;
+  final Color? enabledBorderColor;
 
   const CustomDateField({
     super.key,
@@ -15,6 +17,8 @@ class CustomDateField extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.isRequired = false,
+    this.fillColor,
+    this.enabledBorderColor,
   });
 
   String get _formatted {
@@ -50,7 +54,7 @@ class CustomDateField extends StatelessWidget {
             text: label,
             style: TextStyle(
               fontSize: 13,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.w400,
               color: colors.textColor,
             ),
             children: [
@@ -71,6 +75,14 @@ class CustomDateField extends StatelessWidget {
               context,
               hint: 'mm/dd/yyyy',
               suffix: Icons.calendar_today_outlined,
+            ).copyWith(
+              fillColor: fillColor,
+              enabledBorder: enabledBorderColor == null
+                  ? null
+                  : OutlineInputBorder(
+                      borderRadius: AppFieldDecoration.borderRadius,
+                      borderSide: BorderSide(color: enabledBorderColor!),
+                    ),
             ),
             child: Text(
               _formatted,

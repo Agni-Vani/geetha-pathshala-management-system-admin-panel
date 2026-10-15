@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_status_badge.dart';
+import '../../../../core/shared/widget/custom_widgets/pinned_header_card_page.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -65,6 +66,7 @@ class _AttendanceViewState extends State<AttendanceView> {
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
+      showBackgroundImage: false,
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -74,24 +76,29 @@ class _AttendanceViewState extends State<AttendanceView> {
           return Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  padding: AppSizes.pagePadding(context),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isNarrow = constraints.maxWidth < 640;
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 640;
+                    final gap = AppSizes.sectionGap(context);
+                    final cardInset = PinnedHeaderCardPage.cardInset(context);
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeader(colors, isNarrow),
-                          SizedBox(height: AppSizes.sectionGap(context)),
-                          _buildSummaryGrid(colors, summaryStats, isNarrow),
-                          SizedBox(height: AppSizes.sectionGap(context)),
-                          _buildTable(colors, attendanceRows),
-                        ],
-                      );
-                    },
-                  ),
+                    return PinnedHeaderCardPage(
+                      header: _buildHeader(colors, isNarrow),
+                      card: SingleChildScrollView(
+                        padding: EdgeInsets.all(cardInset),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (summaryStats.isNotEmpty) ...[
+                              _buildSummaryGrid(colors, summaryStats, isNarrow),
+                              SizedBox(height: gap),
+                            ],
+                            _buildTable(colors, attendanceRows),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               Container(
@@ -140,19 +147,7 @@ class _AttendanceViewState extends State<AttendanceView> {
       ],
     );
 
-    if (isNarrow) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [titleBlock, const SizedBox(height: 16)],
-      );
-    }
-
-    return Row(
-      children: [
-        Expanded(child: titleBlock),
-        const SizedBox(width: 16),
-      ],
-    );
+    return titleBlock;
   }
 
   Widget _buildSummaryGrid(
@@ -233,7 +228,7 @@ class _AttendanceViewState extends State<AttendanceView> {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: colors.backgroundColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(12)),
         boxShadow: [
           BoxShadow(
             color: colors.shadowColor,

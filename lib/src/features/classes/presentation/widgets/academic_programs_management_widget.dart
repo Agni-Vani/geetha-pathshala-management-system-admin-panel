@@ -208,20 +208,23 @@ class _AcademicProgramsManagementWidgetState
     List<AcademicProgram> programs,
     bool isNarrow,
   ) {
+    final cardColor = Theme.of(context).brightness == Brightness.dark
+        ? const Color(0xFF13201F)
+        : Colors.white;
     return Column(
       children: programs.map((program) {
         return Container(
           width: double.infinity,
           margin: const EdgeInsets.only(bottom: 16),
           decoration: BoxDecoration(
-            color: colors.backgroundColor,
+            color: cardColor,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(color: colors.dividerColor),
             boxShadow: [
               BoxShadow(
-                color: colors.shadowColor,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                color: colors.shadowColor.withValues(alpha: .06),
+                blurRadius: 2,
+                offset: const Offset(0, 1),
               ),
             ],
           ),
@@ -231,7 +234,10 @@ class _AcademicProgramsManagementWidgetState
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colors.tileColor,
+                  color: Color.alphaBlend(
+                    colors.softAccentColor.withValues(alpha: .22),
+                    cardColor,
+                  ),
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                 ),
                 child: Row(
@@ -317,7 +323,7 @@ class _AcademicProgramsManagementWidgetState
                             Icon(Icons.add, size: 16, color: colors.primaryColor),
                             const SizedBox(width: 6),
                             Text(
-                              '+ ${program.levelTermLabel} যোগ',
+                              '${program.levelTermLabel} যোগ',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,

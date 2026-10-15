@@ -13,6 +13,8 @@ class CustomEmptyState extends StatelessWidget {
   final String message;
   final String? actionLabel;
   final VoidCallback? onAction;
+  final bool showBorder;
+  final bool showBackground;
 
   const CustomEmptyState({
     super.key,
@@ -21,6 +23,8 @@ class CustomEmptyState extends StatelessWidget {
     required this.message,
     this.actionLabel,
     this.onAction,
+    this.showBorder = true,
+    this.showBackground = true,
   });
 
   @override
@@ -29,11 +33,14 @@ class CustomEmptyState extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 48),
+      padding: EdgeInsets.symmetric(
+        horizontal: 24,
+        vertical: showBackground ? 48 : 16,
+      ),
       decoration: BoxDecoration(
-        color: colors.surfaceColor,
+        color: showBackground ? colors.surfaceColor : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: colors.borderColor),
+        border: showBorder ? Border.all(color: colors.borderColor) : null,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -70,13 +77,21 @@ class CustomEmptyState extends StatelessWidget {
               icon: const Icon(Icons.add, size: 18),
               label: Text(
                 actionLabel!,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.primaryColor,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                shape: const RoundedRectangleBorder(borderRadius: AppSizes.rectangleButtonRadius),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 16,
+                ),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: AppSizes.rectangleButtonRadius,
+                ),
               ),
             ),
           ],

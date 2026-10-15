@@ -5,6 +5,7 @@ import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_button.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_search_filter_bar.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_status_badge.dart';
+import '../../../../core/shared/widget/custom_widgets/pinned_header_card_page.dart';
 import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -33,9 +34,9 @@ class _TeachersViewState extends State<TeachersView> {
   }
 
   Future<void> _addNewTeacher() async {
-    final teacher = await Navigator.of(context).push<Teacher>(
-      MaterialPageRoute(builder: (_) => const AddTeacherView()),
-    );
+    final teacher = await Navigator.of(
+      context,
+    ).push<Teacher>(MaterialPageRoute(builder: (_) => const AddTeacherView()));
     if (teacher == null) return;
     _controller.load();
   }
@@ -61,6 +62,7 @@ class _TeachersViewState extends State<TeachersView> {
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
       onTopBarBack: () => Navigator.of(context).maybePop(),
+      showBackgroundImage: false,
       body: ListenableBuilder(
         listenable: _controller,
         builder: (context, _) {
@@ -69,35 +71,39 @@ class _TeachersViewState extends State<TeachersView> {
           return Column(
             children: [
               Expanded(
-                child: SingleChildScrollView(
-                  padding: AppSizes.pagePadding(context),
-                  child: LayoutBuilder(
-                    builder: (context, constraints) {
-                      final isNarrow = constraints.maxWidth < 640;
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isNarrow = constraints.maxWidth < 640;
+                    final gap = AppSizes.sectionGap(context);
+                    final cardInset = PinnedHeaderCardPage.cardInset(context);
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildHeader(colors, isNarrow),
-                          SizedBox(height: AppSizes.sectionGap(context)),
-                          CustomSearchFilterBar(
-                            searchHint: 'Search teachers...',
-                            districtHint: 'All Subjects',
-                            branchHint: 'All Pathshalas',
-                            onSearchChanged: (query) {
-                              _controller.load(
-                                search: query,
-                                subject: _controller.selectedSubject,
-                                pathshalaId: _controller.selectedPathshala,
-                              );
-                            },
-                          ),
-                          SizedBox(height: AppSizes.sectionGap(context)),
-                          _buildTable(colors, teachers),
-                        ],
-                      );
-                    },
-                  ),
+                    return PinnedHeaderCardPage(
+                      header: _buildHeader(colors, isNarrow),
+                      card: SingleChildScrollView(
+                        padding: EdgeInsets.all(cardInset),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomSearchFilterBar(
+                              flat: true,
+                              searchHint: 'Search teachers...',
+                              districtHint: 'All Subjects',
+                              branchHint: 'All Pathshalas',
+                              onSearchChanged: (query) {
+                                _controller.load(
+                                  search: query,
+                                  subject: _controller.selectedSubject,
+                                  pathshalaId: _controller.selectedPathshala,
+                                );
+                              },
+                            ),
+                            SizedBox(height: gap),
+                            _buildTable(colors, teachers),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
               Container(
@@ -124,10 +130,7 @@ class _TeachersViewState extends State<TeachersView> {
         AppBreadcrumbs(
           items: [
             BreadcrumbItem.home(context),
-            const BreadcrumbItem(
-              label: 'শিক্ষক',
-              icon: Icons.badge_outlined,
-            ),
+            const BreadcrumbItem(label: 'শিক্ষক', icon: Icons.badge_outlined),
           ],
         ),
         Text(
@@ -163,6 +166,8 @@ class _TeachersViewState extends State<TeachersView> {
     }
 
     return Row(
+      // The button rests on the same line as the bottom of the description.
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Expanded(child: titleBlock),
         const SizedBox(width: 16),
@@ -176,15 +181,10 @@ class _TeachersViewState extends State<TeachersView> {
       width: double.infinity,
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
-        color: colors.backgroundColor,
+        // Sits inside the page's card, so it carries no surface or shadow
+        // of its own — just a hairline around the table.
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadowColor,
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: Border.all(color: colors.dividerColor.withValues(alpha: .7)),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) => Scrollbar(

@@ -8,6 +8,7 @@ import '../../domain/person_domain.dart';
 import '../controller/list_people_controller.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_field_decoration.dart';
 import 'add_person_view.dart';
 import '../widgets/assign_teacher_dialog.dart';
 import '../widgets/admit_student_dialog.dart';
@@ -18,6 +19,7 @@ import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/app_sizes.dart';
+import '../../../../core/shared/widget/app_background.dart';
 
 const _organizationId = AppConfig.defaultOrganizationId;
 
@@ -29,12 +31,18 @@ class AllPeopleView extends StatefulWidget {
 }
 
 class _AllPeopleViewState extends State<AllPeopleView> {
-  final ListPeopleController listPeopleController =
-      sl.get<ListPeopleController>();
+  final ListPeopleController listPeopleController = sl
+      .get<ListPeopleController>();
   late final SnackbarNotifier snackbarNotifier;
   final TextEditingController _searchController = TextEditingController();
 
   final int _selectedIndex = 4;
+
+  // The background illustration starts right under the filter-row divider;
+  // these locate it after layout.
+  final GlobalKey _topBarKey = GlobalKey();
+  final GlobalKey _dividerKey = GlobalKey();
+  double? _backgroundTop;
 
   String? _searchQuery;
   PersonStatus? _statusFilter;
@@ -142,8 +150,9 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  isDeactivating ? Colors.orange : colors.primaryColor,
+              backgroundColor: isDeactivating
+                  ? Colors.orange
+                  : colors.primaryColor,
               elevation: 0,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(6),
@@ -179,8 +188,11 @@ class _AllPeopleViewState extends State<AllPeopleView> {
   }
 
   String _getInitials(String name) {
-    final parts =
-        name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
+    final parts = name
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((p) => p.isNotEmpty)
+        .toList();
     if (parts.isEmpty) return '?';
     if (parts.length == 1) return parts.first.characters.first.toUpperCase();
     return (parts.first.characters.first + parts.last.characters.first)
@@ -191,8 +203,8 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     if (dob == null) return null;
     final now = DateTime.now();
     var years = now.year - dob.year;
-    final hadBirthday = now.month > dob.month ||
-        (now.month == dob.month && now.day >= dob.day);
+    final hadBirthday =
+        now.month > dob.month || (now.month == dob.month && now.day >= dob.day);
     if (!hadBirthday) years -= 1;
     return years < 0 ? null : years;
   }
@@ -209,78 +221,66 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     List<Person> allPeople,
     bool isNarrow,
   ) {
-    final titleBlock = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppBreadcrumbs(
-          items: [
-            BreadcrumbItem.home(context),
-            const BreadcrumbItem(
-              label: 'ব্যক্তি রেজিস্ট্রি',
-              icon: Icons.person_outline,
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          "ব্যক্তি রেজিস্ট্রি",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: colors.textColor,
-            letterSpacing: -0.3,
-          ),
+    final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
+    final isMobile = AppSizes.isCompact(context);
+    final titleBlock = AppBreadcrumbs(
+      items: [
+        BreadcrumbItem.home(context),
+        const BreadcrumbItem(
+          label: 'ব্যক্তি রেজিস্ট্রি',
+          icon: Icons.person_outline,
         ),
       ],
     );
 
     final totalCount = allPeople.length;
-    final activeCount =
-        allPeople.where((p) => p.status == PersonStatus.active).length;
-    final inactiveCount =
-        allPeople.where((p) => p.status == PersonStatus.inactive).length;
+    final activeCount = allPeople
+        .where((p) => p.status == PersonStatus.active)
+        .length;
+    final inactiveCount = allPeople
+        .where((p) => p.status == PersonStatus.inactive)
+        .length;
 
     Widget filterTab({
       required String label,
       required int count,
       required bool isSelected,
       required VoidCallback onTap,
-      Color? activeColor,
     }) {
-      final color = activeColor ?? colors.primaryColor;
       return InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(10),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
-          decoration: BoxDecoration(
-            color:
-                isSelected ? color.withValues(alpha: 0.12) : Colors.transparent,
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: isSelected
-                  ? color.withValues(alpha: 0.35)
-                  : Colors.transparent,
-            ),
-          ),
+          constraints: const BoxConstraints(minHeight: 36),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 label,
                 style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isSelected ? color : colors.hintColor,
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? colors.textColor : colors.hintColor,
                 ),
               ),
-              const SizedBox(width: 4),
-              Text(
-                '($count)',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? color : colors.hintColor,
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? colors.primaryColor.withValues(alpha: .12)
+                      : colors.softGrey,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '$count',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: isSelected ? colors.primaryColor : colors.hintColor,
+                  ),
                 ),
               ),
             ],
@@ -289,91 +289,68 @@ class _AllPeopleViewState extends State<AllPeopleView> {
       );
     }
 
-    final searchBox = Container(
-      height: 38,
-      width: 200,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFD0D5DD)),
-      ),
-      child: Row(
-        children: [
-          const SizedBox(width: 10),
-          Icon(Icons.search, size: 17, color: colors.hintColor),
-          const SizedBox(width: 6),
-          Expanded(
-            child: TextField(
-              controller: _searchController,
-              onChanged: _onSearchChanged,
-              style: TextStyle(fontSize: 13, color: colors.textColor),
-              decoration: InputDecoration(
-                hintText: 'Search',
-                hintStyle: TextStyle(fontSize: 13, color: colors.hintColor),
-                border: InputBorder.none,
-                isDense: true,
-                contentPadding: const EdgeInsets.symmetric(vertical: 8),
-              ),
+    final searchBox = TextField(
+      controller: _searchController,
+      onChanged: _onSearchChanged,
+      style: TextStyle(fontSize: 14, color: colors.textColor),
+      decoration:
+          AppFieldDecoration.build(
+            context,
+            hint: 'Search people',
+            prefix: Icons.search_rounded,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
+          ).copyWith(
+            fillColor: colors.backgroundColor,
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 48,
+              minHeight: 48,
             ),
+            suffixIcon: _searchController.text.isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Clear search',
+                    icon: const Icon(Icons.close_rounded, size: 18),
+                    color: colors.hintColor,
+                    onPressed: () {
+                      _searchController.clear();
+                      _onSearchChanged('');
+                    },
+                  ),
           ),
-          if (_searchController.text.isNotEmpty)
-            IconButton(
-              icon: const Icon(Icons.close, size: 15),
-              padding: EdgeInsets.zero,
-              color: colors.hintColor,
-              onPressed: () {
-                _searchController.clear();
-                _onSearchChanged('');
-              },
-            )
-          else
-            const SizedBox(width: 8),
-        ],
+    );
+
+    final addButton = ElevatedButton.icon(
+      key: const ValueKey('people-add-person'),
+      onPressed: _openAddPerson,
+      icon: Icon(Icons.add_rounded, size: isMobile ? 16 : 20),
+      label: Text(
+        isMobile ? 'Add Person' : 'Add New Person',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: isMobile ? 13 : 14,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      style: ElevatedButton.styleFrom(
+        minimumSize: Size(0, isMobile ? 40 : 48),
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 12 : 18,
+          vertical: isMobile ? 10 : 14,
+        ),
+        backgroundColor: colors.primaryColor,
+        foregroundColor: colors.buttonContentColor,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
 
-    final addButton = InkWell(
-      onTap: _openAddPerson,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        height: 38,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: colors.primaryColor,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: const Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add, size: 16, color: Colors.white),
-            SizedBox(width: 6),
-            Text(
-              'Add New Person',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    final availableAreas =
+        allPeople.map((p) => p.area).whereType<String>().toSet().toList()
+          ..sort();
 
-    final availableAreas = allPeople
-        .map((p) => p.area)
-        .whereType<String>()
-        .toSet()
-        .toList()
-      ..sort();
-
-    final availableOccupations = allPeople
-        .map((p) => p.occupation)
-        .whereType<String>()
-        .toSet()
-        .toList()
-      ..sort();
+    final availableOccupations =
+        allPeople.map((p) => p.occupation).whereType<String>().toSet().toList()
+          ..sort();
 
     final statusFilters = SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -394,7 +371,6 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             label: 'Active',
             count: activeCount,
             isSelected: _statusFilter == PersonStatus.active,
-            activeColor: const Color(0xFF16A34A),
             onTap: () => setState(() {
               _statusFilter = PersonStatus.active;
               _currentPage = 1;
@@ -405,7 +381,6 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             label: 'Inactive',
             count: inactiveCount,
             isSelected: _statusFilter == PersonStatus.inactive,
-            activeColor: const Color(0xFFEA580C),
             onTap: () => setState(() {
               _statusFilter = PersonStatus.inactive;
               _currentPage = 1;
@@ -416,87 +391,152 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     );
 
     return SizedBox(
+      key: _topBarKey,
       width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              titleBlock,
-              Wrap(
-                crossAxisAlignment: WrapCrossAlignment.center,
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  searchBox,
-                  addButton,
-                ],
-              ),
-            ],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (isMobile) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(child: titleBlock),
+                    const SizedBox(width: 12),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: math.min(
+                          160 * textScale,
+                          constraints.maxWidth * .43,
+                        ),
+                      ),
+                      child: addButton,
+                    ),
+                  ],
+                );
+              }
+              if (constraints.maxWidth >= 520 * textScale) {
+                return Row(
+                  children: [
+                    Expanded(child: titleBlock),
+                    const SizedBox(width: 24),
+                    addButton,
+                  ],
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [titleBlock, const SizedBox(height: 16), addButton],
+              );
+            },
           ),
-          const SizedBox(height: 14),
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              statusFilters,
-              _buildDropdownFilter(
-                context: context,
-                colors: colors,
-                label: 'Area',
-                value: _areaFilter,
-                items: availableAreas,
-                icon: Icons.location_on_outlined,
-                onChanged: (val) => setState(() {
-                  _areaFilter = val;
-                  _currentPage = 1;
-                }),
-              ),
-              _buildDropdownFilter(
-                context: context,
-                colors: colors,
-                label: 'Role',
-                value: _roleFilter,
-                items: const ['Teacher', 'Student', 'Unassigned'],
-                icon: Icons.badge_outlined,
-                onChanged: (val) => setState(() {
-                  _roleFilter = val;
-                  _currentPage = 1;
-                }),
-              ),
-              _buildDropdownFilter(
-                context: context,
-                colors: colors,
-                label: 'Occupation',
-                value: _occupationFilter,
-                items: availableOccupations,
-                icon: Icons.work_outline,
-                onChanged: (val) => setState(() {
-                  _occupationFilter = val;
-                  _currentPage = 1;
-                }),
-              ),
-              if (_areaFilter != null || _roleFilter != null || _occupationFilter != null)
-                TextButton.icon(
-                  onPressed: () => setState(() {
-                    _areaFilter = null;
-                    _roleFilter = null;
-                    _occupationFilter = null;
+          const SizedBox(height: 20),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final filterControls = <Widget>[
+                statusFilters,
+                _buildDropdownFilter(
+                  context: context,
+                  colors: colors,
+                  label: 'Area',
+                  value: _areaFilter,
+                  items: availableAreas,
+                  icon: Icons.location_on_outlined,
+                  onChanged: (val) => setState(() {
+                    _areaFilter = val;
                     _currentPage = 1;
                   }),
-                  icon: const Icon(Icons.clear_all, size: 16),
-                  label: const Text('Reset Filters', style: TextStyle(fontSize: 12)),
-                  style: TextButton.styleFrom(
-                    foregroundColor: colors.hintColor,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                  ),
                 ),
-            ],
+                _buildDropdownFilter(
+                  context: context,
+                  colors: colors,
+                  label: 'Role',
+                  value: _roleFilter,
+                  items: const ['Teacher', 'Student', 'Unassigned'],
+                  icon: Icons.badge_outlined,
+                  onChanged: (val) => setState(() {
+                    _roleFilter = val;
+                    _currentPage = 1;
+                  }),
+                ),
+                _buildDropdownFilter(
+                  context: context,
+                  colors: colors,
+                  label: 'Occupation',
+                  value: _occupationFilter,
+                  items: availableOccupations,
+                  icon: Icons.work_outline,
+                  onChanged: (val) => setState(() {
+                    _occupationFilter = val;
+                    _currentPage = 1;
+                  }),
+                ),
+                if (_areaFilter != null ||
+                    _roleFilter != null ||
+                    _occupationFilter != null)
+                  TextButton.icon(
+                    onPressed: () => setState(() {
+                      _areaFilter = null;
+                      _roleFilter = null;
+                      _occupationFilter = null;
+                      _currentPage = 1;
+                    }),
+                    icon: const Icon(Icons.clear_all, size: 16),
+                    label: const Text(
+                      'Reset Filters',
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: colors.hintColor,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 6,
+                      ),
+                    ),
+                  ),
+              ];
+              final inlineSearch =
+                  constraints.maxWidth >=
+                  (filterControls.length > 4 ? 1280 : 1080) * textScale;
+              if (inlineSearch) {
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    for (
+                      var index = 0;
+                      index < filterControls.length;
+                      index++
+                    ) ...[
+                      if (index > 0) const SizedBox(width: 12),
+                      filterControls[index],
+                    ],
+                    const SizedBox(width: 24),
+                    Expanded(child: searchBox),
+                  ],
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 12,
+                    runSpacing: 10,
+                    children: filterControls,
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(width: constraints.maxWidth, child: searchBox),
+                ],
+              );
+            },
+          ),
+          const SizedBox(height: 10),
+          Divider(
+            key: _dividerKey,
+            height: 1,
+            thickness: 1,
+            color: colors.dividerColor.withValues(alpha: .7),
           ),
         ],
       ),
@@ -532,70 +572,137 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     required ValueChanged<String?> onChanged,
   }) {
     final isSelected = value != null;
+    final textScale = MediaQuery.textScalerOf(context).scale(13) / 13;
+    final filterValues = <String?>[null, ...items];
     return Container(
-      height: 38,
-      padding: const EdgeInsets.symmetric(horizontal: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isSelected ? colors.primaryColor : const Color(0xFFD0D5DD),
-          width: isSelected ? 1.5 : 1,
-        ),
+      key: ValueKey('people-filter-$label'),
+      width: math.min(
+        (label == 'Occupation' ? 210 : 160) * textScale,
+        MediaQuery.sizeOf(context).width - 32,
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String?>(
-          value: value,
-          isDense: true,
-          icon: Icon(
-            Icons.keyboard_arrow_down,
-            size: 17,
-            color: isSelected ? colors.primaryColor : colors.hintColor,
-          ),
-          style: TextStyle(
-            fontSize: 12.5,
-            color: isSelected ? colors.primaryColor : colors.textColor,
-            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-          ),
-          hint: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 14, color: colors.hintColor),
-              const SizedBox(width: 6),
-              Text(label, style: TextStyle(fontSize: 12.5, color: colors.hintColor)),
-            ],
-          ),
-          items: [
-            DropdownMenuItem<String?>(
-              value: null,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+      constraints: const BoxConstraints(minHeight: 40),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: colors.backgroundColor,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          // Same highlight as a selected sidebar item.
+          focusColor: colors.primaryColor.withValues(alpha: .12),
+          hoverColor: colors.primaryColor.withValues(alpha: .06),
+          highlightColor: colors.primaryColor.withValues(alpha: .10),
+          splashColor: colors.primaryColor.withValues(alpha: .08),
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<String?>(
+            value: value,
+            isDense: true,
+            isExpanded: true,
+            dropdownColor: colors.dialogBackgroundColor,
+            elevation: 4,
+            borderRadius: BorderRadius.circular(10),
+            menuMaxHeight: 320,
+            icon: Icon(
+              Icons.keyboard_arrow_down,
+              size: 17,
+              color: isSelected ? colors.primaryColor : colors.hintColor,
+            ),
+            style: TextStyle(
+              fontSize: 12.5,
+              color: isSelected ? colors.primaryColor : colors.textColor,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            ),
+            selectedItemBuilder: (context) => filterValues.map((item) {
+              return Row(
                 children: [
                   Icon(icon, size: 14, color: colors.hintColor),
                   const SizedBox(width: 6),
-                  Text('All $label', style: TextStyle(color: colors.textColor)),
+                  Expanded(
+                    child: Text(
+                      item ?? 'All $label',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: isSelected
+                            ? colors.primaryColor
+                            : colors.textColor,
+                      ),
+                    ),
+                  ),
                 ],
-              ),
+              );
+            }).toList(),
+            hint: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 14, color: colors.hintColor),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12.5, color: colors.hintColor),
+                  ),
+                ),
+              ],
             ),
-            for (final item in items)
-              DropdownMenuItem<String?>(
-                value: item,
-                child: Text(item, style: TextStyle(color: colors.textColor)),
-              ),
-          ],
-          onChanged: onChanged,
+            items: [
+              for (final item in filterValues)
+                DropdownMenuItem<String?>(
+                  value: item,
+                  child: _dropdownMenuRow(
+                    colors: colors,
+                    label: item ?? 'All $label',
+                    icon: item == null ? icon : null,
+                    selected: item == value,
+                  ),
+                ),
+            ],
+            onChanged: onChanged,
+          ),
         ),
       ),
     );
   }
 
+  Widget _dropdownMenuRow({
+    required AppColors colors,
+    required String label,
+    required bool selected,
+    IconData? icon,
+  }) {
+    final color = selected ? colors.primaryColor : colors.textColor;
+    return Row(
+      children: [
+        if (icon != null) ...[
+          Icon(icon, size: 14, color: selected ? color : colors.hintColor),
+          const SizedBox(width: 6),
+        ],
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: color,
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            ),
+          ),
+        ),
+        if (selected) Icon(Icons.check_rounded, size: 16, color: color),
+      ],
+    );
+  }
+
   Widget _buildStatusBadge(bool isActive) {
     final bg = isActive ? const Color(0xFFECFDF3) : const Color(0xFFFEF3F2);
-    final border =
-        isActive ? const Color(0xFFA6F4C5) : const Color(0xFFFECDCA);
+    final border = isActive ? const Color(0xFFA6F4C5) : const Color(0xFFFECDCA);
     final text = isActive ? const Color(0xFF027A48) : const Color(0xFFB42318);
-    final dotColor =
-        isActive ? const Color(0xFF12B76A) : const Color(0xFFF04438);
+    final dotColor = isActive
+        ? const Color(0xFF12B76A)
+        : const Color(0xFFF04438);
     final label = isActive ? 'Active' : 'Inactive';
 
     return Container(
@@ -611,10 +718,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           Container(
             width: 6,
             height: 6,
-            decoration: BoxDecoration(
-              color: dotColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
           ),
           const SizedBox(width: 5),
           Text(
@@ -634,9 +738,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     final isActive = person.status == PersonStatus.active;
 
     return Theme(
-      data: Theme.of(context).copyWith(
-        cardColor: Colors.white,
-      ),
+      data: Theme.of(context).copyWith(cardColor: Colors.white),
       child: PopupMenuButton<String>(
         tooltip: 'Actions',
         offset: const Offset(0, 36),
@@ -690,7 +792,11 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             height: 38,
             child: Row(
               children: [
-                Icon(Icons.admin_panel_settings_outlined, size: 16, color: colors.primaryColor),
+                Icon(
+                  Icons.admin_panel_settings_outlined,
+                  size: 16,
+                  color: colors.primaryColor,
+                ),
                 const SizedBox(width: 8),
                 const Text(
                   'Assign as Pathshala Admin',
@@ -704,7 +810,11 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             height: 38,
             child: Row(
               children: [
-                Icon(Icons.school_outlined, size: 16, color: colors.primaryColor),
+                Icon(
+                  Icons.school_outlined,
+                  size: 16,
+                  color: colors.primaryColor,
+                ),
                 const SizedBox(width: 8),
                 const Text(
                   'Assign as Teacher',
@@ -718,7 +828,11 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             height: 38,
             child: Row(
               children: const [
-                Icon(Icons.person_add_alt_1_outlined, size: 16, color: Color(0xFF2563EB)),
+                Icon(
+                  Icons.person_add_alt_1_outlined,
+                  size: 16,
+                  color: Color(0xFF2563EB),
+                ),
                 SizedBox(width: 8),
                 Text(
                   'Admit as Student',
@@ -781,22 +895,16 @@ class _AllPeopleViewState extends State<AllPeopleView> {
 
     final tableBg = isDark ? const Color(0xFF13201F) : Colors.white;
     final headerBg = isDark ? const Color(0xFF192A2A) : const Color(0xFFF9FAFB);
-    final borderColor =
-        isDark ? colors.dividerColor : const Color(0xFFEAECF0);
-    final rowDividerColor =
-        isDark ? colors.dividerColor : const Color(0xFFF2F4F7);
-    final textMuted =
-        isDark ? colors.hintColor : const Color(0xFF475467);
+    final borderColor = isDark ? colors.dividerColor : const Color(0xFFEAECF0);
+    final rowDividerColor = isDark
+        ? colors.dividerColor
+        : const Color(0xFFF2F4F7);
+    final textMuted = isDark ? colors.hintColor : const Color(0xFF475467);
 
     if (status is ProcessLoading && allPeople.isEmpty) {
       return Container(
         height: 260,
         alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: tableBg,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor),
-        ),
         child: SizedBox(
           width: 28,
           height: 28,
@@ -813,30 +921,24 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           _searchQuery != null && _searchQuery!.trim().isNotEmpty;
       final isFiltering = _statusFilter != null;
 
-      return Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: tableBg,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: borderColor),
-        ),
-        child: CustomEmptyState(
-          icon: isSearching || isFiltering
-              ? Icons.search_off
-              : Icons.person_add_alt_1_outlined,
-          title: isSearching
-              ? 'No matching person found'
-              : (isFiltering
+      return CustomEmptyState(
+        showBorder: false,
+        showBackground: false,
+        icon: isSearching || isFiltering
+            ? Icons.search_off
+            : Icons.person_add_alt_1_outlined,
+        title: isSearching
+            ? 'No matching person found'
+            : (isFiltering
                   ? 'No people in this category'
                   : 'No one registered yet'),
-          message: isSearching
-              ? 'No person matches "${_searchQuery!.trim()}". Try a different name.'
-              : (isFiltering
+        message: isSearching
+            ? 'No person matches "${_searchQuery!.trim()}". Try a different name.'
+            : (isFiltering
                   ? 'No ${_statusFilter == PersonStatus.active ? "active" : "inactive"} people found.'
                   : 'The community directory is empty. Register the first person to get started.'),
-          actionLabel: isSearching || isFiltering ? null : 'Add New Person',
-          onAction: isSearching || isFiltering ? null : _openAddPerson,
-        ),
+        actionLabel: isSearching || isFiltering ? null : 'Add New Person',
+        onAction: isSearching || isFiltering ? null : _openAddPerson,
       );
     }
 
@@ -995,7 +1097,8 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                           ),
                         ),
                         child: ClipOval(
-                          child: (person.photoUrl != null &&
+                          child:
+                              (person.photoUrl != null &&
                                   person.photoUrl!.trim().isNotEmpty)
                               ? Image.network(
                                   person.photoUrl!,
@@ -1047,10 +1150,18 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                                 ),
                                 if (person.roles.contains('Teacher')) ...[
                                   const SizedBox(width: 6),
-                                  _buildRoleBadge('Teacher', const Color(0xFF16A34A)),
-                                ] else if (person.roles.contains('Student')) ...[
+                                  _buildRoleBadge(
+                                    'Teacher',
+                                    const Color(0xFF16A34A),
+                                  ),
+                                ] else if (person.roles.contains(
+                                  'Student',
+                                )) ...[
                                   const SizedBox(width: 6),
-                                  _buildRoleBadge('Student', const Color(0xFF2563EB)),
+                                  _buildRoleBadge(
+                                    'Student',
+                                    const Color(0xFF2563EB),
+                                  ),
                                 ],
                               ],
                             ),
@@ -1079,7 +1190,11 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.location_on_outlined, size: 13, color: colors.hintColor),
+                          Icon(
+                            Icons.location_on_outlined,
+                            size: 13,
+                            color: colors.hintColor,
+                          ),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
@@ -1100,10 +1215,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                         person.occupation ?? '—',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colors.hintColor,
-                        ),
+                        style: TextStyle(fontSize: 12, color: colors.hintColor),
                       ),
                     ],
                   ),
@@ -1114,10 +1226,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                     person.primaryPhone ?? '—',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: colors.textColor,
-                    ),
+                    style: TextStyle(fontSize: 13, color: colors.textColor),
                   ),
                 ),
                 Expanded(
@@ -1126,10 +1235,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                     genderAgeText.isEmpty ? '—' : genderAgeText,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 12.5,
-                      color: colors.hintColor,
-                    ),
+                    style: TextStyle(fontSize: 12.5, color: colors.hintColor),
                   ),
                 ),
                 Expanded(
@@ -1157,73 +1263,106 @@ class _AllPeopleViewState extends State<AllPeopleView> {
       final canPrev = currentPage > 1;
       final canNext = currentPage < totalPages;
 
-      return Container(
-        height: 52,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: tableBg,
-          borderRadius:
-              const BorderRadius.vertical(bottom: Radius.circular(10)),
+      final summary = Text(
+        'Showing result ${totalEntries == 0 ? 0 : startIndex + 1}-$endIndex of $totalEntries Entries',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12.5,
+          fontWeight: FontWeight.w500,
+          color: colors.hintColor,
         ),
-        child: Row(
-          children: [
-            Text(
-              'Showing result ${totalEntries == 0 ? 0 : startIndex + 1}-$endIndex of $totalEntries Entries',
+      );
+      final buttons = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          OutlinedButton(
+            onPressed: canPrev
+                ? () => setState(() => _currentPage = currentPage - 1)
+                : null,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 32),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
+              ),
+              side: BorderSide(
+                color: canPrev
+                    ? const Color(0xFFD0D5DD)
+                    : const Color(0xFFEAECF0),
+              ),
+            ),
+            child: Text(
+              'Previous',
               style: TextStyle(
                 fontSize: 12.5,
-                fontWeight: FontWeight.w500,
-                color: colors.hintColor,
+                fontWeight: FontWeight.w600,
+                color: canPrev ? colors.textColor : colors.hintColor,
               ),
             ),
-            const Spacer(),
-            OutlinedButton(
-              onPressed: canPrev
-                  ? () => setState(() => _currentPage = currentPage - 1)
-                  : null,
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(0, 32),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                side: BorderSide(
-                  color: canPrev ? const Color(0xFFD0D5DD) : const Color(0xFFEAECF0),
-                ),
+          ),
+          const SizedBox(width: 8),
+          OutlinedButton(
+            onPressed: canNext
+                ? () => setState(() => _currentPage = currentPage + 1)
+                : null,
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 32),
+              padding: const EdgeInsets.symmetric(horizontal: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6),
               ),
-              child: Text(
-                'Previous',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: canPrev ? colors.textColor : colors.hintColor,
-                ),
+              side: BorderSide(
+                color: canNext
+                    ? const Color(0xFFD0D5DD)
+                    : const Color(0xFFEAECF0),
               ),
             ),
-            const SizedBox(width: 8),
-            OutlinedButton(
-              onPressed: canNext
-                  ? () => setState(() => _currentPage = currentPage + 1)
-                  : null,
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(0, 32),
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                side: BorderSide(
-                  color: canNext ? const Color(0xFFD0D5DD) : const Color(0xFFEAECF0),
-                ),
-              ),
-              child: Text(
-                'Next',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: canNext ? colors.textColor : colors.hintColor,
-                ),
+            child: Text(
+              'Next',
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: canNext ? colors.textColor : colors.hintColor,
               ),
             ),
-          ],
+          ),
+        ],
+      );
+
+      // The footer stays outside the table's horizontal scroll, so it is
+      // laid out at the visible width: one line when it fits, the buttons
+      // under the summary when it doesn't.
+      return Container(
+        constraints: const BoxConstraints(minHeight: 52),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: tableBg,
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(10),
+          ),
+        ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final textScale = MediaQuery.textScalerOf(context).scale(12) / 12;
+            if (constraints.maxWidth < 430 * textScale) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  summary,
+                  const SizedBox(height: 8),
+                  Align(alignment: Alignment.centerRight, child: buttons),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: summary),
+                const SizedBox(width: 12),
+                buttons,
+              ],
+            );
+          },
         ),
       );
     }
@@ -1235,7 +1374,6 @@ class _AllPeopleViewState extends State<AllPeopleView> {
             buildTableHeader(),
             for (int i = 0; i < pageItems.length; i++)
               buildTableRow(pageItems[i], i),
-            buildTableFooter(),
           ],
         );
 
@@ -1254,12 +1392,15 @@ class _AllPeopleViewState extends State<AllPeopleView> {
               ),
             ],
           ),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: tableWidth,
-              child: content,
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(width: tableWidth, child: content),
+              ),
+              buildTableFooter(),
+            ],
           ),
         );
 
@@ -1268,65 +1409,168 @@ class _AllPeopleViewState extends State<AllPeopleView> {
     );
   }
 
+  /// Measures where the divider sits inside the page (independent of scroll)
+  /// so the background can be pinned just below it.
+  void _measureBackgroundTop() {
+    final topBarBox =
+        _topBarKey.currentContext?.findRenderObject() as RenderBox?;
+    final dividerBox =
+        _dividerKey.currentContext?.findRenderObject() as RenderBox?;
+    if (topBarBox == null || dividerBox == null) return;
+    if (!topBarBox.hasSize || !dividerBox.hasSize) return;
+    final top =
+        AppSizes.pagePadding(context).top +
+        dividerBox
+            .localToGlobal(
+              Offset(0, dividerBox.size.height),
+              ancestor: topBarBox,
+            )
+            .dy;
+    if (_backgroundTop == null || (_backgroundTop! - top).abs() > .5) {
+      setState(() => _backgroundTop = top);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = AppColors.context(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _measureBackgroundTop();
+    });
 
     return ResponsiveAppShell(
       selectedIndex: _selectedIndex,
       onItemSelected: _onSidebarItemSelected,
       topBarTitle: 'Overview',
+      showBackgroundImage: false,
       body: Column(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              padding: AppSizes.pagePadding(context),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 720;
+            child: Stack(
+              children: [
+                if (_backgroundTop != null)
+                  Positioned(
+                    top: _backgroundTop,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: const AppBackgroundIllustration(),
+                  ),
+                Positioned.fill(
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final padding = AppSizes.pagePadding(context);
+                      final isNarrow =
+                          constraints.maxWidth - padding.horizontal < 720;
 
-                  return AnimatedBuilder(
-                    animation: Listenable.merge([
-                      listPeopleController,
-                      listPeopleController.processStatusNotifier,
-                    ]),
-                    builder: (context, _) {
-                      final allPeople = listPeopleController.people;
-                      var people = _statusFilter == null
-                          ? allPeople
-                          : allPeople
-                              .where((p) => p.status == _statusFilter)
-                              .toList();
+                      return AnimatedBuilder(
+                        animation: Listenable.merge([
+                          listPeopleController,
+                          listPeopleController.processStatusNotifier,
+                        ]),
+                        builder: (context, _) {
+                          final allPeople = listPeopleController.people;
+                          var people = _statusFilter == null
+                              ? allPeople
+                              : allPeople
+                                    .where((p) => p.status == _statusFilter)
+                                    .toList();
 
-                      if (_areaFilter != null) {
-                        people = people.where((p) => p.area == _areaFilter).toList();
-                      }
-                      if (_roleFilter != null) {
-                        people = people.where((p) {
-                          if (_roleFilter == 'Teacher') return p.roles.contains('Teacher');
-                          if (_roleFilter == 'Student') return p.roles.contains('Student');
-                          if (_roleFilter == 'Unassigned') {
-                            return p.roles.isEmpty || p.roles.contains('Unassigned');
+                          if (_areaFilter != null) {
+                            people = people
+                                .where((p) => p.area == _areaFilter)
+                                .toList();
                           }
-                          return true;
-                        }).toList();
-                      }
-                      if (_occupationFilter != null) {
-                        people = people.where((p) => p.occupation == _occupationFilter).toList();
-                      }
+                          if (_roleFilter != null) {
+                            people = people.where((p) {
+                              if (_roleFilter == 'Teacher') {
+                                return p.roles.contains('Teacher');
+                              }
+                              if (_roleFilter == 'Student') {
+                                return p.roles.contains('Student');
+                              }
+                              if (_roleFilter == 'Unassigned') {
+                                return p.roles.isEmpty ||
+                                    p.roles.contains('Unassigned');
+                              }
+                              return true;
+                            }).toList();
+                          }
+                          if (_occupationFilter != null) {
+                            people = people
+                                .where((p) => p.occupation == _occupationFilter)
+                                .toList();
+                          }
 
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildTopBar(context, colors, allPeople, isNarrow),
-                          const SizedBox(height: 18),
-                          _buildTable(context, colors, people, allPeople),
-                        ],
+                          if (people.isEmpty) {
+                            return CustomScrollView(
+                              slivers: [
+                                SliverToBoxAdapter(
+                                  child: Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                      padding.left,
+                                      padding.top,
+                                      padding.right,
+                                      18,
+                                    ),
+                                    child: _buildTopBar(
+                                      context,
+                                      colors,
+                                      allPeople,
+                                      isNarrow,
+                                    ),
+                                  ),
+                                ),
+                                SliverPadding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: padding.left,
+                                  ),
+                                  sliver: SliverFillRemaining(
+                                    hasScrollBody: false,
+                                    // Sits low on the page so the
+                                    // illustration behind stays unobstructed.
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          bottom: padding.bottom + 16,
+                                        ),
+                                        child: _buildTable(
+                                          context,
+                                          colors,
+                                          people,
+                                          allPeople,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+
+                          return SingleChildScrollView(
+                            padding: padding,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildTopBar(
+                                  context,
+                                  colors,
+                                  allPeople,
+                                  isNarrow,
+                                ),
+                                const SizedBox(height: 18),
+                                _buildTable(context, colors, people, allPeople),
+                              ],
+                            ),
+                          );
+                        },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
           ),
           Container(

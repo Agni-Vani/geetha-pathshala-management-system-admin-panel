@@ -199,7 +199,7 @@ class AppButtonStyles {
         RoundedRectangleBorder(borderRadius: AppSizes.maxCircularRadius),
       ),
       textStyle: const WidgetStatePropertyAll(
-        TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+        TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
       ),
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       visualDensity: VisualDensity.standard,

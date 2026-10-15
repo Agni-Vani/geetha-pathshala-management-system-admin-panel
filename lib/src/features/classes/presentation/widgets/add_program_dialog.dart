@@ -78,7 +78,10 @@ class _AddProgramDialogState extends State<AddProgramDialog> {
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      backgroundColor: colors.backgroundColor,
+      backgroundColor: Theme.of(context).brightness == Brightness.dark
+          ? const Color(0xFF13201F)
+          : Colors.white,
+      surfaceTintColor: Colors.transparent,
       insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 540),

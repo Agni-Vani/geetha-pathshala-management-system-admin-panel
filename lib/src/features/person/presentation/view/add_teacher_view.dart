@@ -12,7 +12,6 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../data/models/teacher_model.dart';
 import '../../domain/entities/teacher.dart';
 
-
 class AddTeacherView extends StatefulWidget {
   const AddTeacherView({super.key});
 
@@ -67,15 +66,25 @@ class _AddTeacherViewState extends State<AddTeacherView> {
       TeacherModel(
         id: 'teacher-${DateTime.now().millisecondsSinceEpoch}',
         name: name,
-        subject: _subjectController.text.trim().isEmpty ? 'সাধারণ' : _subjectController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty ? 'N/A' : _phoneController.text.trim(),
+        subject: _subjectController.text.trim().isEmpty
+            ? 'সাধারণ'
+            : _subjectController.text.trim(),
+        phone: _phoneController.text.trim().isEmpty
+            ? 'N/A'
+            : _phoneController.text.trim(),
         pathshala: 'General',
         isActive: true,
-        degree: _degreeController.text.trim().isEmpty ? null : _degreeController.text.trim(),
+        degree: _degreeController.text.trim().isEmpty
+            ? null
+            : _degreeController.text.trim(),
         dateOfBirth: _dateOfBirth,
         gender: _gender,
-        address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-        email: _emailController.text.trim().isEmpty ? null : _emailController.text.trim(),
+        address: _addressController.text.trim().isEmpty
+            ? null
+            : _addressController.text.trim(),
+        email: _emailController.text.trim().isEmpty
+            ? null
+            : _emailController.text.trim(),
       ),
     );
   }
@@ -134,7 +143,11 @@ class _AddTeacherViewState extends State<AddTeacherView> {
                   child: Center(
                     child: Text(
                       'Cancel',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: colors.primaryColor),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: colors.primaryColor,
+                      ),
                     ),
                   ),
                 ),
@@ -156,7 +169,11 @@ class _AddTeacherViewState extends State<AddTeacherView> {
                   child: Center(
                     child: Text(
                       'Save Teacher',
-                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.white),
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ),
@@ -201,14 +218,16 @@ class _AddTeacherViewState extends State<AddTeacherView> {
                             icon: Icons.badge_outlined,
                             onTap: () => Navigator.of(context).maybePop(),
                           ),
-                          const BreadcrumbItem(
-                            label: 'নতুন শিক্ষক যোগ',
-                          ),
+                          const BreadcrumbItem(label: 'নতুন শিক্ষক যোগ'),
                         ],
                       ),
                       Text(
                         'Add New Teacher',
-                        style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: colors.primaryColor),
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: colors.primaryColor,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -223,7 +242,11 @@ class _AddTeacherViewState extends State<AddTeacherView> {
                           color: colors.backgroundColor,
                           borderRadius: BorderRadius.circular(8),
                           boxShadow: [
-                            BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2)),
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
                           ],
                         ),
                         child: Padding(
@@ -231,7 +254,10 @@ class _AddTeacherViewState extends State<AddTeacherView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const CustomSectionHeader(icon: Icons.badge_outlined, title: 'General Information'),
+                              const CustomSectionHeader(
+                                icon: Icons.badge_outlined,
+                                title: 'General Information',
+                              ),
                               const SizedBox(height: 12),
                               Divider(color: colors.dividerColor),
                               const SizedBox(height: 20),
@@ -251,7 +277,10 @@ class _AddTeacherViewState extends State<AddTeacherView> {
                               const SizedBox(height: 24),
                               const CustomSectionDivider(),
                               const SizedBox(height: 24),
-                              const CustomSectionHeader(icon: Icons.school_outlined, title: 'Education & Personal Details'),
+                              const CustomSectionHeader(
+                                icon: Icons.school_outlined,
+                                title: 'Education & Personal Details',
+                              ),
                               const SizedBox(height: 12),
                               Divider(color: colors.dividerColor),
                               const SizedBox(height: 20),
@@ -265,20 +294,25 @@ class _AddTeacherViewState extends State<AddTeacherView> {
                                 CustomDateField(
                                   label: 'Date of Birth',
                                   value: _dateOfBirth,
-                                  onChanged: (value) => setState(() => _dateOfBirth = value),
+                                  onChanged: (value) =>
+                                      setState(() => _dateOfBirth = value),
                                 ),
                                 CustomFormField.dropdown(
                                   label: 'Gender',
                                   hint: 'Select Gender',
                                   items: _genders,
                                   value: _gender,
-                                  onChanged: (value) => setState(() => _gender = value),
+                                  onChanged: (value) =>
+                                      setState(() => _gender = value),
                                 ),
                               ]),
                               const SizedBox(height: 24),
                               const CustomSectionDivider(),
                               const SizedBox(height: 24),
-                              const CustomSectionHeader(icon: Icons.contact_phone_outlined, title: 'Contact Information'),
+                              const CustomSectionHeader(
+                                icon: Icons.contact_phone_outlined,
+                                title: 'Contact Information',
+                              ),
                               const SizedBox(height: 12),
                               Divider(color: colors.dividerColor),
                               const SizedBox(height: 20),

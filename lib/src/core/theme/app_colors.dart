@@ -36,7 +36,6 @@ class AppColors {
   static const Color _darkSurfaceColor = Color(0xFF071212);
   static const Color _backgroundColor = Color.fromARGB(255, 255, 255, 255);
   static const Color _errorColor = Color(0xFFBA1A1A);
-  static const Color _splashColor = Color(0x2939AEB2);
   static const Color _hintBaseColor = Color(0xFF6E7F80);
   static const Color _iconBaseColor = Color(0xFFff961c);
   static const Color _darkIconBaseColor = Color(0xFFff961c);
@@ -141,7 +140,7 @@ class AppColors {
   Color get surfaceColor => backgroundColor;
   Color get appBackgroundColor =>
       _isDark ? _darkSurfaceColor : _backgroundColor;
-  Color get splashColor => _splashColor;
+  Color get splashColor => primaryColor.withValues(alpha: _isDark ? .14 : .10);
   Color get activeButtonColor => primaryColor;
   Color get buttonColor => primaryColor;
   Color get fillColor => backgroundColor;

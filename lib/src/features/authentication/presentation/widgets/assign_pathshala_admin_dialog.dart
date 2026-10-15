@@ -8,6 +8,7 @@ import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/shared/reactive_notifier/process_notifier.dart';
 import '../../../../core/shared/reactive_notifier/snackbar_notifier.dart';
 import '../../../../core/shared/widget/custom_widgets/custom_date_field.dart';
+import '../../../../core/shared/widget/custom_widgets/custom_form_field.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
 import '../../../pathshala/domain/entities/pathshala.dart';
@@ -313,7 +314,7 @@ class _AssignPathshalaAdminDialogState
                           'পাঠশালা প্রশাসক নিয়োগ',
                           style: TextStyle(
                             fontSize: 18,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w500,
                             color: colors.textColor,
                           ),
                         ),
@@ -352,7 +353,7 @@ class _AssignPathshalaAdminDialogState
                         'পাঠশালা *',
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           color: colors.textColor,
                         ),
                       ),
@@ -375,7 +376,7 @@ class _AssignPathshalaAdminDialogState
                                   (_pathshalas.where((p) => p.id == widget.initialPathshalaId).firstOrNull ?? _pathshalas.first).name,
                                   style: TextStyle(
                                     fontSize: 14,
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w400,
                                     color: colors.textColor,
                                   ),
                                 ),
@@ -407,7 +408,7 @@ class _AssignPathshalaAdminDialogState
                         'প্রশাসক ব্যক্তি নির্বাচন *',
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           color: colors.textColor,
                         ),
                       ),
@@ -437,7 +438,7 @@ class _AssignPathshalaAdminDialogState
                                       widget.initialPerson!.displayName,
                                       style: TextStyle(
                                         fontSize: 14.5,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w400,
                                         color: colors.textColor,
                                       ),
                                     ),
@@ -481,7 +482,7 @@ class _AssignPathshalaAdminDialogState
                                       'নিবন্ধিত ব্যক্তি থেকে',
                                       style: TextStyle(
                                         fontSize: 12.5,
-                                        fontWeight: !_isCreatingNewPerson ? FontWeight.w600 : FontWeight.normal,
+                                        fontWeight: !_isCreatingNewPerson ? FontWeight.w400 : FontWeight.normal,
                                         color: !_isCreatingNewPerson ? colors.primaryColor : colors.hintColor,
                                       ),
                                     ),
@@ -506,7 +507,7 @@ class _AssignPathshalaAdminDialogState
                                       'নতুন ব্যক্তির তথ্য',
                                       style: TextStyle(
                                         fontSize: 12.5,
-                                        fontWeight: _isCreatingNewPerson ? FontWeight.w600 : FontWeight.normal,
+                                        fontWeight: _isCreatingNewPerson ? FontWeight.w400 : FontWeight.normal,
                                         color: _isCreatingNewPerson ? colors.primaryColor : colors.hintColor,
                                       ),
                                     ),
@@ -593,7 +594,7 @@ class _AssignPathshalaAdminDialogState
                             'লগইন ক্রেডেনশিয়াল (Login Credentials)',
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               color: colors.textColor,
                             ),
                           ),
@@ -634,7 +635,7 @@ class _AssignPathshalaAdminDialogState
                                 'লগইন পাসওয়ার্ড (Password) *',
                                 style: TextStyle(
                                   fontSize: 13,
-                                  fontWeight: FontWeight.w600,
+                                  fontWeight: FontWeight.w400,
                                   color: colors.textColor,
                                 ),
                               ),
@@ -652,7 +653,7 @@ class _AssignPathshalaAdminDialogState
                                         'র‍্যান্ডম পাসওয়ার্ড তৈরি',
                                         style: TextStyle(
                                           fontSize: 11.5,
-                                          fontWeight: FontWeight.w600,
+                                          fontWeight: FontWeight.w400,
                                           color: colors.primaryColor,
                                         ),
                                       ),
@@ -716,28 +717,42 @@ class _AssignPathshalaAdminDialogState
                       const SizedBox(height: 16),
 
                       // Designation and Effective Date
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _titleController,
-                              style: TextStyle(fontSize: 14, color: colors.textColor),
-                              decoration: _inputDeco(
-                                colors: colors,
-                                hint: 'পদবী (উদা: প্রধান সমন্বয়ক)',
-                                prefixIcon: Icons.badge_outlined,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: CustomDateField(
-                              label: 'কার্যকর শুরুর তারিখ',
-                              value: _effectiveFrom,
-                              onChanged: (d) => setState(() => _effectiveFrom = d),
-                            ),
-                          ),
-                        ],
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final designation = CustomFormField(
+                            label: 'পদবী',
+                            hint: 'উদা: প্রধান সমন্বয়ক',
+                            controller: _titleController,
+                            prefixIcon: Icons.badge_outlined,
+                            fillColor: colors.dialogBackgroundColor,
+                            enabledBorderColor: colors.borderColor,
+                          );
+                          final effectiveDate = CustomDateField(
+                            label: 'কার্যকর শুরুর তারিখ',
+                            value: _effectiveFrom,
+                            fillColor: colors.dialogBackgroundColor,
+                            enabledBorderColor: colors.borderColor,
+                            onChanged: (d) => setState(() => _effectiveFrom = d),
+                          );
+                          if (constraints.maxWidth < 440) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                designation,
+                                const SizedBox(height: 16),
+                                effectiveDate,
+                              ],
+                            );
+                          }
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: designation),
+                              const SizedBox(width: 14),
+                              Expanded(child: effectiveDate),
+                            ],
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -762,7 +777,7 @@ class _AssignPathshalaAdminDialogState
                         'বাতিল',
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           color: colors.hintColor,
                         ),
                       ),
@@ -805,7 +820,7 @@ class _AssignPathshalaAdminDialogState
                                       'প্রশাসক নিয়োগ ও সংরক্ষণ',
                                       style: TextStyle(
                                         fontSize: 13,
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w400,
                                         color: Colors.white,
                                       ),
                                     ),
