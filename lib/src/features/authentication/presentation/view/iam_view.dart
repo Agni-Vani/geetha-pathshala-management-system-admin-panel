@@ -236,13 +236,16 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
 
                               final assignBtn = InkWell(
                                 borderRadius: AppSizes.bigRectangleTileRadius,
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => RoleAssignmentJourneyView(
-                                      onSuccess: _controller.loadData,
-                                    ),
-                                  ),
-                                ),
+                                onTap: () => Navigator.of(context)
+                                    .push(
+                                      MaterialPageRoute(
+                                        builder: (_) =>
+                                            RoleAssignmentJourneyView(
+                                          onSuccess: _controller.loadData,
+                                        ),
+                                      ),
+                                    )
+                                    .then((_) => _controller.loadData()),
                                 child: Container(
                                   alignment: isNarrow ? Alignment.center : null,
                                   padding: const EdgeInsets.symmetric(
@@ -796,18 +799,20 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
 
                       final actionButton = InkWell(
                         borderRadius: BorderRadius.circular(6),
-                        onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => RoleAssignmentJourneyView(
-                              initialPerson: targetPerson,
-                              initialRoleType: roleCode,
-                              initialPathshalaId: pathshalaId,
-                              initialStep: 2,
-                              isEditMode: true,
-                              onSuccess: _controller.loadData,
-                            ),
-                          ),
-                        ),
+                        onTap: () => Navigator.of(context)
+                            .push(
+                              MaterialPageRoute(
+                                builder: (_) => RoleAssignmentJourneyView(
+                                  initialPerson: targetPerson,
+                                  initialRoleType: roleCode,
+                                  initialPathshalaId: pathshalaId,
+                                  initialStep: 2,
+                                  isEditMode: true,
+                                  onSuccess: _controller.loadData,
+                                ),
+                              ),
+                            )
+                            .then((_) => _controller.loadData()),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,

@@ -938,8 +938,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
         actions: [
           InkWell(
             onTap: () {
+              widget.onSuccess?.call();
               Navigator.pop(ctx);
-              Navigator.of(context).maybePop();
+              Navigator.of(context).maybePop(true);
             },
             borderRadius: BorderRadius.circular(10),
             child: Container(

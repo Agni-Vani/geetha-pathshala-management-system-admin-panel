@@ -451,7 +451,7 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                   colors: colors,
                   label: 'Role',
                   value: _roleFilter,
-                  items: const ['Teacher', 'Student', 'Unassigned'],
+                  items: const ['Teacher', 'Student', 'Admin', 'Unassigned'],
                   icon: Icons.badge_outlined,
                   onChanged: (val) => setState(() {
                     _roleFilter = val;
@@ -749,35 +749,41 @@ class _AllPeopleViewState extends State<AllPeopleView> {
           if (action == 'edit') {
             _openEditPerson(person);
           } else if (action == 'assign_teacher') {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => RoleAssignmentJourneyView(
-                  initialPerson: person,
-                  initialRoleType: 'TEACHER',
-                  onSuccess: _refreshList,
-                ),
-              ),
-            );
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(
+                    builder: (_) => RoleAssignmentJourneyView(
+                      initialPerson: person,
+                      initialRoleType: 'TEACHER',
+                      onSuccess: _refreshList,
+                    ),
+                  ),
+                )
+                .then((_) => _refreshList());
           } else if (action == 'admit_student') {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => RoleAssignmentJourneyView(
-                  initialPerson: person,
-                  initialRoleType: 'STUDENT',
-                  onSuccess: _refreshList,
-                ),
-              ),
-            );
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(
+                    builder: (_) => RoleAssignmentJourneyView(
+                      initialPerson: person,
+                      initialRoleType: 'STUDENT',
+                      onSuccess: _refreshList,
+                    ),
+                  ),
+                )
+                .then((_) => _refreshList());
           } else if (action == 'assign_admin') {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => RoleAssignmentJourneyView(
-                  initialPerson: person,
-                  initialRoleType: 'PATHSHALA_ADMIN',
-                  onSuccess: _refreshList,
-                ),
-              ),
-            );
+            Navigator.of(context)
+                .push(
+                  MaterialPageRoute(
+                    builder: (_) => RoleAssignmentJourneyView(
+                      initialPerson: person,
+                      initialRoleType: 'PATHSHALA_ADMIN',
+                      onSuccess: _refreshList,
+                    ),
+                  ),
+                )
+                .then((_) => _refreshList());
           } else if (action == 'toggle') {
             _togglePersonStatus(person);
           }
@@ -1158,19 +1164,28 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                                     ),
                                   ),
                                 ),
-                                if (person.roles.contains('Teacher')) ...[
+                                if (person.roles.any((r) => r.toLowerCase() == 'teacher')) ...[
                                   const SizedBox(width: 6),
                                   _buildRoleBadge(
                                     'Teacher',
                                     const Color(0xFF16A34A),
                                   ),
-                                ] else if (person.roles.contains(
-                                  'Student',
-                                )) ...[
+                                ] else if (person.roles.any((r) => r.toLowerCase() == 'student')) ...[
                                   const SizedBox(width: 6),
                                   _buildRoleBadge(
                                     'Student',
                                     const Color(0xFF2563EB),
+                                  ),
+                                ] else if (person.roles.any((r) =>
+                                    r.toLowerCase() == 'pathshala admin' ||
+                                    r.toLowerCase() == 'admin' ||
+                                    r.toLowerCase() == 'superadmin' ||
+                                    r.toUpperCase() == 'PATHSHALA_ADMIN' ||
+                                    r.toUpperCase() == 'SUPERADMIN')) ...[
+                                  const SizedBox(width: 6),
+                                  _buildRoleBadge(
+                                    'Admin',
+                                    const Color(0xFFD97706),
                                   ),
                                 ],
                               ],
@@ -1494,14 +1509,30 @@ class _AllPeopleViewState extends State<AllPeopleView> {
                           if (_roleFilter != null) {
                             people = people.where((p) {
                               if (_roleFilter == 'Teacher') {
-                                return p.roles.contains('Teacher');
+                                return p.roles.any(
+                                  (r) => r.toLowerCase() == 'teacher',
+                                );
                               }
                               if (_roleFilter == 'Student') {
-                                return p.roles.contains('Student');
+                                return p.roles.any(
+                                  (r) => r.toLowerCase() == 'student',
+                                );
+                              }
+                              if (_roleFilter == 'Admin') {
+                                return p.roles.any(
+                                  (r) =>
+                                      r.toLowerCase() == 'pathshala admin' ||
+                                      r.toLowerCase() == 'admin' ||
+                                      r.toLowerCase() == 'superadmin' ||
+                                      r.toUpperCase() == 'PATHSHALA_ADMIN' ||
+                                      r.toUpperCase() == 'SUPERADMIN',
+                                );
                               }
                               if (_roleFilter == 'Unassigned') {
                                 return p.roles.isEmpty ||
-                                    p.roles.contains('Unassigned');
+                                    p.roles.any(
+                                      (r) => r.toLowerCase() == 'unassigned',
+                                    );
                               }
                               return true;
                             }).toList();

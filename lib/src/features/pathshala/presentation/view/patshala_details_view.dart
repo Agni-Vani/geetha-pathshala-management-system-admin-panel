@@ -730,15 +730,17 @@ class _PatshalaDetailsViewState extends State<PatshalaDetailsView> {
   }
 
   void _openAssignAdminDialog() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => RoleAssignmentJourneyView(
-          initialPathshalaId: widget.pathshala.id,
-          initialRoleType: 'PATHSHALA_ADMIN',
-          onSuccess: _loadDetails,
-        ),
-      ),
-    );
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (_) => RoleAssignmentJourneyView(
+              initialPathshalaId: widget.pathshala.id,
+              initialRoleType: 'PATHSHALA_ADMIN',
+              onSuccess: _loadDetails,
+            ),
+          ),
+        )
+        .then((_) => _loadDetails());
   }
 
   Widget _buildTeachersTab(AppColors colors, bool isNarrow) {
