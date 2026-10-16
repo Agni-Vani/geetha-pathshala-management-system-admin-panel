@@ -104,6 +104,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
   void initState() {
     super.initState();
     _selectedRoleType = widget.initialRoleType ?? 'PATHSHALA_ADMIN';
+    if (_selectedRoleType == 'STUDENT') {
+      _enableLogin = false;
+    }
     _selectedPathshalaId = widget.initialPathshalaId;
 
     if (widget.initialPerson != null) {
@@ -327,11 +330,13 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
         _showError('পাঠশালা নির্বাচন করা আবশ্যক।');
         return;
       }
-      if (_enableLogin && _loginEmailController.text.trim().isEmpty) {
+      final isStudent = _selectedRoleType == 'STUDENT';
+      if (!isStudent && _enableLogin && _loginEmailController.text.trim().isEmpty) {
         _showError('লগইন সক্রিয় করতে ইমেইল প্রয়োজন।');
         return;
       }
       if (!widget.isEditMode &&
+          !isStudent &&
           _enableLogin &&
           _passwordController.text.trim().isEmpty) {
         _showError('লগইন সক্রিয় করতে পাসওয়ার্ড প্রয়োজন।');
@@ -356,7 +361,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
   }
 
   void _applyRoleDefaults() {
-    if (_selectedRoleType == 'PATHSHALA_ADMIN' &&
+    if (_selectedRoleType == 'STUDENT') {
+      _enableLogin = false;
+    } else if (_selectedRoleType == 'PATHSHALA_ADMIN' &&
         _titleController.text.trim().isEmpty) {
       _titleController.text = 'প্রধান সমন্বয়ক';
     } else if (_selectedRoleType == 'TEACHER' &&
@@ -548,7 +555,7 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                   ),
                 ),
                 const SizedBox(height: 14),
-                if (_enableLogin) ...[
+                if (_selectedRoleType != 'STUDENT' && _enableLogin) ...[
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
@@ -760,9 +767,13 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
       area: _areaController.text.trim().isEmpty
           ? null
           : _areaController.text.trim(),
-      enableLogin: _enableLogin,
-      email: _enableLogin ? _loginEmailController.text.trim() : null,
-      password: _enableLogin && _passwordController.text.trim().isNotEmpty
+      enableLogin: _selectedRoleType != 'STUDENT' && _enableLogin,
+      email: (_selectedRoleType != 'STUDENT' && _enableLogin)
+          ? _loginEmailController.text.trim()
+          : null,
+      password: (_selectedRoleType != 'STUDENT' &&
+              _enableLogin &&
+              _passwordController.text.trim().isNotEmpty)
           ? _passwordController.text
           : null,
       pathshalaId: _selectedPathshalaId,
@@ -883,7 +894,7 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                       valueColor: colors.primaryColor,
                       isBold: true,
                     ),
-                    if (_enableLogin) ...[
+                    if (_selectedRoleType != 'STUDENT' && _enableLogin) ...[
                       const SizedBox(height: 12),
                       const Divider(height: 1),
                       const SizedBox(height: 10),
@@ -2358,154 +2369,156 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
           onChanged: (d) => setState(() => _effectiveDate = d),
           isRequired: true,
         ),
-        const SizedBox(height: 24),
-        const CustomSectionDivider(),
-        const SizedBox(height: 16),
+        if (_selectedRoleType != 'STUDENT') ...[
+          const SizedBox(height: 24),
+          const CustomSectionDivider(),
+          const SizedBox(height: 16),
 
-        // Portal Login Credentials Section
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: colors.primaryColor.withValues(alpha: 0.04),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: colors.primaryColor.withValues(alpha: 0.2),
+          // Portal Login Credentials Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colors.primaryColor.withValues(alpha: 0.04),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: colors.primaryColor.withValues(alpha: 0.2),
+              ),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    Icons.key_rounded,
-                    color: colors.primaryColor,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'ওয়েব পোর্টাল লগইন ও নিরাপত্তা ব্যবস্থা',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.bold,
-                      color: colors.textColor,
-                    ),
-                  ),
-                  const Spacer(),
-                  Switch(
-                    value: _enableLogin,
-                    onChanged: (val) => setState(() => _enableLogin = val),
-                  ),
-                ],
-              ),
-              Text(
-                'ব্যবহারকারীকে সিস্টেমে লগইন করার জন্য একটি সুনির্দিষ্ট ইমেইল ও পাসওয়ার্ড সেট করুন।',
-                style: TextStyle(
-                  fontSize: 12.5,
-                  color: colors.hintColor,
-                ),
-              ),
-              if (_enableLogin) ...[
-                const SizedBox(height: 14),
-                CustomFormField(
-                  label: 'লগইন ইমেইল (Login Email)',
-                  hint: 'উদা: admin@pathshala.org',
-                  isRequired: true,
-                  controller: _loginEmailController,
-                ),
-                const SizedBox(height: 14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          RichText(
-                            text: TextSpan(
-                              text: widget.isEditMode
-                                  ? 'নতুন পাসওয়ার্ড (Password - ঐচ্ছিক)'
-                                  : 'প্রাথমিক পাসওয়ার্ড (Password)',
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                                color: colors.textColor,
-                              ),
-                              children: [
-                                if (!widget.isEditMode)
-                                  TextSpan(
-                                    text: ' *',
-                                    style: TextStyle(color: colors.errorColor),
-                                  ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 6),
-                          TextFormField(
-                            controller: _passwordController,
-                            obscureText: _obscurePassword,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: colors.textColor,
-                            ),
-                            decoration: AppFieldDecoration.build(
-                              context,
-                              hint: widget.isEditMode
-                                  ? 'অপরিবর্তিত রাখতে ফাঁকা রাখুন'
-                                  : 'কমপক্ষে ৬ ডিজিটের পাসওয়ার্ড',
-                              suffixWidget: IconButton(
-                                icon: Icon(
-                                  _obscurePassword
-                                      ? Icons.visibility_outlined
-                                      : Icons.visibility_off_outlined,
-                                  size: 18,
-                                  color: colors.hintColor,
-                                ),
-                                onPressed: () => setState(
-                                    () => _obscurePassword = !_obscurePassword),
-                              ),
-                            ),
-                          ),
-                        ],
+                    Icon(
+                      Icons.key_rounded,
+                      color: colors.primaryColor,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'ওয়েব পোর্টাল লগইন ও নিরাপত্তা ব্যবস্থা',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: colors.textColor,
                       ),
                     ),
-                    const SizedBox(width: 10),
-                    InkWell(
-                      onTap: _generateRandomPassword,
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: colors.primaryColor.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                    const Spacer(),
+                    Switch(
+                      value: _enableLogin,
+                      onChanged: (val) => setState(() => _enableLogin = val),
+                    ),
+                  ],
+                ),
+                Text(
+                  'ব্যবহারকারীকে সিস্টেমে লগইন করার জন্য একটি সুনির্দিষ্ট ইমেইল ও পাসওয়ার্ড সেট করুন।',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: colors.hintColor,
+                  ),
+                ),
+                if (_enableLogin) ...[
+                  const SizedBox(height: 14),
+                  CustomFormField(
+                    label: 'লগইন ইমেইল (Login Email)',
+                    hint: 'উদা: admin@pathshala.org',
+                    isRequired: true,
+                    controller: _loginEmailController,
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.autorenew_rounded,
-                              size: 18,
-                              color: colors.primaryColor,
+                            RichText(
+                              text: TextSpan(
+                                text: widget.isEditMode
+                                    ? 'নতুন পাসওয়ার্ড (Password - ঐচ্ছিক)'
+                                    : 'প্রাথমিক পাসওয়ার্ড (Password)',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w400,
+                                  color: colors.textColor,
+                                ),
+                                children: [
+                                  if (!widget.isEditMode)
+                                    TextSpan(
+                                      text: ' *',
+                                      style: TextStyle(color: colors.errorColor),
+                                    ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              'তৈরি করুন',
+                            const SizedBox(height: 6),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: _obscurePassword,
                               style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: colors.primaryColor,
+                                fontSize: 13,
+                                color: colors.textColor,
+                              ),
+                              decoration: AppFieldDecoration.build(
+                                context,
+                                hint: widget.isEditMode
+                                    ? 'অপরিবর্তিত রাখতে ফাঁকা রাখুন'
+                                    : 'কমপক্ষে ৬ ডিজিটের পাসওয়ার্ড',
+                                suffixWidget: IconButton(
+                                  icon: Icon(
+                                    _obscurePassword
+                                        ? Icons.visibility_outlined
+                                        : Icons.visibility_off_outlined,
+                                    size: 18,
+                                    color: colors.hintColor,
+                                  ),
+                                  onPressed: () => setState(
+                                      () => _obscurePassword = !_obscurePassword),
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                      const SizedBox(width: 10),
+                      InkWell(
+                        onTap: _generateRandomPassword,
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: colors.primaryColor.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.autorenew_rounded,
+                                size: 18,
+                                color: colors.primaryColor,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'তৈরি করুন',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: colors.primaryColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
