@@ -171,8 +171,12 @@ Future<void> setupServiceLocator({bool useMockData = false}) async {
   sl.registerLazySingleton(() => CreateDivision(sl<AreasRepository>()));
   sl.registerLazySingleton(() => ListDistricts(sl<AreasRepository>()));
   sl.registerLazySingleton(() => CreateDistrict(sl<AreasRepository>()));
+  sl.registerLazySingleton(() => UpdateDistrict(sl<AreasRepository>()));
+  sl.registerLazySingleton(() => DeleteDistrict(sl<AreasRepository>()));
   sl.registerLazySingleton(() => ListUpazilas(sl<AreasRepository>()));
   sl.registerLazySingleton(() => CreateUpazila(sl<AreasRepository>()));
+  sl.registerLazySingleton(() => UpdateUpazila(sl<AreasRepository>()));
+  sl.registerLazySingleton(() => DeleteUpazila(sl<AreasRepository>()));
 
   // Person Use Cases
   sl.registerLazySingleton(() => SearchPeople(sl<PersonRepository>()));
@@ -375,8 +379,12 @@ Future<void> setupServiceLocator({bool useMockData = false}) async {
       createDivision: sl<CreateDivision>(),
       listDistricts: sl<ListDistricts>(),
       createDistrict: sl<CreateDistrict>(),
+      updateDistrict: sl<UpdateDistrict>(),
+      deleteDistrict: sl<DeleteDistrict>(),
       listUpazilas: sl<ListUpazilas>(),
       createUpazila: sl<CreateUpazila>(),
+      updateUpazila: sl<UpdateUpazila>(),
+      deleteUpazila: sl<DeleteUpazila>(),
     ),
   );
   sl.registerFactory(

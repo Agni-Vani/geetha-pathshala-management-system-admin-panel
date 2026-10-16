@@ -234,6 +234,52 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
   });
+
+  test('editDistrict updates district name and division', () async {
+    final dinajpur = controller.districts.firstWhere((d) => d.name == 'Dinajpur');
+    await controller.selectDistrict(dinajpur);
+    final success = await controller.editDistrict(
+      districtId: dinajpur.id,
+      name: 'Dinajpur Updated',
+      division: 'Rangpur',
+    );
+    expect(success, isTrue);
+    expect(controller.districts.any((d) => d.name == 'Dinajpur Updated'), isTrue);
+    expect(controller.selectedDistrict?.name, 'Dinajpur Updated');
+  });
+
+  test('removeDistrict removes district and re-syncs selected district', () async {
+    final dinajpur = controller.districts.firstWhere((d) => d.name == 'Dinajpur');
+    final success = await controller.removeDistrict(
+      districtId: dinajpur.id,
+    );
+    expect(success, isTrue);
+    expect(controller.districts.any((d) => d.id == dinajpur.id), isFalse);
+    expect(controller.selectedDistrict?.name, 'Dhaka');
+  });
+
+  test('editUpazila updates the upazila in current list', () async {
+    await controller.setDivisionFilter('Dhaka');
+    expect(controller.upazilas, isNotEmpty);
+    final upz = controller.upazilas.first;
+    final success = await controller.editUpazila(
+      upazilaId: upz.id,
+      name: 'Edited Upazila Name',
+    );
+    expect(success, isTrue);
+    expect(controller.upazilas.any((u) => u.name == 'Edited Upazila Name'), isTrue);
+  });
+
+  test('removeUpazila deletes upazila from current list', () async {
+    await controller.setDivisionFilter('Dhaka');
+    expect(controller.upazilas, isNotEmpty);
+    final upz = controller.upazilas.first;
+    final success = await controller.removeUpazila(
+      upazilaId: upz.id,
+    );
+    expect(success, isTrue);
+    expect(controller.upazilas.any((u) => u.id == upz.id), isFalse);
+  });
 }
 
 GeographicAreasController _createController(_TestAreasDatasource datasource) {
@@ -243,8 +289,12 @@ GeographicAreasController _createController(_TestAreasDatasource datasource) {
     createDivision: CreateDivision(repository),
     listDistricts: ListDistricts(repository),
     createDistrict: CreateDistrict(repository),
+    updateDistrict: UpdateDistrict(repository),
+    deleteDistrict: DeleteDistrict(repository),
     listUpazilas: ListUpazilas(repository),
     createUpazila: CreateUpazila(repository),
+    updateUpazila: UpdateUpazila(repository),
+    deleteUpazila: DeleteUpazila(repository),
   );
 }
 
@@ -286,6 +336,22 @@ class _TestAreasDatasource implements AreasDatasource {
       seed.createDistrict(params);
 
   @override
+  Future<DistrictModel> updateDistrict(UpdateDistrictParams params) =>
+      seed.updateDistrict(params);
+
+  @override
+  Future<void> deleteDistrict(DeleteDistrictParams params) =>
+      seed.deleteDistrict(params);
+
+  @override
   Future<UpazilaModel> createUpazila(CreateUpazilaParams params) =>
       seed.createUpazila(params);
+
+  @override
+  Future<UpazilaModel> updateUpazila(UpdateUpazilaParams params) =>
+      seed.updateUpazila(params);
+
+  @override
+  Future<void> deleteUpazila(DeleteUpazilaParams params) =>
+      seed.deleteUpazila(params);
 }

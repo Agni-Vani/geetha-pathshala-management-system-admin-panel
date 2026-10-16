@@ -68,6 +68,28 @@ final class SupabaseAreasDatasource implements AreasDatasource {
   }
 
   @override
+  Future<DistrictModel> updateDistrict(UpdateDistrictParams params) async {
+    final data = await _invoke('updateDistrict', {
+      'districtId': params.districtId,
+      if (params.name != null) 'name': params.name,
+      if (params.division != null) 'division': params.division,
+      if (params.status != null) 'status': params.status,
+    });
+    final map = (data is Map && data['data'] is Map)
+        ? data['data'] as Map<String, dynamic>
+        : data as Map<String, dynamic>;
+    return DistrictModel.fromJson(map);
+  }
+
+  @override
+  Future<void> deleteDistrict(DeleteDistrictParams params) async {
+    await _invoke('deleteDistrict', {
+      'districtId': params.districtId,
+      'softDeleteOnly': params.softDeleteOnly,
+    });
+  }
+
+  @override
   Future<List<UpazilaModel>> listUpazilas({ListUpazilasParams? params}) async {
     final data = await _invoke('listUpazilas', {
       'districtId': params?.districtId,
@@ -88,6 +110,31 @@ final class SupabaseAreasDatasource implements AreasDatasource {
       'name': params.name,
       'status': params.status,
     });
-    return UpazilaModel.fromJson(data as Map<String, dynamic>);
+    final map = (data is Map && data['data'] is Map)
+        ? data['data'] as Map<String, dynamic>
+        : data as Map<String, dynamic>;
+    return UpazilaModel.fromJson(map);
+  }
+
+  @override
+  Future<UpazilaModel> updateUpazila(UpdateUpazilaParams params) async {
+    final data = await _invoke('updateUpazila', {
+      'upazilaId': params.upazilaId,
+      if (params.name != null) 'name': params.name,
+      if (params.status != null) 'status': params.status,
+    });
+    final map = (data is Map && data['data'] is Map)
+        ? data['data'] as Map<String, dynamic>
+        : data as Map<String, dynamic>;
+    return UpazilaModel.fromJson(map);
+  }
+
+  @override
+  Future<void> deleteUpazila(DeleteUpazilaParams params) async {
+    await _invoke('deleteUpazila', {
+      'upazilaId': params.upazilaId,
+      'softDeleteOnly': params.softDeleteOnly,
+    });
   }
 }
+

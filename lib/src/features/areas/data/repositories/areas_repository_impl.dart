@@ -32,6 +32,19 @@ final class AreasRepositoryImpl with ErrorHandler implements AreasRepository {
   }
 
   @override
+  AsyncRequest<District> updateDistrict(UpdateDistrictParams params) {
+    return _request(() => datasource.updateDistrict(params));
+  }
+
+  @override
+  AsyncRequest<bool> deleteDistrict(DeleteDistrictParams params) {
+    return _request(() async {
+      await datasource.deleteDistrict(params);
+      return true;
+    });
+  }
+
+  @override
   AsyncRequest<List<Upazila>> listUpazilas([ListUpazilasParams? params]) {
     return _request(() => datasource.listUpazilas(params: params));
   }
@@ -39,6 +52,19 @@ final class AreasRepositoryImpl with ErrorHandler implements AreasRepository {
   @override
   AsyncRequest<Upazila> createUpazila(CreateUpazilaParams params) {
     return _request(() => datasource.createUpazila(params));
+  }
+
+  @override
+  AsyncRequest<Upazila> updateUpazila(UpdateUpazilaParams params) {
+    return _request(() => datasource.updateUpazila(params));
+  }
+
+  @override
+  AsyncRequest<bool> deleteUpazila(DeleteUpazilaParams params) {
+    return _request(() async {
+      await datasource.deleteUpazila(params);
+      return true;
+    });
   }
 
   AsyncRequest<T> _request<T>(Future<T> Function() request) {

@@ -12,8 +12,12 @@ class GeographicAreasController extends ChangeNotifier {
   final CreateDivision createDivision;
   final ListDistricts listDistricts;
   final CreateDistrict createDistrict;
+  final UpdateDistrict? updateDistrict;
+  final DeleteDistrict? deleteDistrict;
   final ListUpazilas listUpazilas;
   final CreateUpazila createUpazila;
+  final UpdateUpazila? updateUpazila;
+  final DeleteUpazila? deleteUpazila;
   final Duration upazilaLoadTimeout;
 
   GeographicAreasController({
@@ -21,8 +25,12 @@ class GeographicAreasController extends ChangeNotifier {
     required this.createDivision,
     required this.listDistricts,
     required this.createDistrict,
+    this.updateDistrict,
+    this.deleteDistrict,
     required this.listUpazilas,
     required this.createUpazila,
+    this.updateUpazila,
+    this.deleteUpazila,
     this.upazilaLoadTimeout = const Duration(seconds: 15),
   });
 
@@ -136,7 +144,9 @@ class GeographicAreasController extends ChangeNotifier {
           .call(ListUpazilasParams(districtId: districtId))
           .timeout(upazilaLoadTimeout);
       if (response.success) {
-        result = response.data ?? [];
+        result = (response.data ?? [])
+            .where((u) => u.status.toLowerCase() != 'inactive')
+            .toList();
       } else {
         loadError =
             'উপজেলার তথ্য আনা যায়নি। সংযোগ যাচাই করে আবার চেষ্টা করুন।';
@@ -276,6 +286,154 @@ class GeographicAreasController extends ChangeNotifier {
     return false;
   }
 
+  /// Updates an existing district and refreshes the district list.
+  Future<bool> editDistrict({
+    required String districtId,
+    required String name,
+    required String division,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    if (updateDistrict == null) return false;
+    processStatusNotifier.setLoading();
+    notifyListeners();
+
+    final result = await handleFutureRequest(
+      request: () => updateDistrict!.call(
+        UpdateDistrictParams(
+          districtId: districtId,
+          name: name.trim(),
+          division: division.trim(),
+        ),
+      ),
+      errorSnackbarNotifier: snackbarNotifier,
+      processStatusNotifier: processStatusNotifier,
+    );
+
+    processStatusNotifier.setEnabled();
+    if (result != null) {
+      snackbarNotifier?.notifySuccess(message: 'জেলা সফলভাবে হালনাগাদ করা হয়েছে।');
+      final index = _allDistricts.indexWhere((d) => d.id == districtId);
+      if (index != -1) {
+        _allDistricts[index] = result;
+      }
+      if (_selectedDistrict?.id == districtId) {
+        _selectedDistrict = result;
+      }
+      await _syncSelectedDistrict(
+        reloadUpazilas: false,
+        snackbarNotifier: snackbarNotifier,
+      );
+      notifyListeners();
+      return true;
+    }
+    notifyListeners();
+    return false;
+  }
+
+  /// Deletes or soft-deletes a district and refreshes the list.
+  Future<bool> removeDistrict({
+    required String districtId,
+    bool softDeleteOnly = false,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    if (deleteDistrict == null) return false;
+    processStatusNotifier.setLoading();
+    notifyListeners();
+
+    final result = await handleFutureRequest(
+      request: () => deleteDistrict!.call(
+        DeleteDistrictParams(
+          districtId: districtId,
+          softDeleteOnly: softDeleteOnly,
+        ),
+      ),
+      errorSnackbarNotifier: snackbarNotifier,
+      processStatusNotifier: processStatusNotifier,
+    );
+
+    processStatusNotifier.setEnabled();
+    if (result == true) {
+      snackbarNotifier?.notifySuccess(message: 'জেলা সফলভাবে মুছে ফেলা হয়েছে।');
+      _allDistricts.removeWhere((d) => d.id == districtId);
+      if (_selectedDistrict?.id == districtId) {
+        _selectedDistrict = null;
+      }
+      await _syncSelectedDistrict(
+        reloadUpazilas: true,
+        snackbarNotifier: snackbarNotifier,
+      );
+      notifyListeners();
+      return true;
+    }
+    notifyListeners();
+    return false;
+  }
+
+  /// Updates an existing upazila and refreshes the upazila list.
+  Future<bool> editUpazila({
+    required String upazilaId,
+    required String name,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    if (updateUpazila == null) return false;
+    _isLoadingUpazilas = true;
+    notifyListeners();
+
+    final result = await handleFutureRequest(
+      request: () => updateUpazila!.call(
+        UpdateUpazilaParams(
+          upazilaId: upazilaId,
+          name: name.trim(),
+        ),
+      ),
+      errorSnackbarNotifier: snackbarNotifier,
+    );
+
+    _isLoadingUpazilas = false;
+    if (result != null) {
+      snackbarNotifier?.notifySuccess(message: 'উপজেলা সফলভাবে হালনাগাদ করা হয়েছে।');
+      final index = _upazilas.indexWhere((u) => u.id == upazilaId);
+      if (index != -1) {
+        _upazilas[index] = result;
+      }
+      notifyListeners();
+      return true;
+    }
+    notifyListeners();
+    return false;
+  }
+
+  /// Deletes or soft-deletes an upazila and removes it from the list.
+  Future<bool> removeUpazila({
+    required String upazilaId,
+    bool softDeleteOnly = false,
+    SnackbarNotifier? snackbarNotifier,
+  }) async {
+    if (deleteUpazila == null) return false;
+    _isLoadingUpazilas = true;
+    notifyListeners();
+
+    final result = await handleFutureRequest(
+      request: () => deleteUpazila!.call(
+        DeleteUpazilaParams(
+          upazilaId: upazilaId,
+          softDeleteOnly: softDeleteOnly,
+        ),
+      ),
+      errorSnackbarNotifier: snackbarNotifier,
+    );
+
+    _isLoadingUpazilas = false;
+    if (result == true) {
+      snackbarNotifier?.notifySuccess(message: 'উপজেলা সফলভাবে মুছে ফেলা হয়েছে।');
+      _upazilas.removeWhere((u) => u.id == upazilaId);
+      notifyListeners();
+      return true;
+    }
+    notifyListeners();
+    return false;
+  }
+
   /// Sets division filter for district list.
   Future<void> setDivisionFilter(
     String? division, {
@@ -296,6 +454,9 @@ class GeographicAreasController extends ChangeNotifier {
 
   List<District> _filteredDistricts() {
     return _allDistricts.where((district) {
+      if (district.status.toLowerCase() == 'inactive') {
+        return false;
+      }
       if (_selectedDivisionFilter != null &&
           _selectedDivisionFilter!.isNotEmpty &&
           district.division.toLowerCase() !=

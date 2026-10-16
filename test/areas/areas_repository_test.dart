@@ -63,5 +63,89 @@ void main() {
       expect(success.data.name, equals('New Test Upazila'));
       expect(success.data.districtId, equals('dist-dhaka'));
     });
+
+    test('updateDistrict edits an existing district name and division', () async {
+      final created = await repository.createDistrict(
+        const CreateDistrictParams(
+          name: 'Mistake Zilla',
+          division: 'Dhaka',
+        ),
+      );
+      final createdDistrict = (created as SuccessRepoCall).data;
+
+      final updated = await repository.updateDistrict(
+        UpdateDistrictParams(
+          districtId: createdDistrict.id,
+          name: 'Corrected Zilla',
+          division: 'Chattogram',
+        ),
+      );
+      expect(updated, isA<SuccessRepoCall>());
+      final success = updated as SuccessRepoCall;
+      expect(success.data.name, equals('Corrected Zilla'));
+      expect(success.data.division, equals('Chattogram'));
+    });
+
+    test('deleteDistrict removes the district', () async {
+      final created = await repository.createDistrict(
+        const CreateDistrictParams(
+          name: 'To Delete Zilla',
+          division: 'Dhaka',
+        ),
+      );
+      final createdDistrict = (created as SuccessRepoCall).data;
+
+      final deleted = await repository.deleteDistrict(
+        DeleteDistrictParams(districtId: createdDistrict.id),
+      );
+      expect(deleted, isA<SuccessRepoCall>());
+      expect((deleted as SuccessRepoCall).data, isTrue);
+
+      final list = await repository.listDistricts();
+      final districts = (list as SuccessRepoCall).data;
+      expect(districts.any((d) => d.id == createdDistrict.id), isFalse);
+    });
+
+    test('updateUpazila edits an existing upazila name', () async {
+      final created = await repository.createUpazila(
+        const CreateUpazilaParams(
+          districtId: 'dist-dhaka',
+          name: 'Wrong Spelled Upazila',
+        ),
+      );
+      final createdUpz = (created as SuccessRepoCall).data;
+
+      final updated = await repository.updateUpazila(
+        UpdateUpazilaParams(
+          upazilaId: createdUpz.id,
+          name: 'Corrected Upazila',
+        ),
+      );
+      expect(updated, isA<SuccessRepoCall>());
+      final success = updated as SuccessRepoCall;
+      expect(success.data.name, equals('Corrected Upazila'));
+    });
+
+    test('deleteUpazila removes the upazila', () async {
+      final created = await repository.createUpazila(
+        const CreateUpazilaParams(
+          districtId: 'dist-dhaka',
+          name: 'Upazila To Delete',
+        ),
+      );
+      final createdUpz = (created as SuccessRepoCall).data;
+
+      final deleted = await repository.deleteUpazila(
+        DeleteUpazilaParams(upazilaId: createdUpz.id),
+      );
+      expect(deleted, isA<SuccessRepoCall>());
+      expect((deleted as SuccessRepoCall).data, isTrue);
+
+      final list = await repository.listUpazilas(
+        const ListUpazilasParams(districtId: 'dist-dhaka'),
+      );
+      final upazilas = (list as SuccessRepoCall).data;
+      expect(upazilas.any((u) => u.id == createdUpz.id), isFalse);
+    });
   });
 }

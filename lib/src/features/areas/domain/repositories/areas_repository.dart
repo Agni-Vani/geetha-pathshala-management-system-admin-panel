@@ -7,6 +7,11 @@ abstract class AreasRepository {
   AsyncRequest<Division> createDivision(CreateDivisionParams params);
   AsyncRequest<List<District>> listDistricts([ListDistrictsParams? params]);
   AsyncRequest<District> createDistrict(CreateDistrictParams params);
+  AsyncRequest<District> updateDistrict(UpdateDistrictParams params);
+  AsyncRequest<bool> deleteDistrict(DeleteDistrictParams params);
   AsyncRequest<List<Upazila>> listUpazilas([ListUpazilasParams? params]);
   AsyncRequest<Upazila> createUpazila(CreateUpazilaParams params);
+  AsyncRequest<Upazila> updateUpazila(UpdateUpazilaParams params);
+  AsyncRequest<bool> deleteUpazila(DeleteUpazilaParams params);
 }
+

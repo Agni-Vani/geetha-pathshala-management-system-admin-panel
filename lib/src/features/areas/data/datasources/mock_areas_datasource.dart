@@ -85,6 +85,41 @@ final class MockAreasDatasource implements AreasDatasource {
   }
 
   @override
+  Future<DistrictModel> updateDistrict(UpdateDistrictParams params) async {
+    await _simulateProcessing();
+    final index = _districts.indexWhere((d) => d.id == params.districtId);
+    if (index == -1) {
+      throw StateError('District not found with id ${params.districtId}');
+    }
+    final existing = _districts[index];
+    final updated = existing.copyWith(
+      name: params.name ?? existing.name,
+      division: params.division ?? existing.division,
+      status: params.status ?? existing.status,
+      updatedAt: DateTime.now(),
+    );
+    _districts[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<void> deleteDistrict(DeleteDistrictParams params) async {
+    await _simulateProcessing();
+    if (params.softDeleteOnly) {
+      final index = _districts.indexWhere((d) => d.id == params.districtId);
+      if (index != -1) {
+        _districts[index] = _districts[index].copyWith(
+          status: 'inactive',
+          updatedAt: DateTime.now(),
+        );
+      }
+    } else {
+      _districts.removeWhere((d) => d.id == params.districtId);
+      _upazilas.removeWhere((u) => u.districtId == params.districtId);
+    }
+  }
+
+  @override
   Future<List<UpazilaModel>> listUpazilas({ListUpazilasParams? params}) async {
     await _simulateProcessing();
     var list = List<UpazilaModel>.from(_upazilas);
@@ -114,6 +149,39 @@ final class MockAreasDatasource implements AreasDatasource {
     );
     _upazilas.add(upazila);
     return upazila;
+  }
+
+  @override
+  Future<UpazilaModel> updateUpazila(UpdateUpazilaParams params) async {
+    await _simulateProcessing();
+    final index = _upazilas.indexWhere((u) => u.id == params.upazilaId);
+    if (index == -1) {
+      throw StateError('Upazila not found with id ${params.upazilaId}');
+    }
+    final existing = _upazilas[index];
+    final updated = existing.copyWith(
+      name: params.name ?? existing.name,
+      status: params.status ?? existing.status,
+      updatedAt: DateTime.now(),
+    );
+    _upazilas[index] = updated;
+    return updated;
+  }
+
+  @override
+  Future<void> deleteUpazila(DeleteUpazilaParams params) async {
+    await _simulateProcessing();
+    if (params.softDeleteOnly) {
+      final index = _upazilas.indexWhere((u) => u.id == params.upazilaId);
+      if (index != -1) {
+        _upazilas[index] = _upazilas[index].copyWith(
+          status: 'inactive',
+          updatedAt: DateTime.now(),
+        );
+      }
+    } else {
+      _upazilas.removeWhere((u) => u.id == params.upazilaId);
+    }
   }
 }
 

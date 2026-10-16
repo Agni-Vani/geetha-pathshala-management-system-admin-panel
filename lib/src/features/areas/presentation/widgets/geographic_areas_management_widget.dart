@@ -488,6 +488,493 @@ class _GeographicAreasManagementWidgetState
     );
   }
 
+  void _showEditDistrictDialog(District district) {
+    final nameCtrl = TextEditingController(text: district.name);
+    final divisionCtrl = TextEditingController(text: district.division);
+    String selectedDivision = district.division;
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final colors = AppColors.context(ctx);
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            return _areaDialog(
+              ctx,
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'জেলা সম্পাদনা করুন (Edit District)',
+                    style: TextStyle(
+                      color: colors.textColor,
+                      fontSize: 18,
+                      height: 1.4,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'জেলার নাম বা বিভাগ সংশোধন করুন।',
+                    style: TextStyle(
+                      color: colors.hintColor,
+                      fontSize: 12,
+                      height: 1.5,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              content: SizedBox(
+                width: 400,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'বিভাগ (Division)',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: colors.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    if (_controller.divisions.isNotEmpty) ...[
+                      DropdownButtonFormField<String>(
+                        isExpanded: true,
+                        icon: Icon(
+                          Icons.expand_more_rounded,
+                          size: 20,
+                          color: colors.hintColor,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        dropdownColor: colors.dialogBackgroundColor,
+                        initialValue: _controller.divisions.contains(selectedDivision)
+                            ? selectedDivision
+                            : _controller.divisions.firstOrNull,
+                        items: _controller.divisions.map((div) {
+                          return DropdownMenuItem(
+                            value: div,
+                            child: Text(
+                              div,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: colors.textColor,
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setDialogState(() {
+                              selectedDivision = val;
+                              divisionCtrl.text = val;
+                            });
+                          }
+                        },
+                        decoration: _fieldDecoration(
+                          ctx,
+                          hint: 'বিভাগ নির্বাচন করুন',
+                          prefix: Icons.account_tree_outlined,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                        ),
+                      ),
+                    ] else
+                      TextField(
+                        controller: divisionCtrl,
+                        decoration: _fieldDecoration(
+                          ctx,
+                          hint: 'বিভাগের নাম লিখুন',
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                        ),
+                        onChanged: (val) => selectedDivision = val.trim(),
+                      ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'জেলার নাম (District Name)',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: colors.textColor,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    TextField(
+                      controller: nameCtrl,
+                      decoration: _fieldDecoration(
+                        ctx,
+                        hint: 'যেমন: Dhaka, Bogura, Sylhet',
+                        prefix: Icons.location_city_outlined,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                OutlinedButton(
+                  style: _buttonStyle(ctx),
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(
+                    'বাতিল',
+                    style: TextStyle(color: colors.hintColor),
+                  ),
+                ),
+                ElevatedButton(
+                  style: _buttonStyle(ctx, primary: true).copyWith(
+                    backgroundColor: WidgetStatePropertyAll(
+                      colors.primaryColor,
+                    ),
+                    foregroundColor: WidgetStatePropertyAll(
+                      colors.buttonContentColor,
+                    ),
+                  ),
+                  onPressed: () async {
+                    final name = nameCtrl.text.trim();
+                    final div = selectedDivision.trim().isNotEmpty
+                        ? selectedDivision.trim()
+                        : divisionCtrl.text.trim();
+                    if (name.isEmpty || div.isEmpty) return;
+                    Navigator.of(ctx).pop();
+                    await _controller.editDistrict(
+                      districtId: district.id,
+                      name: name,
+                      division: div,
+                      snackbarNotifier: _snackbarNotifier,
+                    );
+                  },
+                  child: const Text('সংরক্ষণ করুন'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showDeleteDistrictDialog(District district) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final colors = AppColors.context(ctx);
+        return _areaDialog(
+          ctx,
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.red,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'জেলা মুছে ফেলুন',
+                  style: TextStyle(
+                    color: colors.textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'আপনি কি নিশ্চিত যে আপনি "${district.name}" জেলাটি মুছে ফেলতে চান?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
+                    color: colors.textColor,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colors.softAccentColor.withValues(alpha: .3),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: colors.ornamentColor.withValues(alpha: .5),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: 18,
+                        color: colors.primaryColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'যদি এই জেলার অধীনে পাঠশালা থাকে, তবে তথ্য সংরক্ষণের স্বার্থে এটি স্বয়ংক্রিয়ভাবে নিষ্ক্রিয় (soft delete) করা হবে।',
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.45,
+                            color: colors.hintColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              style: _buttonStyle(ctx),
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                'বাতিল',
+                style: TextStyle(color: colors.hintColor),
+              ),
+            ),
+            ElevatedButton(
+              style: _buttonStyle(ctx, primary: true).copyWith(
+                backgroundColor: const WidgetStatePropertyAll(Colors.red),
+                foregroundColor: const WidgetStatePropertyAll(Colors.white),
+              ),
+              onPressed: () async {
+                Navigator.of(ctx).pop();
+                await _controller.removeDistrict(
+                  districtId: district.id,
+                  snackbarNotifier: _snackbarNotifier,
+                );
+              },
+              child: const Text('মুছে ফেলুন'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showEditUpazilaDialog(Upazila upazila) {
+    final nameCtrl = TextEditingController(text: upazila.name);
+
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final colors = AppColors.context(ctx);
+        return _areaDialog(
+          ctx,
+          title: Text(
+            'উপজেলা সম্পাদনা করুন (Edit Upazila)',
+            style: TextStyle(
+              color: colors.textColor,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'উপজেলার নাম (Upazila Name)',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.textColor,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                TextField(
+                  controller: nameCtrl,
+                  autofocus: true,
+                  decoration: _fieldDecoration(
+                    ctx,
+                    hint: ' যেমন: Ramna, Mirpur, Sadar',
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              style: _buttonStyle(ctx),
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                'বাতিল',
+                style: TextStyle(color: colors.hintColor),
+              ),
+            ),
+            ElevatedButton(
+              style: _buttonStyle(ctx, primary: true).copyWith(
+                backgroundColor: WidgetStatePropertyAll(
+                  colors.primaryColor,
+                ),
+                foregroundColor: WidgetStatePropertyAll(
+                  colors.buttonContentColor,
+                ),
+              ),
+              onPressed: () async {
+                final name = nameCtrl.text.trim();
+                if (name.isEmpty) return;
+                Navigator.of(ctx).pop();
+                await _controller.editUpazila(
+                  upazilaId: upazila.id,
+                  name: name,
+                  snackbarNotifier: _snackbarNotifier,
+                );
+              },
+              child: const Text('সংরক্ষণ করুন'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDeleteUpazilaDialog(Upazila upazila) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final colors = AppColors.context(ctx);
+        return _areaDialog(
+          ctx,
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.red,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'উপজেলা মুছে ফেলুন',
+                  style: TextStyle(
+                    color: colors.textColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 400,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'আপনি কি নিশ্চিত যে আপনি "${upazila.name}" উপজেলাটি মুছে ফেলতে চান?',
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    fontWeight: FontWeight.w500,
+                    color: colors.textColor,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: colors.softAccentColor.withValues(alpha: .3),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: colors.ornamentColor.withValues(alpha: .5),
+                    ),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: 18,
+                        color: colors.primaryColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'যদি এই উপজেলার অধীনে পাঠশালা থাকে, তবে তথ্য সংরক্ষণের স্বার্থে এটি স্বয়ংক্রিয়ভাবে নিষ্ক্রিয় করা হবে।',
+                          style: TextStyle(
+                            fontSize: 12,
+                            height: 1.45,
+                            color: colors.hintColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            OutlinedButton(
+              style: _buttonStyle(ctx),
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(
+                'বাতিল',
+                style: TextStyle(color: colors.hintColor),
+              ),
+            ),
+            ElevatedButton(
+              style: _buttonStyle(ctx, primary: true).copyWith(
+                backgroundColor: const WidgetStatePropertyAll(Colors.red),
+                foregroundColor: const WidgetStatePropertyAll(Colors.white),
+              ),
+              onPressed: () async {
+                Navigator.of(ctx).pop();
+                await _controller.removeUpazila(
+                  upazilaId: upazila.id,
+                  snackbarNotifier: _snackbarNotifier,
+                );
+              },
+              child: const Text('মুছে ফেলুন'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   InputDecoration _fieldDecoration(
     BuildContext context, {
     String? hint,
@@ -955,7 +1442,72 @@ class _GeographicAreasManagementWidgetState
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
+                if (!collapsed)
+                  PopupMenuButton<String>(
+                    tooltip: 'জেলার বিকল্পসমূহ',
+                    padding: EdgeInsets.zero,
+                    iconSize: 18,
+                    constraints: const BoxConstraints(minWidth: 130),
+                    icon: Icon(
+                      Icons.more_vert_rounded,
+                      size: 18,
+                      color: selected
+                          ? colors.primaryColor
+                          : colors.hintColor.withValues(alpha: .7),
+                    ),
+                    onSelected: (val) {
+                      if (val == 'edit') {
+                        _showEditDistrictDialog(district);
+                      } else if (val == 'delete') {
+                        _showDeleteDistrictDialog(district);
+                      }
+                    },
+                    itemBuilder: (ctx) => [
+                      PopupMenuItem(
+                        value: 'edit',
+                        height: 36,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.edit_outlined,
+                              size: 16,
+                              color: colors.textColor,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'সম্পাদনা',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: colors.textColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        height: 36,
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 16,
+                              color: Colors.redAccent,
+                            ),
+                            const SizedBox(width: 8),
+                            const Text(
+                              'মুছে ফেলুন',
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: Colors.redAccent,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 Icon(
                   collapsed
                       ? Icons.expand_more_rounded
@@ -1118,27 +1670,87 @@ class _GeographicAreasManagementWidgetState
     );
   }
 
-  Widget _upazilaRow(String name) {
+  Widget _upazilaRow(Upazila upazila) {
     final colors = AppColors.context(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.place_outlined, size: 19, color: colors.primaryColor),
-          const SizedBox(width: 10),
+          Icon(Icons.place_outlined, size: 18, color: colors.primaryColor),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
-              name,
-              maxLines: 2,
+              upazila.name,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontSize: 14,
-                height: 1.45,
                 fontWeight: FontWeight.w500,
                 color: colors.textColor,
               ),
             ),
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'উপজেলার বিকল্পসমূহ',
+            padding: EdgeInsets.zero,
+            iconSize: 18,
+            constraints: const BoxConstraints(minWidth: 130),
+            icon: Icon(
+              Icons.more_vert_rounded,
+              size: 18,
+              color: colors.hintColor.withValues(alpha: .7),
+            ),
+            onSelected: (val) {
+              if (val == 'edit') {
+                _showEditUpazilaDialog(upazila);
+              } else if (val == 'delete') {
+                _showDeleteUpazilaDialog(upazila);
+              }
+            },
+            itemBuilder: (ctx) => [
+              PopupMenuItem(
+                value: 'edit',
+                height: 36,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.edit_outlined,
+                      size: 16,
+                      color: colors.textColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'সম্পাদনা',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: colors.textColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'delete',
+                height: 36,
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.delete_outline_rounded,
+                      size: 16,
+                      color: Colors.redAccent,
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'মুছে ফেলুন',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.redAccent,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -1336,7 +1948,7 @@ class _GeographicAreasManagementWidgetState
                                     .map(
                                       (upazila) => SizedBox(
                                         width: itemWidth,
-                                        child: _upazilaRow(upazila.name),
+                                        child: _upazilaRow(upazila),
                                       ),
                                     )
                                     .toList(),
