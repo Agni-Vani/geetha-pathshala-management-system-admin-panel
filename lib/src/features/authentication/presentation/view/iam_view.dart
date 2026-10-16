@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/config/app_config.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../core/navigation/app_sidebar_navigation.dart';
 import '../../../../core/shared/widget/app_background.dart';
@@ -7,6 +8,8 @@ import '../../../../core/shared/widget/custom_widgets/app_breadcrumbs.dart';
 import '../../../../core/shared/widget/custom_widgets/responsive_app_shell.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../di/service_locator.dart';
+import '../../../person/data/models/person_model.dart';
+import '../../../person/domain/entities/person_enums.dart';
 import '../controller/iam_controller.dart';
 import 'role_assignment_journey_view.dart';
 
@@ -231,54 +234,6 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                 ],
                               );
 
-                              final createAdminBtn = InkWell(
-                                borderRadius: AppSizes.bigRectangleTileRadius,
-                                onTap: () => Navigator.of(context).push(
-                                  MaterialPageRoute(
-                                    builder: (_) => RoleAssignmentJourneyView(
-                                      initialRoleType: 'PATHSHALA_ADMIN',
-                                      onSuccess: _controller.loadData,
-                                    ),
-                                  ),
-                                ),
-                                child: Container(
-                                  alignment: isNarrow ? Alignment.center : null,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 10,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: _cardSurfaceColor,
-                                    borderRadius:
-                                        AppSizes.bigRectangleTileRadius,
-                                    border: Border.all(
-                                      color: colors.primaryColor,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(
-                                        Icons.add_rounded,
-                                        color: colors.primaryColor,
-                                        size: 18,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Flexible(
-                                        child: Text(
-                                          'পাঠশালা প্রশাসক তৈরি',
-                                          style: TextStyle(
-                                            color: colors.primaryColor,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-
                               final assignBtn = InkWell(
                                 borderRadius: AppSizes.bigRectangleTileRadius,
                                 onTap: () => Navigator.of(context).push(
@@ -291,16 +246,11 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                 child: Container(
                                   alignment: isNarrow ? Alignment.center : null,
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
+                                    horizontal: 18,
                                     vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
                                     color: colors.primaryColor,
-                                    // Matches the outlined button's border so the
-                                    // pair measures the same.
-                                    border: Border.all(
-                                      color: colors.primaryColor,
-                                    ),
                                     borderRadius:
                                         AppSizes.bigRectangleTileRadius,
                                   ),
@@ -308,14 +258,14 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Icon(
-                                        Icons.add_rounded,
+                                        Icons.add_moderator_rounded,
                                         color: Colors.white,
                                         size: 18,
                                       ),
                                       SizedBox(width: 8),
                                       Flexible(
                                         child: Text(
-                                          'নতুন ভূমিকা বরাদ্দ',
+                                          'নতুন ভূমিকা বরাদ্দ করুন',
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.w600,
@@ -328,31 +278,13 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                 ),
                               );
 
-                              final actions = Wrap(
-                                spacing: 10,
-                                runSpacing: 10,
-                                children: [createAdminBtn, assignBtn],
-                              );
-
                               if (isNarrow) {
                                 return Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     titleCol,
                                     const SizedBox(height: 14),
-                                    // Stacked under the title the two buttons
-                                    // share the row equally, at one height.
-                                    IntrinsicHeight(
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Expanded(child: createAdminBtn),
-                                          const SizedBox(width: 10),
-                                          Expanded(child: assignBtn),
-                                        ],
-                                      ),
-                                    ),
+                                    assignBtn,
                                   ],
                                 );
                               }
@@ -363,7 +295,8 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(child: titleCol),
-                                  Flexible(child: actions),
+                                  const SizedBox(width: 12),
+                                  assignBtn,
                                 ],
                               );
                             },
@@ -841,21 +774,47 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                         ],
                       );
 
+                      final targetPerson = person ??
+                          PersonModel(
+                            id: user.personId,
+                            organizationId: AppConfig.defaultOrganizationId,
+                            legalName: user.email.split('@').first,
+                            preferredName: user.email.split('@').first,
+                            dateOfBirth: null,
+                            gender: null,
+                            primaryPhone: null,
+                            primaryEmail: user.email,
+                            status: PersonStatus.active,
+                            createdByUserId: null,
+                            createdAt: DateTime.now(),
+                            updatedAt: DateTime.now(),
+                          );
+
+                      final currentRole = roles.firstOrNull;
+                      final roleCode = currentRole?.roleCode ?? 'PATHSHALA_ADMIN';
+                      final pathshalaId = currentRole?.scopePathshalaId;
+
                       final actionButton = InkWell(
                         borderRadius: BorderRadius.circular(6),
                         onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (_) => RoleAssignmentJourneyView(
+                              initialPerson: targetPerson,
+                              initialRoleType: roleCode,
+                              initialPathshalaId: pathshalaId,
+                              initialStep: 2,
+                              isEditMode: true,
                               onSuccess: _controller.loadData,
                             ),
                           ),
                         ),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
+                            horizontal: 10,
+                            vertical: 5,
                           ),
                           decoration: BoxDecoration(
+                            color: colors.primaryColor.withValues(alpha: 0.08),
                             border: Border.all(
                               color: colors.primaryColor.withValues(alpha: 0.4),
                             ),
@@ -865,17 +824,23 @@ class _IamViewState extends State<IamView> with SingleTickerProviderStateMixin {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
-                                Icons.edit_outlined,
+                                roles.isEmpty
+                                    ? Icons.add_circle_outline
+                                    : Icons.edit_outlined,
                                 size: 14,
                                 color: colors.primaryColor,
                               ),
                               const SizedBox(width: 4),
-                              Text(
-                                'ভূমিকা বরাদ্দ',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: colors.primaryColor,
+                              Flexible(
+                                child: Text(
+                                  roles.isEmpty ? 'ভূমিকা বরাদ্দ' : 'ভূমিকা সম্পাদনা',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.primaryColor,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],

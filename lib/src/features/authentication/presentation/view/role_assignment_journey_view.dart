@@ -31,6 +31,8 @@ class RoleAssignmentJourneyView extends StatefulWidget {
   final Person? initialPerson;
   final String? initialPathshalaId;
   final String? initialRoleType;
+  final int? initialStep;
+  final bool isEditMode;
   final VoidCallback? onSuccess;
 
   const RoleAssignmentJourneyView({
@@ -38,6 +40,8 @@ class RoleAssignmentJourneyView extends StatefulWidget {
     this.initialPerson,
     this.initialPathshalaId,
     this.initialRoleType,
+    this.initialStep,
+    this.isEditMode = false,
     this.onSuccess,
   });
 
@@ -104,9 +108,10 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
 
     if (widget.initialPerson != null) {
       _selectPerson(widget.initialPerson!);
-      _currentStep = 1;
+      _currentStep = widget.initialStep ?? (widget.isEditMode ? 2 : 1);
     } else {
       _loadInitialPeople();
+      _currentStep = widget.initialStep ?? 0;
     }
 
     _loadPathshalas();
@@ -240,7 +245,7 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
       _dateOfBirth = person.dateOfBirth;
 
       _loginEmailController.text = person.primaryEmail ?? '';
-      if (_passwordController.text.isEmpty) {
+      if (!widget.isEditMode && _passwordController.text.isEmpty) {
         _generateRandomPassword();
       }
     });
@@ -307,7 +312,7 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
           _emailController.text.trim().isNotEmpty) {
         _loginEmailController.text = _emailController.text.trim();
       }
-      if (_passwordController.text.isEmpty) {
+      if (!widget.isEditMode && _passwordController.text.isEmpty) {
         _generateRandomPassword();
       }
       _applyRoleDefaults();
@@ -322,10 +327,14 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
         _showError('পাঠশালা নির্বাচন করা আবশ্যক।');
         return;
       }
-      if (_enableLogin &&
-          (_loginEmailController.text.trim().isEmpty ||
-              _passwordController.text.trim().isEmpty)) {
-        _showError('লগইন সক্রিয় করতে ইমেইল ও পাসওয়ার্ড প্রয়োজন।');
+      if (_enableLogin && _loginEmailController.text.trim().isEmpty) {
+        _showError('লগইন সক্রিয় করতে ইমেইল প্রয়োজন।');
+        return;
+      }
+      if (!widget.isEditMode &&
+          _enableLogin &&
+          _passwordController.text.trim().isEmpty) {
+        _showError('লগইন সক্রিয় করতে পাসওয়ার্ড প্রয়োজন।');
         return;
       }
 
@@ -411,7 +420,7 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'পদক্ষেপ নিশ্চিতকরণ',
+                    widget.isEditMode ? 'ভূমিকা হালনাগাদ ও সংরক্ষণ' : 'পদক্ষেপ নিশ্চিতকরণ',
                     style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.bold,
@@ -420,7 +429,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'ভূমিকা ও অ্যাক্সেস বরাদ্দের সারসংক্ষেপ যাচাই করুন',
+                    widget.isEditMode
+                        ? 'ভূমিকা ও অ্যাক্সেস পরিবর্তনের সারসংক্ষেপ যাচাই করুন'
+                        : 'ভূমিকা ও অ্যাক্সেস বরাদ্দের সারসংক্ষেপ যাচাই করুন',
                     style: TextStyle(
                       fontSize: 12.5,
                       color: colors.hintColor,
@@ -561,7 +572,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'পোর্টাল লগইন ক্রেডেনশিয়ালস তৈরি হবে:',
+                                widget.isEditMode
+                                    ? 'পোর্টাল লগইন ক্রেডেনশিয়ালস:'
+                                    : 'পোর্টাল লগইন ক্রেডেনশিয়ালস তৈরি হবে:',
                                 style: TextStyle(
                                   fontSize: 12.5,
                                   fontWeight: FontWeight.bold,
@@ -577,7 +590,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                                 ),
                               ),
                               Text(
-                                'পাসওয়ার্ড: ${_passwordController.text}',
+                                _passwordController.text.trim().isEmpty
+                                    ? 'পাসওয়ার্ড: (অপরিবর্তিত থাকবে)'
+                                    : 'পাসওয়ার্ড: ${_passwordController.text}',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontFamily: 'monospace',
@@ -747,7 +762,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
           : _areaController.text.trim(),
       enableLogin: _enableLogin,
       email: _enableLogin ? _loginEmailController.text.trim() : null,
-      password: _enableLogin ? _passwordController.text : null,
+      password: _enableLogin && _passwordController.text.trim().isNotEmpty
+          ? _passwordController.text
+          : null,
       pathshalaId: _selectedPathshalaId,
       title: _titleController.text.trim().isEmpty
           ? null
@@ -984,14 +1001,18 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                               icon: Icons.admin_panel_settings_outlined,
                               onTap: () => Navigator.of(context).maybePop(),
                             ),
-                            const BreadcrumbItem(
-                              label: 'ভূমিকা বরাদ্দ যাত্রা (Assign Role Journey)',
+                            BreadcrumbItem(
+                              label: widget.isEditMode
+                                  ? 'ভূমিকা হালনাগাদ যাত্রা (Update Role Journey)'
+                                  : 'ভূমিকা বরাদ্দ যাত্রা (Assign Role Journey)',
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'ভূমিকা ও অ্যাক্সেস বরাদ্দ যাত্রা',
+                          widget.isEditMode
+                              ? 'ভূমিকা ও অ্যাক্সেস সম্পাদনা ও হালনাগাদ'
+                              : 'ভূমিকা ও অ্যাক্সেস বরাদ্দ যাত্রা',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -1000,7 +1021,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'বিদ্যমান ব্যক্তি অনুসন্ধান করুন বা নতুন ব্যক্তি যোগ করে তাদের সুপার অ্যাডমিন, পাঠশালা প্রশাসক, শিক্ষক বা শিক্ষার্থীর ভূমিকা ও পোর্টাল অ্যাক্সেস প্রদান করুন।',
+                          widget.isEditMode
+                              ? 'নির্বাচিত ব্যক্তির বিদ্যমান ভূমিকা, অ্যাসাইনমেন্ট ও পোর্টাল অ্যাক্সেস হালনাগাদ করুন।'
+                              : 'বিদ্যমান ব্যক্তি অনুসন্ধান করুন বা নতুন ব্যক্তি যোগ করে তাদের সুপার অ্যাডমিন, পাঠশালা প্রশাসক, শিক্ষক বা শিক্ষার্থীর ভূমিকা ও পোর্টাল অ্যাক্সেস প্রদান করুন।',
                           style: TextStyle(
                             color: colors.hintColor,
                             fontSize: 13.5,
@@ -1145,7 +1168,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
 
                     return Expanded(
                       child: InkWell(
-                        onTap: isDone ? () => setState(() => _currentStep = index) : null,
+                        onTap: (isDone || widget.isEditMode || _selectedPerson != null)
+                            ? () => setState(() => _currentStep = index)
+                            : null,
                         borderRadius: BorderRadius.circular(10),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
@@ -2397,17 +2422,20 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                         children: [
                           RichText(
                             text: TextSpan(
-                              text: 'প্রাথমিক পাসওয়ার্ড (Password)',
+                              text: widget.isEditMode
+                                  ? 'নতুন পাসওয়ার্ড (Password - ঐচ্ছিক)'
+                                  : 'প্রাথমিক পাসওয়ার্ড (Password)',
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w400,
                                 color: colors.textColor,
                               ),
                               children: [
-                                TextSpan(
-                                  text: ' *',
-                                  style: TextStyle(color: colors.errorColor),
-                                ),
+                                if (!widget.isEditMode)
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: colors.errorColor),
+                                  ),
                               ],
                             ),
                           ),
@@ -2421,7 +2449,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                             ),
                             decoration: AppFieldDecoration.build(
                               context,
-                              hint: 'কমপক্ষে ৬ ডিজিটের পাসওয়ার্ড',
+                              hint: widget.isEditMode
+                                  ? 'অপরিবর্তিত রাখতে ফাঁকা রাখুন'
+                                  : 'কমপক্ষে ৬ ডিজিটের পাসওয়ার্ড',
                               suffixWidget: IconButton(
                                 icon: Icon(
                                   _obscurePassword
@@ -2546,7 +2576,9 @@ class _RoleAssignmentJourneyViewState extends State<RoleAssignmentJourneyView> {
                   Flexible(
                     child: Text(
                       _currentStep == 2
-                          ? 'চূড়ান্ত বরাদ্দ ও অনুমোদন করুন'
+                          ? (widget.isEditMode
+                              ? 'ভূমিকা হালনাগাদ ও সংরক্ষণ করুন'
+                              : 'চূড়ান্ত বরাদ্দ ও অনুমোদন করুন')
                           : 'পরবর্তী ধাপ',
                       style: const TextStyle(
                         color: Colors.white,

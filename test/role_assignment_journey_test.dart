@@ -5,6 +5,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:geetha_pathshala_management_web/src/core/theme/app_theme.dart';
 import 'package:geetha_pathshala_management_web/src/di/service_locator.dart';
 import 'package:geetha_pathshala_management_web/src/features/authentication/presentation/view/role_assignment_journey_view.dart';
+import 'package:geetha_pathshala_management_web/src/features/person/data/models/person_model.dart';
+import 'package:geetha_pathshala_management_web/src/features/person/domain/entities/person_enums.dart';
 
 const _widths = {
   'mobile-narrow': Size(304, 640),
@@ -80,5 +82,46 @@ void main() {
 
     // Verify Step 2 is active
     expect(find.text('২. ব্যক্তিগত তথ্য যাচাই ও সম্পাদনা'), findsOneWidget);
+  });
+
+  testWidgets('RoleAssignmentJourneyView opens in edit mode on Step 3 with prefilled person and role', (tester) async {
+    tester.view.physicalSize = const Size(1200, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    final person = PersonModel(
+      id: 'p-001',
+      organizationId: '00000000-0000-0000-0000-000000000001',
+      legalName: 'Suman Roy',
+      preferredName: 'Suman',
+      dateOfBirth: DateTime(1990, 5, 12),
+      gender: 'male',
+      primaryPhone: '01711000000',
+      primaryEmail: '123sumango@gmail.com',
+      status: PersonStatus.active,
+      createdByUserId: null,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme().lightTheme,
+        home: RoleAssignmentJourneyView(
+          initialPerson: person,
+          initialRoleType: 'PATHSHALA_ADMIN',
+          initialStep: 2,
+          isEditMode: true,
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+
+    // Verify Step 3 is rendered directly
+    expect(find.text('৩. ভূমিকা ও পোর্টাল অ্যাক্সেস নির্ধারণ করুন'), findsOneWidget);
+    expect(find.text('ভূমিকা হালনাগাদ ও সংরক্ষণ করুন'), findsOneWidget);
+    expect(find.text('ভূমিকা ও অ্যাক্সেস সম্পাদনা ও হালনাগাদ'), findsOneWidget);
   });
 }
